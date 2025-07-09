@@ -10,10 +10,23 @@ export default function JuanPablo() {
   const [avatarLoaded, setAvatarLoaded] = useState(false);
   const [isAvatarSpeaking, setIsAvatarSpeaking] = useState(false);
   const [isListeningToPedro, setIsListeningToPedro] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   
   const recognitionRef = useRef(null);
   const pedroListenerRef = useRef(null);
   const videoRef = useRef(null);
+
+  // Proper mobile detection
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const startVideoMode = () => {
     setCurrentMode('video');
@@ -303,8 +316,6 @@ export default function JuanPablo() {
 
   // Intro Screen with Sizzle Reel
   if (!currentMode && !showModeSelection) {
-    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
-    
     return (
       <div style={{ 
         position: 'fixed',
