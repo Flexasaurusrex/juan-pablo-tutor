@@ -2,12 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 
 export default function JuanPablo() {
-  const [config, setConfig] = useState({
-    heygenApiKey: '',
-    togetherApiKey: '',
-    avatarId: ''
-  });
-  const [isConfigured, setIsConfigured] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [messages, setMessages] = useState([
     {
@@ -41,14 +35,6 @@ export default function JuanPablo() {
     }
   }, []);
 
-  const handleConfigure = () => {
-    if (!config.heygenApiKey || !config.togetherApiKey || !config.avatarId) {
-      alert('Por favor, completa todos los campos');
-      return;
-    }
-    setIsConfigured(true);
-  };
-
   const startConversation = async () => {
     try {
       setIsLoading(true);
@@ -57,9 +43,7 @@ export default function JuanPablo() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          action: 'start_session',
-          heygenApiKey: config.heygenApiKey,
-          avatarId: config.avatarId
+          action: 'start_session'
         }),
       });
 
@@ -70,11 +54,11 @@ export default function JuanPablo() {
         console.log('HeyGen session started');
       } else {
         console.error('Failed to start session:', data);
-        alert('Error al conectar con Juan Pablo. Verifica tu Avatar ID.');
+        alert('Error al conectar con Juan Pablo. El avatar funcionará en modo texto.');
       }
     } catch (error) {
       console.error('Failed to start conversation:', error);
-      alert('Error al conectar con Juan Pablo');
+      alert('Error al conectar avatar. Juan Pablo funcionará en modo texto.');
     } finally {
       setIsLoading(false);
     }
@@ -86,8 +70,7 @@ export default function JuanPablo() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          action: 'stop_session',
-          heygenApiKey: config.heygenApiKey
+          action: 'stop_session'
         }),
       });
       
@@ -106,13 +89,12 @@ export default function JuanPablo() {
     setIsLoading(true);
 
     try {
-      // Get response from Together.ai
+      // Get response from Together.ai (no API key needed - using env vars)
       const chatResponse = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          message: message,
-          togetherApiKey: config.togetherApiKey
+          message: message
         }),
       });
 
@@ -128,7 +110,6 @@ export default function JuanPablo() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             action: 'speak',
-            heygenApiKey: config.heygenApiKey,
             text: chatData.reply
           }),
         });
@@ -159,76 +140,6 @@ export default function JuanPablo() {
     }
   };
 
-  if (!isConfigured) {
-    return (
-      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', padding: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Head>
-          <title>Juan Pablo - Spanish Tutor</title>
-          <meta name="description" content="AI Spanish tutor for Mexico City preparation" />
-        </Head>
-        
-        <div style={{ background: 'white', padding: '40px', borderRadius: '20px', maxWidth: '500px', width: '100%', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}>
-          <h1 style={{ textAlign: 'center', marginBottom: '30px', color: '#333', fontSize: '2em' }}>🇲🇽 Configurar Juan Pablo</h1>
-          
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333' }}>
-              HeyGen API Key:
-            </label>
-            <input
-              type="password"
-              value={config.heygenApiKey}
-              onChange={(e) => setConfig({...config, heygenApiKey: e.target.value})}
-              style={{ width: '100%', padding: '12px', border: '2px solid #e9ecef', borderRadius: '8px', fontSize: '16px', outline: 'none' }}
-              placeholder="Ingresa tu HeyGen API key"
-            />
-          </div>
-
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333' }}>
-              Together.ai API Key:
-            </label>
-            <input
-              type="password"
-              value={config.togetherApiKey}
-              onChange={(e) => setConfig({...config, togetherApiKey: e.target.value})}
-              style={{ width: '100%', padding: '12px', border: '2px solid #e9ecef', borderRadius: '8px', fontSize: '16px', outline: 'none' }}
-              placeholder="Ingresa tu Together.ai API key"
-            />
-          </div>
-
-          <div style={{ marginBottom: '30px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#333' }}>
-              Avatar ID:
-            </label>
-            <input
-              type="text"
-              value={config.avatarId}
-              onChange={(e) => setConfig({...config, avatarId: e.target.value})}
-              style={{ width: '100%', padding: '12px', border: '2px solid #e9ecef', borderRadius: '8px', fontSize: '16px', outline: 'none' }}
-              placeholder="ID del avatar de HeyGen"
-            />
-          </div>
-
-          <button
-            onClick={handleConfigure}
-            style={{ width: '100%', padding: '15px', background: '#667eea', color: 'white', border: 'none', borderRadius: '25px', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.3s ease' }}
-            onMouseOver={(e) => e.target.style.background = '#5a6fd8'}
-            onMouseOut={(e) => e.target.style.background = '#667eea'}
-          >
-            Inicializar Juan Pablo
-          </button>
-
-          <div style={{ marginTop: '20px', padding: '15px', background: '#fff3cd', border: '1px solid #ffeaa7', borderRadius: '8px', fontSize: '14px', color: '#856404' }}>
-            <strong>Pasos para obtener las APIs:</strong><br/>
-            1. HeyGen: Interactive Avatar → crear avatar → copiar Avatar ID<br/>
-            2. Together.ai: Dashboard → API Keys → crear nueva key<br/>
-            3. Pegar todo aquí y comenzar a chatear con Juan Pablo
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', padding: '20px' }}>
       <Head>
@@ -241,7 +152,7 @@ export default function JuanPablo() {
         <div style={{ background: 'linear-gradient(135deg, #ff6b6b, #ee5a24)', color: 'white', padding: '20px', textAlign: 'center', borderRadius: '20px 20px 0 0' }}>
           <h1 style={{ fontSize: '1.8em', margin: 0 }}>🇲🇽 Juan Pablo - Tu Profesor de Español</h1>
           <div style={{ opacity: 0.9, marginTop: '5px' }}>
-            {isConnected ? '🟢 Conectado con avatar' : '🔴 Solo texto (avatar desconectado)'}
+            {isConnected ? '🟢 Avatar conectado' : '🔴 Modo texto (conecta avatar para video)'}
           </div>
         </div>
 
@@ -259,7 +170,7 @@ export default function JuanPablo() {
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontSize: '3em', marginBottom: '10px' }}>👋</div>
                   <div>¡Hola! Soy Juan Pablo</div>
-                  <div style={{ fontSize: '0.8em', opacity: 0.7, marginTop: '5px' }}>Presiona "Conectar Avatar" para video</div>
+                  <div style={{ fontSize: '0.8em', opacity: 0.7, marginTop: '5px' }}>Pedro está listo para video</div>
                 </div>
               )}
             </div>
@@ -302,7 +213,7 @@ export default function JuanPablo() {
             <div style={{ marginTop: '15px', fontSize: '0.9em', color: '#666', textAlign: 'center', maxWidth: '350px' }}>
               {isConnected ? 
                 'Avatar conectado. Juan Pablo puede hablar y gesticular.' : 
-                'Puedes chatear sin avatar. Conecta para experiencia completa con video.'
+                'Puedes chatear ahora mismo. Conecta avatar para experiencia completa con video.'
               }
             </div>
           </div>
