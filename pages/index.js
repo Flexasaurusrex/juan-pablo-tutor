@@ -377,15 +377,15 @@ export default function JuanPablo() {
           onClick={skipIntro}
           style={{
             position: 'absolute',
-            top: window.innerWidth <= 768 ? '15px' : '20px',
-            right: window.innerWidth <= 768 ? '15px' : '20px',
+            top: typeof window !== 'undefined' && window.innerWidth <= 768 ? '15px' : '20px',
+            right: typeof window !== 'undefined' && window.innerWidth <= 768 ? '15px' : '20px',
             background: 'rgba(255,255,255,0.2)',
             border: 'none',
             color: 'white',
-            padding: window.innerWidth <= 768 ? '8px 16px' : '10px 20px',
+            padding: typeof window !== 'undefined' && window.innerWidth <= 768 ? '8px 16px' : '10px 20px',
             borderRadius: '25px',
             cursor: 'pointer',
-            fontSize: window.innerWidth <= 768 ? '12px' : '14px',
+            fontSize: typeof window !== 'undefined' && window.innerWidth <= 768 ? '12px' : '14px',
             fontWeight: 'bold',
             backdropFilter: 'blur(10px)',
             zIndex: 1000,
@@ -405,7 +405,7 @@ export default function JuanPablo() {
         minHeight: '100vh', 
         width: '100%',
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
-        padding: window.innerWidth <= 768 ? '15px' : '20px', 
+        padding: typeof window !== 'undefined' && window.innerWidth <= 768 ? '15px' : '20px', 
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
@@ -418,17 +418,17 @@ export default function JuanPablo() {
         
         <div style={{ 
           background: 'white', 
-          borderRadius: window.innerWidth <= 768 ? '15px' : '20px', 
-          padding: window.innerWidth <= 768 ? '30px 20px' : '60px', 
-          maxWidth: window.innerWidth <= 768 ? '100%' : '800px', 
+          borderRadius: typeof window !== 'undefined' && window.innerWidth <= 768 ? '15px' : '20px', 
+          padding: typeof window !== 'undefined' && window.innerWidth <= 768 ? '30px 20px' : '60px', 
+          maxWidth: typeof window !== 'undefined' && window.innerWidth <= 768 ? '100%' : '800px', 
           width: '100%', 
           textAlign: 'center', 
           boxShadow: '0 20px 40px rgba(0,0,0,0.1)', 
           animation: 'fadeInUp 0.8s ease-out',
-          margin: window.innerWidth <= 768 ? '0' : 'auto'
+          margin: typeof window !== 'undefined' && window.innerWidth <= 768 ? '0' : 'auto'
         }}>
           <h1 style={{ 
-            fontSize: window.innerWidth <= 768 ? '2em' : '3.5em', 
+            fontSize: typeof window !== 'undefined' && window.innerWidth <= 768 ? '2em' : '3.5em', 
             marginBottom: '15px', 
             color: '#333', 
             fontWeight: 'bold',
@@ -437,9 +437,9 @@ export default function JuanPablo() {
             ¡Hola! Soy Juan Pablo 🇲🇽
           </h1>
           <p style={{ 
-            fontSize: window.innerWidth <= 768 ? '1em' : '1.3em', 
+            fontSize: typeof window !== 'undefined' && window.innerWidth <= 768 ? '1em' : '1.3em', 
             color: '#666', 
-            marginBottom: window.innerWidth <= 768 ? '30px' : '40px', 
+            marginBottom: typeof window !== 'undefined' && window.innerWidth <= 768 ? '30px' : '40px', 
             lineHeight: '1.6'
           }}>
             Tu compañero de español para prepararte para Ciudad de México
@@ -448,7 +448,7 @@ export default function JuanPablo() {
           <div style={{ 
             display: 'flex', 
             flexDirection: 'column',
-            gap: window.innerWidth <= 768 ? '20px' : '30px', 
+            gap: typeof window !== 'undefined' && window.innerWidth <= 768 ? '20px' : '30px', 
             justifyContent: 'center',
             alignItems: 'stretch'
           }}>
@@ -457,8 +457,8 @@ export default function JuanPablo() {
               style={{ 
                 background: 'linear-gradient(135deg, #ff6b6b, #ee5a24)', 
                 color: 'white', 
-                padding: window.innerWidth <= 768 ? '25px 20px' : '40px 30px',
-                borderRadius: window.innerWidth <= 768 ? '12px' : '15px', 
+                padding: typeof window !== 'undefined' && window.innerWidth <= 768 ? '25px 20px' : '40px 30px',
+                borderRadius: typeof window !== 'undefined' && window.innerWidth <= 768 ? '12px' : '15px', 
                 cursor: 'pointer', 
                 transition: 'transform 0.3s ease, box-shadow 0.3s ease',
                 border: 'none',
@@ -469,9 +469,9 @@ export default function JuanPablo() {
               onMouseOver={(e) => e.target.style.transform = 'translateY(-5px)'}
               onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
             >
-              <div style={{ fontSize: window.innerWidth <= 768 ? '2.5em' : '3em', marginBottom: '15px' }}>🎥</div>
-              <h3 style={{ fontSize: window.innerWidth <= 768 ? '1.3em' : '1.6em', marginBottom: '10px', fontWeight: 'bold' }}>Video Conversación</h3>
-              <p style={{ fontSize: window.innerWidth <= 768 ? '0.85em' : '1em', opacity: 0.9, lineHeight: '1.4' }}>
+              <div style={{ fontSize: typeof window !== 'undefined' && window.innerWidth <= 768 ? '2.5em' : '3em', marginBottom: '15px' }}>🎥</div>
+              <h3 style={{ fontSize: typeof window !== 'undefined' && window.innerWidth <= 768 ? '1.3em' : '1.6em', marginBottom: '10px', fontWeight: 'bold' }}>Video Conversación</h3>
+              <p style={{ fontSize: typeof window !== 'undefined' && window.innerWidth <= 768 ? '0.85em' : '1em', opacity: 0.9, lineHeight: '1.4' }}>
                 Habla directamente con Pedro para practicar pronunciación y conversación natural
               </p>
             </div>
@@ -481,8 +481,8 @@ export default function JuanPablo() {
               style={{ 
                 background: 'linear-gradient(135deg, #74b9ff, #0984e3)', 
                 color: 'white', 
-                padding: window.innerWidth <= 768 ? '25px 20px' : '40px 30px',
-                borderRadius: window.innerWidth <= 768 ? '12px' : '15px', 
+                padding: typeof window !== 'undefined' && window.innerWidth <= 768 ? '25px 20px' : '40px 30px',
+                borderRadius: typeof window !== 'undefined' && window.innerWidth <= 768 ? '12px' : '15px', 
                 cursor: 'pointer', 
                 transition: 'transform 0.3s ease, box-shadow 0.3s ease',
                 border: 'none',
@@ -493,9 +493,9 @@ export default function JuanPablo() {
               onMouseOver={(e) => e.target.style.transform = 'translateY(-5px)'}
               onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
             >
-              <div style={{ fontSize: window.innerWidth <= 768 ? '2.5em' : '3em', marginBottom: '15px' }}>💬</div>
-              <h3 style={{ fontSize: window.innerWidth <= 768 ? '1.3em' : '1.6em', marginBottom: '10px', fontWeight: 'bold' }}>Chat Texto</h3>
-              <p style={{ fontSize: window.innerWidth <= 768 ? '0.85em' : '1em', opacity: 0.9, lineHeight: '1.4' }}>
+              <div style={{ fontSize: typeof window !== 'undefined' && window.innerWidth <= 768 ? '2.5em' : '3em', marginBottom: '15px' }}>💬</div>
+              <h3 style={{ fontSize: typeof window !== 'undefined' && window.innerWidth <= 768 ? '1.3em' : '1.6em', marginBottom: '10px', fontWeight: 'bold' }}>Chat Texto</h3>
+              <p style={{ fontSize: typeof window !== 'undefined' && window.innerWidth <= 768 ? '0.85em' : '1em', opacity: 0.9, lineHeight: '1.4' }}>
                 Practica gramática, vocabulario y escritura con correcciones detalladas
               </p>
             </div>
@@ -511,9 +511,9 @@ export default function JuanPablo() {
       <div style={{ 
         minHeight: '100vh', 
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
-        padding: window.innerWidth <= 768 ? '10px' : '20px',
+        padding: typeof window !== 'undefined' && window.innerWidth <= 768 ? '10px' : '20px',
         display: 'flex',
-        flexDirection: window.innerWidth <= 768 ? 'column' : 'row',
+        flexDirection: typeof window !== 'undefined' && window.innerWidth <= 768 ? 'column' : 'row',
         gap: '20px'
       }}>
         <Head>
@@ -523,7 +523,7 @@ export default function JuanPablo() {
         
         {/* Video Section */}
         <div style={{ 
-          flex: window.innerWidth <= 768 ? 'none' : '1',
+          flex: typeof window !== 'undefined' && window.innerWidth <= 768 ? 'none' : '1',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -555,15 +555,15 @@ export default function JuanPablo() {
             maxWidth: '500px',
             textAlign: 'center'
           }}>
-            <h2 style={{ color: '#333', marginBottom: '20px', fontSize: window.innerWidth <= 768 ? '1.5em' : '2em' }}>
+            <h2 style={{ color: '#333', marginBottom: '20px', fontSize: typeof window !== 'undefined' && window.innerWidth <= 768 ? '1.5em' : '2em' }}>
               Conversación con Pedro 🎥
             </h2>
             
             <div 
               id="avatar-video-container"
               style={{ 
-                width: window.innerWidth <= 768 ? '320px' : '400px', 
-                height: window.innerWidth <= 768 ? '240px' : '300px', 
+                width: typeof window !== 'undefined' && window.innerWidth <= 768 ? '320px' : '400px', 
+                height: typeof window !== 'undefined' && window.innerWidth <= 768 ? '240px' : '300px', 
                 background: '#f0f0f0', 
                 borderRadius: '15px', 
                 margin: '0 auto 20px',
@@ -621,13 +621,13 @@ export default function JuanPablo() {
         
         {/* Chat Section */}
         <div style={{ 
-          flex: window.innerWidth <= 768 ? 'none' : '1',
+          flex: typeof window !== 'undefined' && window.innerWidth <= 768 ? 'none' : '1',
           background: 'white', 
           borderRadius: '20px', 
           padding: '20px',
           display: 'flex',
           flexDirection: 'column',
-          minHeight: window.innerWidth <= 768 ? '400px' : '500px'
+          minHeight: typeof window !== 'undefined' && window.innerWidth <= 768 ? '400px' : '500px'
         }}>
           <h3 style={{ color: '#333', marginBottom: '20px', textAlign: 'center' }}>
             Transcripción de Pedro 📝
@@ -683,7 +683,7 @@ export default function JuanPablo() {
       <div style={{ 
         minHeight: '100vh', 
         background: 'linear-gradient(135deg, #74b9ff 0%, #0984e3 100%)', 
-        padding: window.innerWidth <= 768 ? '10px' : '20px',
+        padding: typeof window !== 'undefined' && window.innerWidth <= 768 ? '10px' : '20px',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center'
@@ -696,10 +696,10 @@ export default function JuanPablo() {
         <div style={{ 
           background: 'white', 
           borderRadius: '20px', 
-          padding: window.innerWidth <= 768 ? '15px' : '30px',
+          padding: typeof window !== 'undefined' && window.innerWidth <= 768 ? '15px' : '30px',
           width: '100%',
           maxWidth: '800px',
-          height: window.innerWidth <= 768 ? '90vh' : '80vh',
+          height: typeof window !== 'undefined' && window.innerWidth <= 768 ? '90vh' : '80vh',
           display: 'flex',
           flexDirection: 'column'
         }}>
@@ -720,7 +720,7 @@ export default function JuanPablo() {
             >
               ← Volver
             </button>
-            <h2 style={{ color: '#333', margin: 0, fontSize: window.innerWidth <= 768 ? '1.5em' : '2em' }}>
+            <h2 style={{ color: '#333', margin: 0, fontSize: typeof window !== 'undefined' && window.innerWidth <= 768 ? '1.5em' : '2em' }}>
               Chat con Juan Pablo 💬
             </h2>
           </div>
@@ -745,7 +745,7 @@ export default function JuanPablo() {
                 alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start',
                 maxWidth: '85%',
                 wordWrap: 'break-word',
-                fontSize: window.innerWidth <= 768 ? '14px' : '16px',
+                fontSize: typeof window !== 'undefined' && window.innerWidth <= 768 ? '14px' : '16px',
                 lineHeight: '1.5'
               }}>
                 <div style={{ fontSize: '0.8em', fontWeight: 'bold', marginBottom: '8px', opacity: 0.8 }}>
@@ -781,26 +781,26 @@ export default function JuanPablo() {
                 border: '2px solid #e9ecef',
                 borderRadius: '15px',
                 resize: 'none',
-                fontSize: window.innerWidth <= 768 ? '14px' : '16px',
-                minHeight: window.innerWidth <= 768 ? '50px' : '60px',
+                fontSize: typeof window !== 'undefined' && window.innerWidth <= 768 ? '14px' : '16px',
+                minHeight: typeof window !== 'undefined' && window.innerWidth <= 768 ? '50px' : '60px',
                 maxHeight: '120px',
                 fontFamily: 'inherit'
               }}
-              rows={window.innerWidth <= 768 ? 2 : 3}
+              rows={typeof window !== 'undefined' && window.innerWidth <= 768 ? 2 : 3}
             />
             <button
               onClick={startVoiceInput}
               disabled={isLoading}
               style={{
-                padding: window.innerWidth <= 768 ? '12px' : '15px',
+                padding: typeof window !== 'undefined' && window.innerWidth <= 768 ? '12px' : '15px',
                 background: '#74b9ff',
                 color: 'white',
                 border: 'none',
                 borderRadius: '15px',
                 cursor: 'pointer',
-                fontSize: window.innerWidth <= 768 ? '16px' : '18px',
-                minWidth: window.innerWidth <= 768 ? '50px' : '60px',
-                height: window.innerWidth <= 768 ? '50px' : '60px'
+                fontSize: typeof window !== 'undefined' && window.innerWidth <= 768 ? '16px' : '18px',
+                minWidth: typeof window !== 'undefined' && window.innerWidth <= 768 ? '50px' : '60px',
+                height: typeof window !== 'undefined' && window.innerWidth <= 768 ? '50px' : '60px'
               }}
             >
               🎙️
@@ -809,15 +809,15 @@ export default function JuanPablo() {
               onClick={sendMessage}
               disabled={isLoading || !inputMessage.trim()}
               style={{
-                padding: window.innerWidth <= 768 ? '12px 20px' : '15px 25px',
+                padding: typeof window !== 'undefined' && window.innerWidth <= 768 ? '12px 20px' : '15px 25px',
                 background: inputMessage.trim() ? '#0984e3' : '#ccc',
                 color: 'white',
                 border: 'none',
                 borderRadius: '15px',
                 cursor: inputMessage.trim() ? 'pointer' : 'not-allowed',
-                fontSize: window.innerWidth <= 768 ? '14px' : '16px',
+                fontSize: typeof window !== 'undefined' && window.innerWidth <= 768 ? '14px' : '16px',
                 fontWeight: 'bold',
-                height: window.innerWidth <= 768 ? '50px' : '60px'
+                height: typeof window !== 'undefined' && window.innerWidth <= 768 ? '50px' : '60px'
               }}
             >
               Enviar
