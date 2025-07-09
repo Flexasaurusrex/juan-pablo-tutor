@@ -304,186 +304,230 @@ export default function JuanPablo() {
   // Intro Screen with Sizzle Reel
   if (!currentMode && !showModeSelection) {
     return (
-      <div style={{ 
-        minHeight: '100vh', 
-        width: '100vw',
-        background: '#000', 
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        overflow: 'hidden',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 9999
-      }}>
+      <>
         <Head>
           <title>Juan Pablo - Spanish Learning AI</title>
           <meta name="description" content="Learn Spanish with Juan Pablo" />
           <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+          <style jsx>{`
+            .video-container {
+              position: fixed;
+              top: 0;
+              left: 0;
+              width: 100vw;
+              height: 100vh;
+              background: #000;
+              overflow: hidden;
+              z-index: 9999;
+            }
+            
+            .intro-video {
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              min-width: 100%;
+              min-height: 100%;
+              width: auto;
+              height: auto;
+              transform: translate(-50%, -50%);
+              object-fit: cover;
+            }
+            
+            .skip-button {
+              position: absolute;
+              top: 20px;
+              right: 20px;
+              background: rgba(255,255,255,0.2);
+              border: none;
+              color: white;
+              padding: 10px 20px;
+              border-radius: 25px;
+              cursor: pointer;
+              font-size: 14px;
+              font-weight: bold;
+              backdrop-filter: blur(10px);
+              z-index: 10000;
+              touch-action: manipulation;
+            }
+            
+            @media (max-width: 768px) {
+              .skip-button {
+                top: 15px;
+                right: 15px;
+                padding: 8px 16px;
+                font-size: 12px;
+              }
+            }
+          `}</style>
         </Head>
         
-        <video 
-          ref={videoRef}
-          autoPlay 
-          muted 
-          playsInline
-          onEnded={handleVideoEnd}
-          onLoadStart={() => console.log('Video loading started')}
-          onCanPlay={() => console.log('Video can play')}
-          onError={(e) => {
-            console.error('Video error:', e);
-            // Auto-skip to mode selection if video fails
-            setTimeout(() => setShowModeSelection(true), 2000);
-          }}
-          style={{ 
-            width: '100vw', 
-            height: '100vh',
-            objectFit: 'cover',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            zIndex: 1
-          }}
-        >
-          <source src="/intro-sizzle.mp4" type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
-        
-        <button
-          onClick={skipIntro}
-          style={{
-            position: 'absolute',
-            top: '20px',
-            right: '20px',
-            background: 'rgba(255,255,255,0.2)',
-            border: 'none',
-            color: 'white',
-            padding: '10px 20px',
-            borderRadius: '25px',
-            cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: 'bold',
-            backdropFilter: 'blur(10px)',
-            zIndex: 10,
-            touchAction: 'manipulation'
-          }}
-        >
-          Saltar Intro →
-        </button>
-      </div>
+        <div className="video-container">
+          <video 
+            ref={videoRef}
+            autoPlay 
+            muted 
+            playsInline
+            onEnded={handleVideoEnd}
+            onLoadStart={() => console.log('Video loading started')}
+            onCanPlay={() => console.log('Video can play')}
+            onError={(e) => {
+              console.error('Video error:', e);
+              setTimeout(() => setShowModeSelection(true), 2000);
+            }}
+            className="intro-video"
+          >
+            <source src="/intro-sizzle.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+          
+          <button onClick={skipIntro} className="skip-button">
+            Saltar Intro →
+          </button>
+        </div>
+      </>
     );
   }
 
   // Mode Selection Screen  
   if (!currentMode) {
     return (
-      <div style={{ 
-        minHeight: '100vh', 
-        width: '100vw',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        padding: '20px',
-        boxSizing: 'border-box',
-        zIndex: 1000
-      }}>
+      <>
         <Head>
           <title>Juan Pablo - Choose Your Learning Style</title>
           <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+          <style jsx>{`
+            .mode-container {
+              min-height: 100vh;
+              width: 100vw;
+              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              position: fixed;
+              top: 0;
+              left: 0;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              padding: 20px;
+              box-sizing: border-box;
+              z-index: 1000;
+            }
+            
+            .mode-card {
+              background: white;
+              border-radius: 20px;
+              padding: 60px;
+              max-width: 800px;
+              width: 100%;
+              text-align: center;
+              box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+              animation: fadeInUp 0.8s ease-out;
+              position: relative;
+              z-index: 1001;
+              margin: 0 auto;
+            }
+            
+            .mode-buttons {
+              display: flex;
+              flex-direction: column;
+              gap: 30px;
+              width: 100%;
+              max-width: 600px;
+              margin: 0 auto;
+            }
+            
+            .mode-button {
+              width: 100%;
+              padding: 40px 30px;
+              border-radius: 15px;
+              cursor: pointer;
+              transition: transform 0.3s ease, box-shadow 0.3s ease;
+              border: none;
+              text-align: center;
+              touch-action: manipulation;
+              color: white;
+            }
+            
+            .mode-button:hover {
+              transform: translateY(-5px);
+            }
+            
+            .video-button {
+              background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            }
+            
+            .chat-button {
+              background: linear-gradient(135deg, #74b9ff, #0984e3);
+            }
+            
+            @keyframes fadeInUp {
+              from {
+                opacity: 0;
+                transform: translateY(30px);
+              }
+              to {
+                opacity: 1;
+                transform: translateY(0);
+              }
+            }
+            
+            @media (max-width: 768px) {
+              .mode-card {
+                padding: 30px 20px;
+                margin: 10px;
+              }
+              
+              .mode-button {
+                padding: 25px 20px;
+              }
+            }
+          `}</style>
         </Head>
         
-        <div style={{ 
-          background: 'white', 
-          borderRadius: '20px', 
-          padding: '60px', 
-          maxWidth: '800px', 
-          width: '100%', 
-          textAlign: 'center', 
-          boxShadow: '0 20px 40px rgba(0,0,0,0.1)', 
-          animation: 'fadeInUp 0.8s ease-out',
-          position: 'relative',
-          zIndex: 1001
-        }}>
-          <h1 style={{ 
-            fontSize: '3.5em', 
-            marginBottom: '15px', 
-            color: '#333', 
-            fontWeight: 'bold',
-            lineHeight: '1.2'
-          }}>
-            ¡Hola! Soy Juan Pablo 🇲🇽
-          </h1>
-          <p style={{ 
-            fontSize: '1.3em', 
-            color: '#666', 
-            marginBottom: '40px', 
-            lineHeight: '1.6'
-          }}>
-            Tu compañero de español para prepararte para Ciudad de México
-          </p>
-          
-          <div style={{ 
-            display: 'flex', 
-            flexDirection: 'column',
-            gap: '30px', 
-            justifyContent: 'center',
-            alignItems: 'stretch'
-          }}>
-            <div 
-              onClick={startVideoMode}
-              style={{ 
-                background: 'linear-gradient(135deg, #ff6b6b, #ee5a24)', 
-                color: 'white', 
-                padding: '40px 30px',
-                borderRadius: '15px', 
-                cursor: 'pointer', 
-                transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-                border: 'none',
-                width: '100%',
-                textAlign: 'center',
-                touchAction: 'manipulation'
-              }}
-              onMouseOver={(e) => e.target.style.transform = 'translateY(-5px)'}
-              onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
-            >
-              <div style={{ fontSize: '3em', marginBottom: '15px' }}>🎥</div>
-              <h3 style={{ fontSize: '1.6em', marginBottom: '10px', fontWeight: 'bold' }}>Video Conversación</h3>
-              <p style={{ fontSize: '1em', opacity: 0.9, lineHeight: '1.4' }}>
-                Habla directamente con Pedro para practicar pronunciación y conversación natural
-              </p>
-            </div>
+        <div className="mode-container">
+          <div className="mode-card">
+            <h1 style={{ 
+              fontSize: '3.5em', 
+              marginBottom: '15px', 
+              color: '#333', 
+              fontWeight: 'bold',
+              lineHeight: '1.2'
+            }}>
+              ¡Hola! Soy Juan Pablo 🇲🇽
+            </h1>
+            <p style={{ 
+              fontSize: '1.3em', 
+              color: '#666', 
+              marginBottom: '40px', 
+              lineHeight: '1.6'
+            }}>
+              Tu compañero de español para prepararte para Ciudad de México
+            </p>
             
-            <div 
-              onClick={startChatMode}
-              style={{ 
-                background: 'linear-gradient(135deg, #74b9ff, #0984e3)', 
-                color: 'white', 
-                padding: '40px 30px',
-                borderRadius: '15px', 
-                cursor: 'pointer', 
-                transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-                border: 'none',
-                width: '100%',
-                textAlign: 'center',
-                touchAction: 'manipulation'
-              }}
-              onMouseOver={(e) => e.target.style.transform = 'translateY(-5px)'}
-              onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
-            >
-              <div style={{ fontSize: '3em', marginBottom: '15px' }}>💬</div>
-              <h3 style={{ fontSize: '1.6em', marginBottom: '10px', fontWeight: 'bold' }}>Chat Texto</h3>
-              <p style={{ fontSize: '1em', opacity: 0.9, lineHeight: '1.4' }}>
-                Practica gramática, vocabulario y escritura con correcciones detalladas
-              </p>
+            <div className="mode-buttons">
+              <div 
+                onClick={startVideoMode}
+                className="mode-button video-button"
+              >
+                <div style={{ fontSize: '3em', marginBottom: '15px' }}>🎥</div>
+                <h3 style={{ fontSize: '1.6em', marginBottom: '10px', fontWeight: 'bold' }}>Video Conversación</h3>
+                <p style={{ fontSize: '1em', opacity: 0.9, lineHeight: '1.4' }}>
+                  Habla directamente con Pedro para practicar pronunciación y conversación natural
+                </p>
+              </div>
+              
+              <div 
+                onClick={startChatMode}
+                className="mode-button chat-button"
+              >
+                <div style={{ fontSize: '3em', marginBottom: '15px' }}>💬</div>
+                <h3 style={{ fontSize: '1.6em', marginBottom: '10px', fontWeight: 'bold' }}>Chat Texto</h3>
+                <p style={{ fontSize: '1em', opacity: 0.9, lineHeight: '1.4' }}>
+                  Practica gramática, vocabulario y escritura con correcciones detalladas
+                </p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </>
     );
   }
 
