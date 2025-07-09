@@ -64,9 +64,9 @@ export default function JuanPablo() {
         existingEmbed.remove();
       }
 
-      // Create the HeyGen embed
+      // Create the HeyGen embed with language learning knowledge base
       const host = "https://labs.heygen.com";
-      const shareParams = "eyJxdWFsaXR5IjoiaGlnaCIsImF2YXRhck5hbWUiOiJQZWRyb19Qcm9mZXNzaW9uYWxMb29rMl9wdWJsaWMiLCJwcmV2aWV3SW1nIjoiaHR0cHM6Ly9maWxlczIuaGV5Z2VuLmFpL2F2YXRhci92My9mOWM5NGFlN2JkMTU0NWU4YjY1MzFhOTFiYTk3NmFkOV81NTkxMC9wcmV2aWV3X3RhbGtfMS53ZWJwIiwibmVlZFJlbW92ZUJhY2tncm91bmQiOnRydWUsImtub3dsZWRnZUJhc2VJZCI6ImRlbW8tMSIsInVzZXJuYW1lIjoiODYxNDJiODMzMjNkNGJmNGJhZTJjOTkxZmFhZmZhOWMifQ%3D%3D";
+      const shareParams = "eyJxdWFsaXR5IjoiaGlnaCIsImF2YXRhck5hbWUiOiJQZWRyb19Qcm9mZXNzaW9uYWxMb29rMl9wdWJsaWMiLCJwcmV2aWV3SW1nIjoiaHR0cHM6Ly9maWxlczIuaGV5Z2VuLmFpL2F2YXRhci92My9mOWM5NGFlN2JkMTU0NWU4YjY1MzFhOTFiYTk3NmFkOV81NTkxMC9wcmV2aWV3X3RhbGtfMS53ZWJwIiwibmVlZFJlbW92ZUJhY2tncm91bmQiOnRydWUsImtub3dsZWRnZUJhc2VJZCI6ImE0MjZkNGFjYWUzMTQ0MTI4NWZkMGViZjk3YTU2ZjA3IiwidXNlcm5hbWUiOiI4NjE0MmI4MzMyM2Q0YmY0YmFlMmM5OTFmYWFmZmE5YyJ9";
       const url = host + "/guest/streaming-embed?share=" + shareParams + "&inIFrame=1";
       
       const clientWidth = document.body.clientWidth;
@@ -109,7 +109,7 @@ export default function JuanPablo() {
       
       const iframe = document.createElement("iframe");
       iframe.allowFullscreen = false;
-      iframe.title = "Juan Pablo";
+      iframe.title = "Juan Pablo - Pedro";
       iframe.role = "dialog";
       iframe.allow = "microphone";
       iframe.src = url;
@@ -123,7 +123,7 @@ export default function JuanPablo() {
             initial = true;
             wrapDiv.classList.toggle("show", initial);
             setAvatarLoaded(true);
-            console.log('✅ Pedro loaded successfully');
+            console.log('✅ Pedro loaded successfully with language learning knowledge base');
           }
         }
       });
@@ -133,7 +133,7 @@ export default function JuanPablo() {
       wrapDiv.appendChild(containerDiv);
       container.appendChild(wrapDiv);
       
-      console.log('🎬 HeyGen embed created and added to container');
+      console.log('🎬 HeyGen embed created with language learning KB');
     }, 500);
   };
 
@@ -304,69 +304,89 @@ export default function JuanPablo() {
   // Intro Screen with Sizzle Reel
   if (!currentMode && !showModeSelection) {
     return (
-      <div style={{ 
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100vw',
-        height: '100vh',
-        background: '#000',
-        overflow: 'hidden',
-        zIndex: 9999
-      }}>
+      <>
         <Head>
           <title>Juan Pablo - Spanish Learning AI</title>
           <meta name="description" content="Learn Spanish with Juan Pablo" />
           <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+          <style jsx>{`
+            .video-intro-container {
+              position: fixed;
+              top: 0;
+              left: 0;
+              width: 100vw;
+              height: 100vh;
+              background: #000;
+              overflow: hidden;
+              z-index: 9999;
+            }
+            
+            .intro-video {
+              position: absolute;
+              top: 0;
+              left: 0;
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+            }
+            
+            .skip-button {
+              position: absolute;
+              top: 20px;
+              right: 20px;
+              background: rgba(255,255,255,0.2);
+              border: none;
+              color: white;
+              padding: 10px 20px;
+              border-radius: 25px;
+              cursor: pointer;
+              font-size: 14px;
+              font-weight: bold;
+              backdrop-filter: blur(10px);
+              z-index: 10000;
+              touch-action: manipulation;
+            }
+            
+            @media (max-width: 768px) {
+              .intro-video {
+                object-fit: contain;
+                background: #000;
+              }
+              
+              .skip-button {
+                top: 15px;
+                right: 15px;
+                padding: 8px 16px;
+                font-size: 12px;
+              }
+            }
+          `}</style>
         </Head>
         
-        <video 
-          ref={videoRef}
-          autoPlay 
-          muted 
-          playsInline
-          onEnded={handleVideoEnd}
-          onLoadStart={() => console.log('Video loading started')}
-          onCanPlay={() => console.log('Video can play')}
-          onError={(e) => {
-            console.error('Video error:', e);
-            setTimeout(() => setShowModeSelection(true), 2000);
-          }}
-          style={{ 
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover'
-          }}
-        >
-          <source src="/intro-sizzle.mp4" type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
-        
-        <button
-          onClick={skipIntro}
-          style={{
-            position: 'absolute',
-            top: '20px',
-            right: '20px',
-            background: 'rgba(255,255,255,0.2)',
-            border: 'none',
-            color: 'white',
-            padding: '10px 20px',
-            borderRadius: '25px',
-            cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: 'bold',
-            backdropFilter: 'blur(10px)',
-            zIndex: 10000,
-            touchAction: 'manipulation'
-          }}
-        >
-          Saltar Intro →
-        </button>
-      </div>
+        <div className="video-intro-container">
+          <video 
+            ref={videoRef}
+            autoPlay 
+            muted 
+            playsInline
+            onEnded={handleVideoEnd}
+            onLoadStart={() => console.log('Video loading started')}
+            onCanPlay={() => console.log('Video can play')}
+            onError={(e) => {
+              console.error('Video error:', e);
+              setTimeout(() => setShowModeSelection(true), 2000);
+            }}
+            className="intro-video"
+          >
+            <source src="/intro-sizzle.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+          
+          <button onClick={skipIntro} className="skip-button">
+            Saltar Intro →
+          </button>
+        </div>
+      </>
     );
   }
 
@@ -383,9 +403,10 @@ export default function JuanPablo() {
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
-        padding: '20px',
+        padding: '15px',
         boxSizing: 'border-box',
-        zIndex: 1000
+        zIndex: 1000,
+        overflow: 'auto'
       }}>
         <Head>
           <title>Juan Pablo - Choose Your Learning Style</title>
@@ -394,9 +415,9 @@ export default function JuanPablo() {
         
         <div style={{ 
           background: 'white', 
-          borderRadius: '20px', 
-          padding: '60px', 
-          maxWidth: '800px', 
+          borderRadius: '15px', 
+          padding: '30px 20px', 
+          maxWidth: '400px', 
           width: '100%', 
           textAlign: 'center', 
           boxShadow: '0 20px 40px rgba(0,0,0,0.1)', 
@@ -404,11 +425,13 @@ export default function JuanPablo() {
           zIndex: 1001,
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center'
+          alignItems: 'center',
+          maxHeight: '90vh',
+          overflow: 'auto'
         }}>
           <h1 style={{ 
-            fontSize: '3.5em', 
-            marginBottom: '15px', 
+            fontSize: '2.2em', 
+            marginBottom: '10px', 
             color: '#333', 
             fontWeight: 'bold',
             lineHeight: '1.2'
@@ -416,10 +439,10 @@ export default function JuanPablo() {
             ¡Hola! Soy Juan Pablo 🇲🇽
           </h1>
           <p style={{ 
-            fontSize: '1.3em', 
+            fontSize: '1em', 
             color: '#666', 
-            marginBottom: '40px', 
-            lineHeight: '1.6'
+            marginBottom: '25px', 
+            lineHeight: '1.4'
           }}>
             Tu compañero de español para prepararte para Ciudad de México
           </p>
@@ -427,9 +450,8 @@ export default function JuanPablo() {
           <div style={{ 
             display: 'flex', 
             flexDirection: 'column',
-            gap: '30px', 
+            gap: '20px', 
             width: '100%',
-            maxWidth: '600px',
             alignItems: 'center'
           }}>
             <div 
@@ -437,8 +459,8 @@ export default function JuanPablo() {
               style={{ 
                 background: 'linear-gradient(135deg, #ff6b6b, #ee5a24)', 
                 color: 'white', 
-                padding: '40px 30px',
-                borderRadius: '15px', 
+                padding: '25px 20px',
+                borderRadius: '12px', 
                 cursor: 'pointer', 
                 transition: 'transform 0.3s ease, box-shadow 0.3s ease',
                 border: 'none',
@@ -446,13 +468,13 @@ export default function JuanPablo() {
                 textAlign: 'center',
                 touchAction: 'manipulation'
               }}
-              onMouseOver={(e) => e.target.style.transform = 'translateY(-5px)'}
-              onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
+              onTouchStart={(e) => e.target.style.transform = 'translateY(-3px)'}
+              onTouchEnd={(e) => e.target.style.transform = 'translateY(0)'}
             >
-              <div style={{ fontSize: '3em', marginBottom: '15px' }}>🎥</div>
-              <h3 style={{ fontSize: '1.6em', marginBottom: '10px', fontWeight: 'bold' }}>Video Conversación</h3>
-              <p style={{ fontSize: '1em', opacity: 0.9, lineHeight: '1.4' }}>
-                Habla directamente con Pedro para practicar pronunciación y conversación natural
+              <div style={{ fontSize: '2.5em', marginBottom: '10px' }}>🎥</div>
+              <h3 style={{ fontSize: '1.3em', marginBottom: '8px', fontWeight: 'bold' }}>Video Conversación</h3>
+              <p style={{ fontSize: '0.85em', opacity: 0.9, lineHeight: '1.3' }}>
+                Habla directamente con Pedro para practicar pronunciación
               </p>
             </div>
             
@@ -461,8 +483,8 @@ export default function JuanPablo() {
               style={{ 
                 background: 'linear-gradient(135deg, #74b9ff, #0984e3)', 
                 color: 'white', 
-                padding: '40px 30px',
-                borderRadius: '15px', 
+                padding: '25px 20px',
+                borderRadius: '12px', 
                 cursor: 'pointer', 
                 transition: 'transform 0.3s ease, box-shadow 0.3s ease',
                 border: 'none',
@@ -470,13 +492,13 @@ export default function JuanPablo() {
                 textAlign: 'center',
                 touchAction: 'manipulation'
               }}
-              onMouseOver={(e) => e.target.style.transform = 'translateY(-5px)'}
-              onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
+              onTouchStart={(e) => e.target.style.transform = 'translateY(-3px)'}
+              onTouchEnd={(e) => e.target.style.transform = 'translateY(0)'}
             >
-              <div style={{ fontSize: '3em', marginBottom: '15px' }}>💬</div>
-              <h3 style={{ fontSize: '1.6em', marginBottom: '10px', fontWeight: 'bold' }}>Chat Texto</h3>
-              <p style={{ fontSize: '1em', opacity: 0.9, lineHeight: '1.4' }}>
-                Practica gramática, vocabulario y escritura con correcciones detalladas
+              <div style={{ fontSize: '2.5em', marginBottom: '10px' }}>💬</div>
+              <h3 style={{ fontSize: '1.3em', marginBottom: '8px', fontWeight: 'bold' }}>Chat Texto</h3>
+              <p style={{ fontSize: '0.85em', opacity: 0.9, lineHeight: '1.3' }}>
+                Practica gramática, vocabulario y escritura con correcciones
               </p>
             </div>
           </div>
