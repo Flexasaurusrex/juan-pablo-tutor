@@ -2,25 +2,20 @@ import { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 
 export default function JuanPablo() {
-  const [messages, setMessages] = useState([
-    {
-      text: "¡Hola! Soy Juan Pablo, tu profesor de español. Estoy aquí para ayudarte a prepararte para tu mudanza a Ciudad de México. ¿Cómo te llamas?",
-      sender: 'juan'
-    }
-  ]);
+  const [currentMode, setCurrentMode] = useState(null); // null, 'video', 'chat'
+  const [showModeSelection, setShowModeSelection] = useState(false);
+  const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [avatarLoaded, setAvatarLoaded] = useState(false);
-  const [isAvatarSpeaking, setIsAvatarSpeaking] = useState(false);
   const [isListeningToPedro, setIsListeningToPedro] = useState(false);
   
   const recognitionRef = useRef(null);
   const pedroListenerRef = useRef(null);
-  const avatarIframeRef = useRef(null);
+  const videoRef = useRef(null);
 
   useEffect(() => {
-    // Initialize speech recognition for user input
+    // Initialize speech recognition
     if (typeof window !== 'undefined' && 'webkitSpeechRecognition' in window) {
       // User voice input (converts to text for sending)
       recognitionRef.current = new webkitSpeechRecognition();
@@ -31,7 +26,6 @@ export default function JuanPablo() {
       recognitionRef.current.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
         setInputMessage(transcript);
-        handleSendMessage(transcript);
       };
       
       recognitionRef.current.onend = () => {
@@ -44,114 +38,66 @@ export default function JuanPablo() {
       pedroListenerRef.current.interimResults = true;
       pedroListenerRef.current.lang = 'es-ES';
       
+      let currentTranscript = '';
+      let silenceTimer = null;
+      
       pedroListenerRef.current.onresult = (event) => {
-        const transcript = event.results[event.results.length - 1][0].transcript;
-        
-        // Only add final results to avoid duplicates
-        if (event.results[event.results.length - 1].isFinal) {
-          console.log('🎤 Pedro said:', transcript);
-          setMessages(prev => {
-            // Avoid adding duplicate messages
-            const lastMessage = prev[prev.length - 1];
-            if (lastMessage && lastMessage.sender === 'juan' && lastMessage.text === transcript) {
-              return prev;
-            }
-            return [...prev, { text: transcript, sender: 'juan' }];
-          });
+        // Combine all results to get the full transcript
+        let fullTranscript = '';
+        for (let i = 0; i < event.results.length; i++) {
+          fullTranscript += event.results[i][0].transcript;
         }
+        
+        currentTranscript = fullTranscript;
+        
+        // Clear the silence timer and start a new one
+        if (silenceTimer) clearTimeout(silenceTimer);
+        
+        // Wait for 2 seconds of silence before finalizing
+        silenceTimer = setTimeout(() => {
+          if (currentTranscript.trim()) {
+            console.log('🎤 Pedro said (complete):', currentTranscript);
+            setMessages(prev => {
+              // Avoid adding duplicate messages
+              const lastMessage = prev[prev.length - 1];
+              if (lastMessage && lastMessage.sender === 'juan' && 
+                  lastMessage.text.includes(currentTranscript.substring(0, 20))) {
+                return prev;
+              }
+              return [...prev, { text: currentTranscript.trim(), sender: 'juan' }];
+            });
+            currentTranscript = ''; // Reset for next response
+          }
+        }, 2000);
       };
       
       pedroListenerRef.current.onend = () => {
-        setIsListeningToPedro(false);
+        if (isListeningToPedro) {
+          // Auto-restart to keep listening
+          setTimeout(() => {
+            if (pedroListenerRef.current && isListeningToPedro) {
+              pedroListenerRef.current.start();
+            }
+          }, 100);
+        }
       };
     }
+  }, [isListeningToPedro]);
 
-    // Load HeyGen embed and set up communication
+  const startVideoMode = () => {
+    setCurrentMode('video');
+    setMessages([
+      { text: "¡Hola! Habla conmigo directamente para practicar conversación. Haz clic en 'Escuchar' para ver mis respuestas como texto.", sender: 'juan' }
+    ]);
     loadHeyGenEmbed();
+  };
 
-    // Listen for messages from HeyGen embed
-    const handleMessage = (event) => {
-      // Log ALL messages to debug
-      console.log('📨 Received message:', event.origin, event.data);
-      
-      // Accept messages from multiple origins since embed can be from different sources
-      if ((event.origin === 'https://labs.heygen.com' || 
-           event.origin === 'https://juanpablotutor.vercel.app' ||
-           event.origin === window.location.origin) && event.data) {
-        
-        // Handle MetaMask and other irrelevant messages
-        if (event.data.target === 'metamask-inpage' || event.data.type === 'wallet') {
-          return; // Ignore wallet messages
-        }
-        
-        // Handle different message formats
-        if (event.data.type === 'streaming-embed') {
-          console.log('🎭 HeyGen streaming message:', event.data);
-          
-          if (event.data.action === 'init') {
-            setAvatarLoaded(true);
-            console.log('✅ HeyGen avatar initialized');
-            
-          } else if (event.data.action === 'avatar_start_talking') {
-            setIsAvatarSpeaking(true);
-            console.log('🗣️ Avatar started speaking');
-            
-          } else if (event.data.action === 'avatar_stop_talking') {
-            setIsAvatarSpeaking(false);
-            console.log('🤐 Avatar stopped speaking');
-            
-          } else if (event.data.action === 'user_start_talking') {
-            console.log('🎤 User started talking');
-            
-          } else if (event.data.action === 'user_stop_talking') {
-            console.log('🔇 User stopped talking');
-          }
-        }
-        
-        // Check for avatar speech/transcript in any format
-        if (event.data.transcript) {
-          console.log('📝 Found transcript:', event.data.transcript);
-          setMessages(prev => [...prev, { text: event.data.transcript, sender: 'juan' }]);
-        }
-        
-        // Check for text content in various formats
-        if (event.data.text && !event.data.target) {
-          console.log('💬 Found text in message:', event.data.text);
-          
-          // Add to chat if it's an avatar response
-          if (event.data.sender === 'avatar' || event.data.type === 'avatar_message' || event.data.from === 'avatar') {
-            setMessages(prev => [...prev, { text: event.data.text, sender: 'juan' }]);
-          } else if (event.data.sender === 'user' || event.data.type === 'user_message' || event.data.from === 'user') {
-            setMessages(prev => [...prev, { text: event.data.text, sender: 'user' }]);
-          } else {
-            // Default to avatar message if unclear
-            setMessages(prev => [...prev, { text: event.data.text, sender: 'juan' }]);
-          }
-        }
-        
-        // Check for message content
-        if (event.data.message && typeof event.data.message === 'string') {
-          console.log('💬 Found message content:', event.data.message);
-          setMessages(prev => [...prev, { text: event.data.message, sender: 'juan' }]);
-        }
-        
-        // Check for response content
-        if (event.data.response && typeof event.data.response === 'string') {
-          console.log('💬 Found response content:', event.data.response);
-          setMessages(prev => [...prev, { text: event.data.response, sender: 'juan' }]);
-        }
-        
-        // Check for HeyGen specific formats
-        if (event.data.data && event.data.data.text) {
-          console.log('💬 Found nested text:', event.data.data.text);
-          setMessages(prev => [...prev, { text: event.data.data.text, sender: 'juan' }]);
-        }
-      }
-    };
-
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, []);
+  const startChatMode = () => {
+    setCurrentMode('chat');
+    setMessages([
+      { text: "¡Hola! Soy Juan Pablo, tu profesor de español por texto. Escribe en español o inglés y te ayudo con gramática, vocabulario y preparación para Ciudad de México. ¿Cómo te llamas?", sender: 'juan' }
+    ]);
+  };
 
   const loadHeyGenEmbed = () => {
     // Remove existing embed if any
@@ -165,7 +111,6 @@ export default function JuanPablo() {
     const shareData = "eyJxdWFsaXR5IjoiaGlnaCIsImF2YXRhck5hbWUiOiJQZWRyb19Qcm9mZXNzaW9uYWxMb29rMl9wdWJsaWMiLCJwcmV2aWV3SW1nIjoiaHR0cHM6Ly9maWxlczIuaGV5Z2VuLmFpL2F2YXRhci92My9mOWM5NGFlN2JkMTU0NWU4YjY1MzFhOTFiYTk3NmFkOV81NTkxMC9wcmV2aWV3X3RhbGtfMS53ZWJwIiwibmVlZFJlbW92ZUJhY2tncm91bmQiOnRydWUsImtub3dsZWRnZUJhc2VJZCI6ImE0MjZkNGFjYWUzMTQ0MTI4NWZkMGViZjk3YTU2ZjA3IiwidXNlcm5hbWUiOiI4NjE0MmI4MzMyM2Q0YmY0YmFlMmM5OTFmYWFmZmE5YyJ9";
     const url = host + "/guest/streaming-embed?share=" + shareData + "&inIFrame=1";
     
-    const clientWidth = document.body.clientWidth;
     const wrapDiv = document.createElement("div");
     wrapDiv.id = "heygen-streaming-embed";
     
@@ -175,7 +120,6 @@ export default function JuanPablo() {
     const stylesheet = document.createElement("style");
     stylesheet.innerHTML = `
       #heygen-streaming-embed {
-        z-index: 1000;
         position: absolute;
         top: 0;
         left: 0;
@@ -183,13 +127,6 @@ export default function JuanPablo() {
         height: 100%;
         border-radius: 15px;
         overflow: hidden;
-        opacity: 0;
-        visibility: hidden;
-        transition: all linear 0.3s;
-      }
-      #heygen-streaming-embed.show {
-        opacity: 1;
-        visibility: visible;
       }
       #heygen-streaming-container {
         width: 100%;
@@ -205,73 +142,40 @@ export default function JuanPablo() {
     
     const iframe = document.createElement("iframe");
     iframe.allowFullscreen = false;
-    iframe.title = "Juan Pablo Avatar";
-    iframe.role = "dialog";
+    iframe.title = "Pedro - Video Spanish Practice";
     iframe.allow = "microphone";
     iframe.src = url;
-    
-    // Store reference to iframe
-    avatarIframeRef.current = iframe;
     
     container.appendChild(iframe);
     wrapDiv.appendChild(stylesheet);
     wrapDiv.appendChild(container);
     
-    // Add to avatar container
     const avatarContainer = document.getElementById('avatar-video-container');
     if (avatarContainer) {
       avatarContainer.appendChild(wrapDiv);
-    }
-
-    // Show the embed after a short delay
-    setTimeout(() => {
-      wrapDiv.classList.add('show');
-    }, 1000);
-  };
-
-  const sendMessageToAvatar = (message) => {
-    if (avatarIframeRef.current && avatarLoaded) {
-      // Send message to HeyGen avatar
-      avatarIframeRef.current.contentWindow.postMessage({
-        type: 'streaming-embed',
-        action: 'chat',
-        message: message
-      }, 'https://labs.heygen.com');
-      
-      console.log('📤 Sent to avatar:', message);
     }
   };
 
   const handleSendMessage = async (message = inputMessage) => {
     if (!message.trim()) return;
 
-    // Add user message to chat immediately
+    // Add user message
     setMessages(prev => [...prev, { text: message, sender: 'user' }]);
     setInputMessage('');
     setIsLoading(true);
 
     try {
-      if (avatarLoaded) {
-        // Send directly to HeyGen avatar - it will handle the response
-        sendMessageToAvatar(message);
-        
-        // Show loading state
-        setTimeout(() => setIsLoading(false), 1000);
-        
-      } else {
-        // Fallback to our Together.ai if avatar not loaded
-        const chatResponse = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            message: message
-          }),
-        });
+      // Get response from Together.ai
+      const chatResponse = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: message
+        }),
+      });
 
-        const chatData = await chatResponse.json();
-        setMessages(prev => [...prev, { text: chatData.reply, sender: 'juan' }]);
-        setIsLoading(false);
-      }
+      const chatData = await chatResponse.json();
+      setMessages(prev => [...prev, { text: chatData.reply, sender: 'juan' }]);
 
     } catch (error) {
       console.error('Failed to send message:', error);
@@ -279,6 +183,7 @@ export default function JuanPablo() {
         text: 'Lo siento, tuve un problema técnico. ¿Puedes repetir?', 
         sender: 'juan' 
       }]);
+    } finally {
       setIsLoading(false);
     }
   };
@@ -294,15 +199,6 @@ export default function JuanPablo() {
     } else {
       recognitionRef.current.start();
       setIsListening(true);
-    }
-  };
-
-  const startAvatarConversation = () => {
-    if (avatarIframeRef.current) {
-      avatarIframeRef.current.contentWindow.postMessage({
-        type: 'streaming-embed',
-        action: 'start_conversation'
-      }, 'https://labs.heygen.com');
     }
   };
 
@@ -322,248 +218,424 @@ export default function JuanPablo() {
     }
   };
 
-  return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', padding: '20px' }}>
-      <Head>
-        <title>Juan Pablo - Spanish Tutor</title>
-        <meta name="description" content="AI Spanish tutor for Mexico City preparation" />
-      </Head>
-      
-      <div style={{ maxWidth: '1200px', margin: '0 auto', background: 'white', borderRadius: '20px', height: '700px', display: 'flex', flexDirection: 'column', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}>
+  const goBack = () => {
+    setCurrentMode(null);
+    setShowModeSelection(false);
+    setMessages([]);
+    stopListeningToPedro();
+  };
+
+  const handleVideoEnd = () => {
+    setShowModeSelection(true);
+  };
+
+  const skipIntro = () => {
+    if (videoRef.current) {
+      videoRef.current.pause();
+    }
+    setShowModeSelection(true);
+  };
+
+  // Intro Screen with Sizzle Reel
+  if (!currentMode && !showModeSelection) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#000', position: 'relative', overflow: 'hidden' }}>
+        <Head>
+          <title>Juan Pablo - Spanish Tutor</title>
+          <meta name="description" content="AI Spanish tutor for Mexico City preparation" />
+        </Head>
         
-        <div style={{ background: 'linear-gradient(135deg, #ff6b6b, #ee5a24)', color: 'white', padding: '20px', textAlign: 'center', borderRadius: '20px 20px 0 0' }}>
-          <h1 style={{ fontSize: '1.8em', margin: 0 }}>🇲🇽 Juan Pablo - Tu Profesor de Español</h1>
-          <div style={{ opacity: 0.9, marginTop: '5px' }}>
-            {avatarLoaded ? (
-              isAvatarSpeaking ? '🗣️ Juan Pablo está hablando...' : '🟢 Listo para conversar'
-            ) : '🟡 Cargando avatar...'}
+        {/* Sizzle Reel Video */}
+        <video 
+          ref={videoRef}
+          autoPlay 
+          muted 
+          playsInline
+          onEnded={handleVideoEnd}
+          style={{ 
+            width: '100%', 
+            height: '100vh', 
+            objectFit: 'cover',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            zIndex: 1
+          }}
+        >
+          <source src="/intro-sizzle.mp4" type="video/mp4" />
+          Su navegador no soporta el elemento de video.
+        </video>
+
+        {/* Skip Button */}
+        <button
+          onClick={skipIntro}
+          style={{
+            position: 'absolute',
+            top: '30px',
+            right: '30px',
+            background: 'rgba(0, 0, 0, 0.7)',
+            color: 'white',
+            border: 'none',
+            padding: '12px 20px',
+            borderRadius: '25px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            zIndex: 10,
+            transition: 'all 0.3s ease'
+          }}
+          onMouseOver={(e) => e.target.style.background = 'rgba(0, 0, 0, 0.9)'}
+          onMouseOut={(e) => e.target.style.background = 'rgba(0, 0, 0, 0.7)'}
+        >
+          Saltar →
+        </button>
+
+        {/* Loading indicator for fallback */}
+        <div style={{
+          position: 'absolute',
+          bottom: '50px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          color: 'white',
+          textAlign: 'center',
+          zIndex: 10
+        }}>
+          <div style={{ fontSize: '1.2em', marginBottom: '10px' }}>🇲🇽 Juan Pablo</div>
+          <div style={{ opacity: 0.8 }}>Cargando tu experiencia de español...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Mode Selection Screen  
+  if (!currentMode) {
+    return (
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', padding: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Head>
+          <title>Juan Pablo - Spanish Tutor</title>
+          <meta name="description" content="AI Spanish tutor for Mexico City preparation" />
+        </Head>
+        
+        <div style={{ background: 'white', borderRadius: '20px', padding: '60px', maxWidth: '800px', width: '100%', textAlign: 'center', boxShadow: '0 20px 40px rgba(0,0,0,0.1)', animation: 'fadeInUp 0.8s ease-out' }}>
+          <h1 style={{ fontSize: '2.5em', margin: '0 0 20px 0', color: '#333' }}>🇲🇽 Juan Pablo</h1>
+          <p style={{ fontSize: '1.3em', color: '#666', margin: '0 0 50px 0' }}>Tu profesor de español para Ciudad de México</p>
+          
+          <div style={{ display: 'flex', gap: '40px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            {/* Video Mode */}
+            <div 
+              onClick={startVideoMode}
+              style={{ 
+                background: 'linear-gradient(135deg, #ff6b6b, #ee5a24)', 
+                color: 'white', 
+                padding: '40px 30px', 
+                borderRadius: '20px', 
+                cursor: 'pointer', 
+                minWidth: '300px',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 10px 30px rgba(255, 107, 107, 0.3)',
+                animation: 'slideInLeft 0.6s ease-out 0.3s both'
+              }}
+              onMouseOver={(e) => e.target.style.transform = 'translateY(-5px)'}
+              onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
+            >
+              <div style={{ fontSize: '3em', marginBottom: '20px' }}>🎥</div>
+              <h2 style={{ fontSize: '1.5em', margin: '0 0 15px 0' }}>Conversación en Video</h2>
+              <p style={{ opacity: 0.9, lineHeight: '1.5', margin: 0 }}>
+                Habla directamente con Pedro para practicar pronunciación y comprensión oral. 
+                Ve sus respuestas como texto para aprender escritura.
+              </p>
+            </div>
+
+            {/* Chat Mode */}
+            <div 
+              onClick={startChatMode}
+              style={{ 
+                background: 'linear-gradient(135deg, #667eea, #764ba2)', 
+                color: 'white', 
+                padding: '40px 30px', 
+                borderRadius: '20px', 
+                cursor: 'pointer', 
+                minWidth: '300px',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 10px 30px rgba(102, 126, 234, 0.3)',
+                animation: 'slideInRight 0.6s ease-out 0.5s both'
+              }}
+              onMouseOver={(e) => e.target.style.transform = 'translateY(-5px)'}
+              onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
+            >
+              <div style={{ fontSize: '3em', marginBottom: '20px' }}>💬</div>
+              <h2 style={{ fontSize: '1.5em', margin: '0 0 15px 0' }}>Chat de Texto</h2>
+              <p style={{ opacity: 0.9, lineHeight: '1.5', margin: 0 }}>
+                Conversa por texto con Juan Pablo. Practica gramática, vocabulario 
+                y recibe correcciones detalladas para Ciudad de México.
+              </p>
+            </div>
           </div>
         </div>
+        
+        <style jsx>{`
+          @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+          }
+          @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+          }
+        `}</style>
+      </div>
+    );
+  }
 
-        <div style={{ flex: 1, display: 'flex' }}>
-          {/* Avatar section */}
-          <div style={{ flex: 2, background: '#f8f9fa', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-            <div 
-              id="avatar-video-container"
-              style={{ 
-                width: '400px', 
-                height: '300px', 
-                background: '#000', 
-                borderRadius: '15px', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                color: 'white', 
-                marginBottom: '20px',
-                position: 'relative',
-                overflow: 'hidden',
-                border: isAvatarSpeaking ? '3px solid #4caf50' : '1px solid #ccc'
-              }}
+  // Video Mode
+  if (currentMode === 'video') {
+    return (
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #ff6b6b, #ee5a24)', padding: '20px' }}>
+        <Head>
+          <title>Juan Pablo - Video Mode</title>
+        </Head>
+        
+        <div style={{ maxWidth: '1200px', margin: '0 auto', background: 'white', borderRadius: '20px', height: '700px', display: 'flex', flexDirection: 'column', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}>
+          
+          <div style={{ background: 'linear-gradient(135deg, #ff6b6b, #ee5a24)', color: 'white', padding: '20px', display: 'flex', alignItems: 'center', borderRadius: '20px 20px 0 0' }}>
+            <button 
+              onClick={goBack}
+              style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', padding: '8px 15px', borderRadius: '15px', cursor: 'pointer', marginRight: '20px' }}
             >
-              {!avatarLoaded && (
-                <div style={{ textAlign: 'center', position: 'absolute', zIndex: 10 }}>
-                  <div style={{ fontSize: '3em', marginBottom: '10px' }}>⏳</div>
-                  <div>Cargando Juan Pablo...</div>
-                  <div style={{ fontSize: '0.8em', opacity: 0.7, marginTop: '5px' }}>Pedro está preparándose</div>
-                </div>
-              )}
-              {isAvatarSpeaking && (
-                <div style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(76, 175, 80, 0.8)', padding: '5px 10px', borderRadius: '15px', fontSize: '0.8em' }}>
-                  Hablando...
-                </div>
-              )}
-            </div>
-            
-            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
-              <button
-                onClick={startAvatarConversation}
-                disabled={!avatarLoaded}
-                style={{ 
-                  padding: '10px 20px', 
-                  background: avatarLoaded ? '#28a745' : '#ccc', 
-                  color: 'white', 
-                  border: 'none', 
-                  borderRadius: '20px', 
-                  cursor: avatarLoaded ? 'pointer' : 'not-allowed',
-                  fontSize: '0.9em'
-                }}
-              >
-                🎬 Iniciar Conversación
-              </button>
-              <button
-                onClick={startListeningToPedro}
-                disabled={!avatarLoaded || isListeningToPedro}
-                style={{ 
-                  padding: '10px 20px', 
-                  background: isListeningToPedro ? '#4caf50' : (avatarLoaded ? '#007bff' : '#ccc'), 
-                  color: 'white', 
-                  border: 'none', 
-                  borderRadius: '20px', 
-                  cursor: avatarLoaded ? 'pointer' : 'not-allowed',
-                  fontSize: '0.9em'
-                }}
-              >
-                {isListeningToPedro ? '👂 Escuchando...' : '👂 Escuchar a Pedro'}
-              </button>
-              <button
-                onClick={stopListeningToPedro}
-                disabled={!isListeningToPedro}
-                style={{ 
-                  padding: '8px 16px', 
-                  background: isListeningToPedro ? '#dc3545' : '#ccc', 
-                  color: 'white', 
-                  border: 'none', 
-                  borderRadius: '15px', 
-                  cursor: isListeningToPedro ? 'pointer' : 'not-allowed',
-                  fontSize: '0.8em'
-                }}
-              >
-                ⏹️ Parar
-              </button>
-              <button
-                onClick={() => {
-                  // Force sync - ask user what Pedro just said
-                  const response = prompt("¿Qué acaba de decir Juan Pablo? (Para sincronizar el chat)");
-                  if (response) {
-                    setMessages(prev => [...prev, { text: response, sender: 'juan' }]);
-                  }
-                }}
-                disabled={!avatarLoaded}
-                style={{ 
-                  padding: '8px 16px', 
-                  background: avatarLoaded ? '#17a2b8' : '#ccc', 
-                  color: 'white', 
-                  border: 'none', 
-                  borderRadius: '15px', 
-                  cursor: avatarLoaded ? 'pointer' : 'not-allowed',
-                  fontSize: '0.8em'
-                }}
-              >
-                ⚡ Sincronizar
-              </button>
-            </div>
-            
-            <div style={{ marginTop: '15px', fontSize: '0.9em', color: '#666', textAlign: 'center', maxWidth: '350px' }}>
-              {avatarLoaded ? (
-                <>
-                  ✅ <strong>Juan Pablo está listo</strong><br/>
-                  {isListeningToPedro ? 
-                    '👂 Escuchando a Pedro - sus palabras aparecerán como texto' :
-                    'Haz clic en "Escuchar a Pedro" para ver sus palabras como texto'
-                  }
-                </>
-              ) : (
-                '⏳ Cargando avatar de video... Un momento por favor.'
-              )}
+              ← Volver
+            </button>
+            <div style={{ flex: 1, textAlign: 'center' }}>
+              <h1 style={{ fontSize: '1.8em', margin: 0 }}>🎥 Video Conversación con Pedro</h1>
+              <div style={{ opacity: 0.9, marginTop: '5px' }}>
+                {isListeningToPedro ? '👂 Escuchando sus respuestas...' : 'Habla con Pedro directamente'}
+              </div>
             </div>
           </div>
 
-          {/* Chat section */}
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', borderLeft: '2px solid #e9ecef' }}>
-            <div style={{ flex: 1, padding: '20px', overflowY: 'auto', background: '#f8f9fa' }}>
-              {messages.map((msg, index) => (
-                <div key={index} style={{ marginBottom: '15px', textAlign: msg.sender === 'user' ? 'right' : 'left' }}>
-                  <div style={{
-                    display: 'inline-block',
-                    maxWidth: '80%',
-                    padding: '12px 18px',
-                    borderRadius: '18px',
-                    background: msg.sender === 'user' ? '#667eea' : 'white',
-                    color: msg.sender === 'user' ? 'white' : '#333',
-                    border: msg.sender === 'juan' ? '1px solid #e9ecef' : 'none',
-                    boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-                    lineHeight: '1.4',
-                    animation: 'fadeIn 0.3s ease-out'
-                  }}>
-                    {msg.text}
-                    {msg.sender === 'juan' && isAvatarSpeaking && index === messages.length - 1 && (
-                      <div style={{ fontSize: '0.8em', opacity: 0.6, marginTop: '5px' }}>
-                        🗣️ Juan Pablo está diciendo esto ahora
-                      </div>
-                    )}
-                  </div>
+          <div style={{ flex: 1, display: 'flex' }}>
+            {/* Video section */}
+            <div style={{ flex: 2, background: '#f8f9fa', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+              <div 
+                id="avatar-video-container"
+                style={{ 
+                  width: '400px', 
+                  height: '300px', 
+                  background: '#000', 
+                  borderRadius: '15px', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  color: 'white', 
+                  marginBottom: '20px',
+                  position: 'relative',
+                  overflow: 'hidden'
+                }}
+              >
+                <div style={{ textAlign: 'center', position: 'absolute', zIndex: 10, background: 'rgba(0,0,0,0.7)', padding: '10px', borderRadius: '10px' }}>
+                  <div style={{ fontSize: '1.2em', marginBottom: '5px' }}>👋 ¡Hola! Soy Pedro</div>
+                  <div style={{ fontSize: '0.9em', opacity: 0.8 }}>Cargando video...</div>
                 </div>
-              ))}
-              {isLoading && (
-                <div style={{ textAlign: 'left', marginBottom: '15px' }}>
-                  <div style={{ display: 'inline-block', padding: '12px 18px', background: 'white', border: '1px solid #e9ecef', borderRadius: '18px', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>
-                    <span style={{ opacity: 0.7 }}>
-                      {avatarLoaded ? 'Juan Pablo está pensando...' : 'Procesando mensaje...'}
-                    </span>
-                  </div>
-                </div>
-              )}
-            </div>
-            
-            <div style={{ padding: '20px', background: 'white', borderTop: '2px solid #e9ecef' }}>
-              <div style={{ marginBottom: '10px', fontSize: '0.8em', color: '#666', textAlign: 'center' }}>
-                💡 Tip: {avatarLoaded ? 'Puedes hablar directamente con Juan Pablo arriba o escribir aquí' : 'Escribe tu mensaje mientras se carga el avatar'}
               </div>
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                <input
-                  type="text"
-                  value={inputMessage}
-                  onChange={(e) => setInputMessage(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && !isLoading && handleSendMessage()}
-                  placeholder="Escribe en español o inglés..."
-                  disabled={isLoading}
-                  style={{ 
-                    flex: 1, 
-                    padding: '12px 18px', 
-                    border: '2px solid #e9ecef', 
-                    borderRadius: '25px', 
-                    fontSize: '16px', 
-                    outline: 'none',
-                    transition: 'border-color 0.3s ease'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = '#667eea'}
-                  onBlur={(e) => e.target.style.borderColor = '#e9ecef'}
-                />
+              
+              <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
                 <button
-                  onClick={toggleVoice}
-                  style={{
-                    width: '50px',
-                    height: '50px',
-                    borderRadius: '50%',
-                    border: 'none',
-                    background: isListening ? '#4caf50' : '#ff6b6b',
-                    color: 'white',
-                    fontSize: '20px',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    transform: isListening ? 'scale(1.1)' : 'scale(1)'
-                  }}
-                  title={isListening ? 'Haz clic para parar' : 'Haz clic y habla (se enviará automáticamente)'}
-                >
-                  🎤
-                </button>
-                <button
-                  onClick={() => handleSendMessage()}
-                  disabled={isLoading || !inputMessage.trim()}
+                  onClick={startListeningToPedro}
+                  disabled={isListeningToPedro}
                   style={{ 
                     padding: '12px 25px', 
-                    background: isLoading || !inputMessage.trim() ? '#ccc' : '#667eea', 
+                    background: isListeningToPedro ? '#4caf50' : '#007bff', 
                     color: 'white', 
                     border: 'none', 
                     borderRadius: '25px', 
-                    cursor: isLoading || !inputMessage.trim() ? 'not-allowed' : 'pointer',
+                    cursor: 'pointer',
+                    fontSize: '1em',
                     transition: 'all 0.3s ease'
                   }}
                 >
-                  {isLoading ? 'Enviando...' : 'Enviar'}
+                  {isListeningToPedro ? '👂 Escuchando...' : '👂 Escuchar a Pedro'}
                 </button>
+                {isListeningToPedro && (
+                  <button
+                    onClick={stopListeningToPedro}
+                    style={{ 
+                      padding: '12px 25px', 
+                      background: '#dc3545', 
+                      color: 'white', 
+                      border: 'none', 
+                      borderRadius: '25px', 
+                      cursor: 'pointer',
+                      fontSize: '1em'
+                    }}
+                  >
+                    ⏹️ Parar
+                  </button>
+                )}
+              </div>
+              
+              <div style={{ marginTop: '20px', textAlign: 'center', maxWidth: '350px' }}>
+                <p style={{ color: '#666', fontSize: '0.9em', lineHeight: '1.4' }}>
+                  {isListeningToPedro ? 
+                    '👂 Escuchando a Pedro - sus palabras aparecerán como texto →' :
+                    'Habla con Pedro y haz clic en "Escuchar" para ver sus respuestas como texto'
+                  }
+                </p>
+              </div>
+            </div>
+
+            {/* Transcript section */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', borderLeft: '2px solid #e9ecef' }}>
+              <div style={{ padding: '15px', background: '#f8f9fa', borderBottom: '1px solid #e9ecef' }}>
+                <h3 style={{ color: '#333', margin: '0 0 5px 0', fontSize: '1.1em' }}>📝 Transcripción</h3>
+                <p style={{ color: '#666', fontSize: '0.85em', margin: 0 }}>
+                  Las palabras de Pedro aparecen aquí
+                </p>
+              </div>
+              
+              <div style={{ flex: 1, padding: '20px', overflowY: 'auto', background: 'white' }}>
+                {messages.map((msg, index) => (
+                  <div key={index} style={{ marginBottom: '15px' }}>
+                    <div style={{
+                      padding: '12px 16px',
+                      borderRadius: '12px',
+                      background: '#f1f3f4',
+                      color: '#333',
+                      lineHeight: '1.4',
+                      fontSize: '0.95em',
+                      border: '1px solid #e9ecef'
+                    }}>
+                      <div style={{ fontSize: '0.8em', color: '#666', marginBottom: '5px' }}>
+                        Pedro dice:
+                      </div>
+                      {msg.text}
+                    </div>
+                  </div>
+                ))}
+                {messages.length === 1 && (
+                  <div style={{ textAlign: 'center', color: '#999', fontStyle: 'italic', marginTop: '50px' }}>
+                    Las respuestas de Pedro aparecerán aquí cuando actives "Escuchar"
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </div>
       </div>
+    );
+  }
 
-      <style jsx>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
-    </div>
-  );
+  // Chat Mode
+  if (currentMode === 'chat') {
+    return (
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #667eea, #764ba2)', padding: '20px' }}>
+        <Head>
+          <title>Juan Pablo - Chat Mode</title>
+        </Head>
+        
+        <div style={{ maxWidth: '800px', margin: '0 auto', background: 'white', borderRadius: '20px', height: '700px', display: 'flex', flexDirection: 'column', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}>
+          
+          <div style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)', color: 'white', padding: '20px', display: 'flex', alignItems: 'center', borderRadius: '20px 20px 0 0' }}>
+            <button 
+              onClick={goBack}
+              style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', padding: '8px 15px', borderRadius: '15px', cursor: 'pointer', marginRight: '20px' }}
+            >
+              ← Volver
+            </button>
+            <div style={{ flex: 1, textAlign: 'center' }}>
+              <h1 style={{ fontSize: '1.8em', margin: 0 }}>💬 Chat con Juan Pablo</h1>
+              <div style={{ opacity: 0.9, marginTop: '5px' }}>
+                Práctica de texto, gramática y vocabulario
+              </div>
+            </div>
+          </div>
+
+          <div style={{ flex: 1, padding: '20px', overflowY: 'auto', background: '#f8f9fa' }}>
+            {messages.map((msg, index) => (
+              <div key={index} style={{ marginBottom: '15px', textAlign: msg.sender === 'user' ? 'right' : 'left' }}>
+                <div style={{
+                  display: 'inline-block',
+                  maxWidth: '80%',
+                  padding: '12px 18px',
+                  borderRadius: '18px',
+                  background: msg.sender === 'user' ? '#667eea' : 'white',
+                  color: msg.sender === 'user' ? 'white' : '#333',
+                  border: msg.sender === 'juan' ? '1px solid #e9ecef' : 'none',
+                  boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+                  lineHeight: '1.4'
+                }}>
+                  {msg.text}
+                </div>
+              </div>
+            ))}
+            {isLoading && (
+              <div style={{ textAlign: 'left', marginBottom: '15px' }}>
+                <div style={{ display: 'inline-block', padding: '12px 18px', background: 'white', border: '1px solid #e9ecef', borderRadius: '18px', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>
+                  <span style={{ opacity: 0.7 }}>Juan Pablo está escribiendo...</span>
+                </div>
+              </div>
+            )}
+          </div>
+          
+          <div style={{ padding: '20px', background: 'white', borderTop: '2px solid #e9ecef' }}>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              <input
+                type="text"
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && !isLoading && handleSendMessage()}
+                placeholder="Escribe en español o inglés..."
+                disabled={isLoading}
+                style={{ 
+                  flex: 1, 
+                  padding: '12px 18px', 
+                  border: '2px solid #e9ecef', 
+                  borderRadius: '25px', 
+                  fontSize: '16px', 
+                  outline: 'none',
+                  transition: 'border-color 0.3s ease'
+                }}
+                onFocus={(e) => e.target.style.borderColor = '#667eea'}
+                onBlur={(e) => e.target.style.borderColor = '#e9ecef'}
+              />
+              <button
+                onClick={toggleVoice}
+                style={{
+                  width: '50px',
+                  height: '50px',
+                  borderRadius: '50%',
+                  border: 'none',
+                  background: isListening ? '#4caf50' : '#ff6b6b',
+                  color: 'white',
+                  fontSize: '20px',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  transform: isListening ? 'scale(1.1)' : 'scale(1)'
+                }}
+                title="Convierte tu voz a texto"
+              >
+                🎤
+              </button>
+              <button
+                onClick={() => handleSendMessage()}
+                disabled={isLoading || !inputMessage.trim()}
+                style={{ 
+                  padding: '12px 25px', 
+                  background: isLoading || !inputMessage.trim() ? '#ccc' : '#667eea', 
+                  color: 'white', 
+                  border: 'none', 
+                  borderRadius: '25px', 
+                  cursor: isLoading || !inputMessage.trim() ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                {isLoading ? 'Enviando...' : 'Enviar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 }
