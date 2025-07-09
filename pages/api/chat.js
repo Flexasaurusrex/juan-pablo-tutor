@@ -5,7 +5,10 @@ export default async function handler(req, res) {
 
   const { message, togetherApiKey } = req.body;
 
-  if (!message || !togetherApiKey) {
+  // Use environment variable as fallback
+  const apiKey = togetherApiKey || process.env.TOGETHER_API_KEY;
+
+  if (!message || !apiKey) {
     return res.status(400).json({ message: 'Missing message or API key' });
   }
 
@@ -29,7 +32,7 @@ Usuario dice: "${message}"`;
     const response = await fetch('https://api.together.xyz/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${togetherApiKey}`,
+        'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
