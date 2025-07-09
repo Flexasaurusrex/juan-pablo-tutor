@@ -308,11 +308,14 @@ export default function JuanPablo() {
         minHeight: '100vh', 
         width: '100vw',
         background: '#000', 
-        position: 'relative', 
+        position: 'fixed',
+        top: 0,
+        left: 0,
         overflow: 'hidden',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        zIndex: 9999
       }}>
         <Head>
           <title>Juan Pablo - Spanish Learning AI</title>
@@ -334,61 +337,35 @@ export default function JuanPablo() {
             setTimeout(() => setShowModeSelection(true), 2000);
           }}
           style={{ 
-            width: '100%', 
-            height: '100%',
-            minHeight: '100vh',
+            width: '100vw', 
+            height: '100vh',
             objectFit: 'cover',
             position: 'absolute',
             top: 0,
             left: 0,
-            right: 0,
-            bottom: 0
+            zIndex: 1
           }}
         >
           <source src="/intro-sizzle.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
         
-        {/* Fallback loading indicator */}
-        <div style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          color: 'white',
-          fontSize: '18px',
-          fontWeight: 'bold',
-          zIndex: 500,
-          textAlign: 'center'
-        }}>
-          <div style={{ marginBottom: '20px', fontSize: '3em' }}>🎬</div>
-          <div>Cargando video...</div>
-          <div style={{ fontSize: '14px', marginTop: '10px', opacity: 0.8 }}>
-            Si no carga, <span 
-              onClick={skipIntro} 
-              style={{ textDecoration: 'underline', cursor: 'pointer' }}
-            >
-              haz clic aquí
-            </span>
-          </div>
-        </div>
-        
         <button
           onClick={skipIntro}
           style={{
             position: 'absolute',
-            top: typeof window !== 'undefined' && window.innerWidth <= 768 ? '15px' : '20px',
-            right: typeof window !== 'undefined' && window.innerWidth <= 768 ? '15px' : '20px',
+            top: '20px',
+            right: '20px',
             background: 'rgba(255,255,255,0.2)',
             border: 'none',
             color: 'white',
-            padding: typeof window !== 'undefined' && window.innerWidth <= 768 ? '8px 16px' : '10px 20px',
+            padding: '10px 20px',
             borderRadius: '25px',
             cursor: 'pointer',
-            fontSize: typeof window !== 'undefined' && window.innerWidth <= 768 ? '12px' : '14px',
+            fontSize: '14px',
             fontWeight: 'bold',
             backdropFilter: 'blur(10px)',
-            zIndex: 1000,
+            zIndex: 10,
             touchAction: 'manipulation'
           }}
         >
@@ -403,13 +380,17 @@ export default function JuanPablo() {
     return (
       <div style={{ 
         minHeight: '100vh', 
-        width: '100%',
+        width: '100vw',
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
-        padding: typeof window !== 'undefined' && window.innerWidth <= 768 ? '15px' : '20px', 
+        position: 'fixed',
+        top: 0,
+        left: 0,
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
-        boxSizing: 'border-box'
+        padding: '20px',
+        boxSizing: 'border-box',
+        zIndex: 1000
       }}>
         <Head>
           <title>Juan Pablo - Choose Your Learning Style</title>
@@ -418,17 +399,18 @@ export default function JuanPablo() {
         
         <div style={{ 
           background: 'white', 
-          borderRadius: typeof window !== 'undefined' && window.innerWidth <= 768 ? '15px' : '20px', 
-          padding: typeof window !== 'undefined' && window.innerWidth <= 768 ? '30px 20px' : '60px', 
-          maxWidth: typeof window !== 'undefined' && window.innerWidth <= 768 ? '100%' : '800px', 
+          borderRadius: '20px', 
+          padding: '60px', 
+          maxWidth: '800px', 
           width: '100%', 
           textAlign: 'center', 
           boxShadow: '0 20px 40px rgba(0,0,0,0.1)', 
           animation: 'fadeInUp 0.8s ease-out',
-          margin: typeof window !== 'undefined' && window.innerWidth <= 768 ? '0' : 'auto'
+          position: 'relative',
+          zIndex: 1001
         }}>
           <h1 style={{ 
-            fontSize: typeof window !== 'undefined' && window.innerWidth <= 768 ? '2em' : '3.5em', 
+            fontSize: '3.5em', 
             marginBottom: '15px', 
             color: '#333', 
             fontWeight: 'bold',
@@ -437,9 +419,9 @@ export default function JuanPablo() {
             ¡Hola! Soy Juan Pablo 🇲🇽
           </h1>
           <p style={{ 
-            fontSize: typeof window !== 'undefined' && window.innerWidth <= 768 ? '1em' : '1.3em', 
+            fontSize: '1.3em', 
             color: '#666', 
-            marginBottom: typeof window !== 'undefined' && window.innerWidth <= 768 ? '30px' : '40px', 
+            marginBottom: '40px', 
             lineHeight: '1.6'
           }}>
             Tu compañero de español para prepararte para Ciudad de México
@@ -448,7 +430,7 @@ export default function JuanPablo() {
           <div style={{ 
             display: 'flex', 
             flexDirection: 'column',
-            gap: typeof window !== 'undefined' && window.innerWidth <= 768 ? '20px' : '30px', 
+            gap: '30px', 
             justifyContent: 'center',
             alignItems: 'stretch'
           }}>
@@ -457,8 +439,8 @@ export default function JuanPablo() {
               style={{ 
                 background: 'linear-gradient(135deg, #ff6b6b, #ee5a24)', 
                 color: 'white', 
-                padding: typeof window !== 'undefined' && window.innerWidth <= 768 ? '25px 20px' : '40px 30px',
-                borderRadius: typeof window !== 'undefined' && window.innerWidth <= 768 ? '12px' : '15px', 
+                padding: '40px 30px',
+                borderRadius: '15px', 
                 cursor: 'pointer', 
                 transition: 'transform 0.3s ease, box-shadow 0.3s ease',
                 border: 'none',
@@ -469,9 +451,9 @@ export default function JuanPablo() {
               onMouseOver={(e) => e.target.style.transform = 'translateY(-5px)'}
               onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
             >
-              <div style={{ fontSize: typeof window !== 'undefined' && window.innerWidth <= 768 ? '2.5em' : '3em', marginBottom: '15px' }}>🎥</div>
-              <h3 style={{ fontSize: typeof window !== 'undefined' && window.innerWidth <= 768 ? '1.3em' : '1.6em', marginBottom: '10px', fontWeight: 'bold' }}>Video Conversación</h3>
-              <p style={{ fontSize: typeof window !== 'undefined' && window.innerWidth <= 768 ? '0.85em' : '1em', opacity: 0.9, lineHeight: '1.4' }}>
+              <div style={{ fontSize: '3em', marginBottom: '15px' }}>🎥</div>
+              <h3 style={{ fontSize: '1.6em', marginBottom: '10px', fontWeight: 'bold' }}>Video Conversación</h3>
+              <p style={{ fontSize: '1em', opacity: 0.9, lineHeight: '1.4' }}>
                 Habla directamente con Pedro para practicar pronunciación y conversación natural
               </p>
             </div>
@@ -481,8 +463,8 @@ export default function JuanPablo() {
               style={{ 
                 background: 'linear-gradient(135deg, #74b9ff, #0984e3)', 
                 color: 'white', 
-                padding: typeof window !== 'undefined' && window.innerWidth <= 768 ? '25px 20px' : '40px 30px',
-                borderRadius: typeof window !== 'undefined' && window.innerWidth <= 768 ? '12px' : '15px', 
+                padding: '40px 30px',
+                borderRadius: '15px', 
                 cursor: 'pointer', 
                 transition: 'transform 0.3s ease, box-shadow 0.3s ease',
                 border: 'none',
@@ -493,9 +475,9 @@ export default function JuanPablo() {
               onMouseOver={(e) => e.target.style.transform = 'translateY(-5px)'}
               onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
             >
-              <div style={{ fontSize: typeof window !== 'undefined' && window.innerWidth <= 768 ? '2.5em' : '3em', marginBottom: '15px' }}>💬</div>
-              <h3 style={{ fontSize: typeof window !== 'undefined' && window.innerWidth <= 768 ? '1.3em' : '1.6em', marginBottom: '10px', fontWeight: 'bold' }}>Chat Texto</h3>
-              <p style={{ fontSize: typeof window !== 'undefined' && window.innerWidth <= 768 ? '0.85em' : '1em', opacity: 0.9, lineHeight: '1.4' }}>
+              <div style={{ fontSize: '3em', marginBottom: '15px' }}>💬</div>
+              <h3 style={{ fontSize: '1.6em', marginBottom: '10px', fontWeight: 'bold' }}>Chat Texto</h3>
+              <p style={{ fontSize: '1em', opacity: 0.9, lineHeight: '1.4' }}>
                 Practica gramática, vocabulario y escritura con correcciones detalladas
               </p>
             </div>
