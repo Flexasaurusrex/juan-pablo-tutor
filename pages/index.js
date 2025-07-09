@@ -350,7 +350,6 @@ export default function JuanPablo() {
             @media (max-width: 768px) {
               .intro-video {
                 object-fit: contain;
-                background: #000;
               }
               
               .skip-button {
