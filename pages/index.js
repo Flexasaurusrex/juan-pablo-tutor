@@ -1,4 +1,97 @@
-import { useState, useEffect, useRef } from 'react';
+// Mode Selection Screen  
+  if (!currentMode) {
+    return (
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', padding: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Head>
+          <title>Juan Pablo - Spanish Tutor</title>
+          <meta name="description" content="AI Spanish tutor for Mexico City preparation" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        </Head>
+        
+        <div style={{ 
+          background: 'white', 
+          borderRadius: '20px', 
+          padding: window.innerWidth <= 768 ? '40px 20px' : '60px', 
+          maxWidth: '800px', 
+          width: '100%', 
+          textAlign: 'center', 
+          boxShadow: '0 20px 40px rgba(0,0,0,0.1)', 
+          animation: 'fadeInUp 0.8s ease-out',
+          margin: '20px'
+        }}>
+          <h1 style={{ 
+            fontSize: window.innerWidth <= 768 ? '2em' : '2.5em', 
+            margin: '0 0 20px 0', 
+            color: '#333',
+            lineHeight: '1.2'
+          }}>🇲🇽 Juan Pablo</h1>
+          <p style={{ 
+            fontSize: window.innerWidth <= 768 ? '1.1em' : '1.3em', 
+            color: '#666', 
+            margin: window.innerWidth <= 768 ? '0 0 30px 0' : '0 0 50px 0',
+            lineHeight: '1.4'
+          }}>Tu profesor de español para Ciudad de México</p>
+          
+          <div style={{ 
+            display: 'flex', 
+            gap: window.innerWidth <= 768 ? '20px' : '40px', 
+            justifyContent: 'center', 
+            flexDirection: window.innerWidth <= 768 ? 'column' : 'row',
+            alignItems: 'center'
+          }}>
+            {/* Video Mode */}
+            <div 
+              onClick={startVideoMode}
+              style={{ 
+                background: 'linear-gradient(135deg, #ff6b6b, #ee5a24)', 
+                color: 'white', 
+                padding: window.innerWidth <= 768 ? '30px 20px' : '40px 30px', 
+                borderRadius: '20px', 
+                cursor: 'pointer', 
+                width: window.innerWidth <= 768 ? '100%' : '300px',
+                maxWidth: '400px',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 10px 30px rgba(255, 107, 107, 0.3)',
+                animation: 'slideInLeft 0.6s ease-out 0.3s both'
+              }}
+              onMouseOver={(e) => e.target.style.transform = 'translateY(-5px)'}
+              onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
+            >
+              <div style={{ fontSize: window.innerWidth <= 768 ? '2.5em' : '3em', marginBottom: '15px' }}>🎥</div>
+              <h2 style={{ fontSize: window.innerWidth <= 768 ? '1.3em' : '1.5em', margin: '0 0 15px 0' }}>Conversación en Video</h2>
+              <p style={{ opacity: 0.9, lineHeight: '1.5', margin: 0, fontSize: window.innerWidth <= 768 ? '0.9em' : '1em' }}>
+                Habla directamente con Pedro para practicar pronunciación y comprensión oral. 
+                Ve sus respuestas como texto para aprender escritura.
+              </p>
+            </div>
+
+            {/* Chat Mode */}
+            <div 
+              onClick={startChatMode}
+              style={{ 
+                background: 'linear-gradient(135deg, #667eea, #764ba2)', 
+                color: 'white', 
+                padding: window.innerWidth <= 768 ? '30px 20px' : '40px 30px', 
+                borderRadius: '20px', 
+                cursor: 'pointer', 
+                width: window.innerWidth <= 768 ? '100%' : '300px',
+                maxWidth: '400px',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 10px 30px rgba(102, 126, 234, 0.3)',
+                animation: 'slideInRight 0.6s ease-out 0.5s both'
+              }}
+              onMouseOver={(e) => e.target.style.transform = 'translateY(-5px)'}
+              onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
+            >
+              <div style={{ fontSize: window.innerWidth <= 768 ? '2.5em' : '3em', marginBottom: '15px' }}>💬</div>
+              <h2 style={{ fontSize: window.innerWidth <= 768 ? '1.3em' : '1.5em', margin: '0 0 15px 0' }}>Chat de Texto</h2>
+              <p style={{ opacity: 0.9, lineHeight: '1.5', margin: 0, fontSize: window.innerWidth <= 768 ? '0.9em' : '1em' }}>
+                Conversa por texto con Juan Pablo. Practica gramática, vocabulario 
+                y recibe correcciones detalladas para Ciudad de México.
+              </p>
+            </div>
+          </div>
+        </div>import { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 
 export default function JuanPablo() {
@@ -89,7 +182,10 @@ export default function JuanPablo() {
     setMessages([
       { text: "¡Hola! Habla conmigo directamente para practicar conversación. Haz clic en 'Escuchar' para ver mis respuestas como texto.", sender: 'juan' }
     ]);
-    loadHeyGenEmbed();
+    // Load HeyGen embed after a small delay to ensure DOM is ready
+    setTimeout(() => {
+      loadHeyGenEmbed();
+    }, 100);
   };
 
   const startChatMode = () => {
@@ -100,11 +196,24 @@ export default function JuanPablo() {
   };
 
   const loadHeyGenEmbed = () => {
+    console.log('🎬 Loading HeyGen embed...');
+    
     // Remove existing embed if any
     const existingEmbed = document.getElementById('heygen-streaming-embed');
     if (existingEmbed) {
       existingEmbed.remove();
+      console.log('🗑️ Removed existing embed');
     }
+
+    // Wait for container to be available
+    const avatarContainer = document.getElementById('avatar-video-container');
+    if (!avatarContainer) {
+      console.log('❌ Avatar container not found, retrying...');
+      setTimeout(loadHeyGenEmbed, 200);
+      return;
+    }
+
+    console.log('✅ Avatar container found, creating embed');
 
     // Create the HeyGen embed
     const host = "https://labs.heygen.com";
@@ -127,6 +236,7 @@ export default function JuanPablo() {
         height: 100%;
         border-radius: 15px;
         overflow: hidden;
+        z-index: 10;
       }
       #heygen-streaming-container {
         width: 100%;
@@ -146,14 +256,26 @@ export default function JuanPablo() {
     iframe.allow = "microphone";
     iframe.src = url;
     
+    // Add load event listener
+    iframe.onload = () => {
+      console.log('✅ HeyGen iframe loaded successfully');
+      // Hide the placeholder text
+      const placeholder = avatarContainer.querySelector('div[style*="position: absolute"]');
+      if (placeholder) {
+        placeholder.style.display = 'none';
+      }
+    };
+    
+    iframe.onerror = (error) => {
+      console.error('❌ HeyGen iframe error:', error);
+    };
+    
     container.appendChild(iframe);
     wrapDiv.appendChild(stylesheet);
     wrapDiv.appendChild(container);
     
-    const avatarContainer = document.getElementById('avatar-video-container');
-    if (avatarContainer) {
-      avatarContainer.appendChild(wrapDiv);
-    }
+    avatarContainer.appendChild(wrapDiv);
+    console.log('🎬 HeyGen embed created and added to container');
   };
 
   const handleSendMessage = async (message = inputMessage) => {
@@ -243,6 +365,7 @@ export default function JuanPablo() {
         <Head>
           <title>Juan Pablo - Spanish Tutor</title>
           <meta name="description" content="AI Spanish tutor for Mexico City preparation" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         </Head>
         
         {/* Sizzle Reel Video */}
@@ -266,20 +389,20 @@ export default function JuanPablo() {
           Su navegador no soporta el elemento de video.
         </video>
 
-        {/* Skip Button */}
+        {/* Skip Button - Responsive */}
         <button
           onClick={skipIntro}
           style={{
             position: 'absolute',
-            top: '30px',
-            right: '30px',
+            top: 'max(20px, env(safe-area-inset-top))',
+            right: 'max(20px, env(safe-area-inset-right))',
             background: 'rgba(0, 0, 0, 0.7)',
             color: 'white',
             border: 'none',
-            padding: '12px 20px',
+            padding: window.innerWidth <= 768 ? '10px 16px' : '12px 20px',
             borderRadius: '25px',
             cursor: 'pointer',
-            fontSize: '14px',
+            fontSize: window.innerWidth <= 768 ? '12px' : '14px',
             zIndex: 10,
             transition: 'all 0.3s ease'
           }}
@@ -289,18 +412,19 @@ export default function JuanPablo() {
           Saltar →
         </button>
 
-        {/* Loading indicator for fallback */}
+        {/* Loading indicator - Responsive */}
         <div style={{
           position: 'absolute',
-          bottom: '50px',
+          bottom: 'max(30px, env(safe-area-inset-bottom))',
           left: '50%',
           transform: 'translateX(-50%)',
           color: 'white',
           textAlign: 'center',
-          zIndex: 10
+          zIndex: 10,
+          padding: '0 20px'
         }}>
-          <div style={{ fontSize: '1.2em', marginBottom: '10px' }}>🇲🇽 Juan Pablo</div>
-          <div style={{ opacity: 0.8 }}>Cargando tu experiencia de español...</div>
+          <div style={{ fontSize: window.innerWidth <= 768 ? '1em' : '1.2em', marginBottom: '10px' }}>🇲🇽 Juan Pablo</div>
+          <div style={{ opacity: 0.8, fontSize: window.innerWidth <= 768 ? '0.9em' : '1em' }}>Cargando tu experiencia de español...</div>
         </div>
       </div>
     );
@@ -421,8 +545,8 @@ export default function JuanPablo() {
               <div 
                 id="avatar-video-container"
                 style={{ 
-                  width: '400px', 
-                  height: '300px', 
+                  width: window.innerWidth <= 768 ? '320px' : '400px', 
+                  height: window.innerWidth <= 768 ? '240px' : '300px', 
                   background: '#000', 
                   borderRadius: '15px', 
                   display: 'flex', 
@@ -434,9 +558,9 @@ export default function JuanPablo() {
                   overflow: 'hidden'
                 }}
               >
-                <div style={{ textAlign: 'center', position: 'absolute', zIndex: 10, background: 'rgba(0,0,0,0.7)', padding: '10px', borderRadius: '10px' }}>
+                <div style={{ textAlign: 'center', position: 'absolute', zIndex: 5, background: 'rgba(0,0,0,0.7)', padding: '10px', borderRadius: '10px' }}>
                   <div style={{ fontSize: '1.2em', marginBottom: '5px' }}>👋 ¡Hola! Soy Pedro</div>
-                  <div style={{ fontSize: '0.9em', opacity: 0.8 }}>Cargando video...</div>
+                  <div style={{ fontSize: '0.9em', opacity: 0.8 }}>Conectando video...</div>
                 </div>
               </div>
               
