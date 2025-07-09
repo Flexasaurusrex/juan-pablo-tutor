@@ -1,156 +1,347 @@
-export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method not allowed' });
-  }
+import { useState, useEffect, useRef } from 'react';
+import Head from 'next/head';
 
-  const { action, heygenApiKey, avatarId, text, sessionId } = req.body;
+export default function JuanPablo() {
+  const [isConnected, setIsConnected] = useState(false);
+  const [sessionId, setSessionId] = useState(null);
+  const [messages, setMessages] = useState([
+    {
+      text: "¡Hola! Soy Juan Pablo, tu profesor de español. Estoy aquí para ayudarte a prepararte para tu mudanza a Ciudad de México. ¿Cómo te llamas?",
+      sender: 'juan'
+    }
+  ]);
+  const [inputMessage, setInputMessage] = useState('');
+  const [isListening, setIsListening] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const recognitionRef = useRef(null);
 
-  // Use environment variables as fallback
-  const apiKey = heygenApiKey || process.env.HEYGEN_API_KEY;
-  const avatar = avatarId || process.env.AVATAR_ID;
-
-  console.log('=== HEYGEN API CALL ===');
-  console.log('Action:', action);
-  console.log('Avatar ID:', avatar);
-  console.log('Session ID:', sessionId);
-  console.log('======================');
-
-  if (!action || !apiKey) {
-    return res.status(400).json({ error: 'Missing required parameters' });
-  }
-
-  try {
-    if (action === 'start_session') {
-      if (!avatar) {
-        return res.status(400).json({ error: 'Avatar ID required for starting session' });
-      }
-
-      // Generate a unique session ID
-      const newSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  useEffect(() => {
+    // Initialize speech recognition
+    if (typeof window !== 'undefined' && 'webkitSpeechRecognition' in window) {
+      recognitionRef.current = new webkitSpeechRecognition();
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = false;
+      recognitionRef.current.lang = 'es-ES';
       
-      console.log('Starting HeyGen session with ID:', newSessionId);
+      recognitionRef.current.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        setInputMessage(transcript);
+        handleSendMessage(transcript);
+      };
+      
+      recognitionRef.current.onend = () => {
+        setIsListening(false);
+      };
+    }
+  }, []);
 
-      const response = await fetch('https://api.heygen.com/v1/streaming.start', {
+  const startConversation = async () => {
+    try {
+      setIsLoading(true);
+      
+      console.log('Starting avatar conversation...');
+      
+      const response = await fetch('/api/heygen-avatar', {
         method: 'POST',
-        headers: {
-          'X-API-KEY': apiKey,
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          session_id: newSessionId,
-          avatar_id: avatar,
-          quality: 'high',
-          voice: {
-            language: 'es',
-            gender: 'male',
-            speed: 1.0
-          },
-          video_encoding: 'H264'
+          action: 'start_session'
         }),
       });
 
-      const responseText = await response.text();
-      console.log('HeyGen response:', response.status, responseText);
-
-      if (!response.ok) {
-        console.error('HeyGen start session error:', response.status, responseText);
-        return res.status(response.status).json({ 
-          error: `Failed to start HeyGen session: ${response.status}`,
-          details: responseText
-        });
-      }
-
-      const data = JSON.parse(responseText);
-      console.log('✅ HeyGen session started successfully:', data);
+      const data = await response.json();
+      console.log('Start session response:', data);
       
-      // Store session ID for later use
-      return res.status(200).json({ 
-        ...data, 
-        success: true,
-        session_id: newSessionId
-      });
-
-    } else if (action === 'speak') {
-      if (!text) {
-        return res.status(400).json({ error: 'Text required for speaking' });
+      if (data.success && data.session_id) {
+        setIsConnected(true);
+        setSessionId(data.session_id);
+        console.log('✅ HeyGen session started successfully with ID:', data.session_id);
+        
+        // Add success message
+        setMessages(prev => [...prev, { 
+          text: "¡Perfecto! Mi avatar está conectado. Ahora puedes verme mientras hablamos.", 
+          sender: 'juan' 
+        }]);
+        
+      } else {
+        console.error('Failed to start session:', data);
+        throw new Error(data.error || 'Unknown error starting session');
       }
+    } catch (error) {
+      console.error('Failed to start conversation:', error);
+      alert(`Error al conectar avatar: ${error.message}. Juan Pablo funcionará en modo texto.`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  const stopConversation = async () => {
+    try {
       if (!sessionId) {
-        return res.status(400).json({ error: 'Session ID required for speaking' });
-      }
-
-      console.log('Making avatar speak:', text, 'in session:', sessionId);
-
-      const response = await fetch('https://api.heygen.com/v1/streaming.task', {
-        method: 'POST',
-        headers: {
-          'X-API-KEY': apiKey,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          session_id: sessionId,
-          text: text,
-          task_type: 'talk',
-          voice_settings: {
-            speed: 1.0,
-            emotion: 'friendly'
-          }
-        }),
-      });
-
-      const responseText = await response.text();
-      console.log('Speak API response:', response.status, responseText);
-
-      if (!response.ok) {
-        return res.status(response.status).json({ 
-          error: `Failed to make avatar speak: ${response.status}`,
-          details: responseText
-        });
-      }
-
-      const data = JSON.parse(responseText);
-      return res.status(200).json({ ...data, success: true });
-
-    } else if (action === 'stop_session') {
-      if (!sessionId) {
-        return res.status(400).json({ error: 'Session ID required for stopping session' });
+        setIsConnected(false);
+        return;
       }
 
       console.log('Stopping session:', sessionId);
 
-      const response = await fetch('https://api.heygen.com/v1/streaming.stop', {
+      await fetch('/api/heygen-avatar', {
         method: 'POST',
-        headers: {
-          'X-API-KEY': apiKey,
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          session_id: sessionId
+          action: 'stop_session',
+          sessionId: sessionId
+        }),
+      });
+      
+      setIsConnected(false);
+      setSessionId(null);
+      console.log('✅ Session stopped successfully');
+      
+    } catch (error) {
+      console.error('Failed to stop conversation:', error);
+      setIsConnected(false);
+      setSessionId(null);
+    }
+  };
+
+  const handleSendMessage = async (message = inputMessage) => {
+    if (!message.trim()) return;
+
+    // Add user message
+    setMessages(prev => [...prev, { text: message, sender: 'user' }]);
+    setInputMessage('');
+    setIsLoading(true);
+
+    try {
+      // Get response from Together.ai (no API key needed - using env vars)
+      const chatResponse = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: message
         }),
       });
 
-      const responseText = await response.text();
-      console.log('Stop API response:', response.status, responseText);
+      const chatData = await chatResponse.json();
+      
+      // Add Juan Pablo's response
+      setMessages(prev => [...prev, { text: chatData.reply, sender: 'juan' }]);
 
-      if (!response.ok) {
-        return res.status(response.status).json({ 
-          error: `Failed to stop HeyGen session: ${response.status}`,
-          details: responseText
+      // Make avatar speak (if connected)
+      if (isConnected && sessionId) {
+        console.log('Making avatar speak:', chatData.reply);
+        
+        const speakResponse = await fetch('/api/heygen-avatar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'speak',
+            text: chatData.reply,
+            sessionId: sessionId
+          }),
         });
+
+        const speakData = await speakResponse.json();
+        if (!speakData.success) {
+          console.error('Failed to make avatar speak:', speakData);
+        } else {
+          console.log('✅ Avatar speaking successfully');
+        }
       }
 
-      const data = JSON.parse(responseText);
-      return res.status(200).json({ ...data, success: true });
+    } catch (error) {
+      console.error('Failed to send message:', error);
+      setMessages(prev => [...prev, { 
+        text: 'Lo siento, tuve un problema técnico. ¿Puedes repetir?', 
+        sender: 'juan' 
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    } else {
-      return res.status(400).json({ error: 'Invalid action. Use: start_session, speak, or stop_session' });
+  const toggleVoice = () => {
+    if (!recognitionRef.current) {
+      alert('El reconocimiento de voz no está disponible en este navegador. Prueba Chrome.');
+      return;
     }
 
-  } catch (error) {
-    console.error('❌ HeyGen API error:', error);
-    return res.status(500).json({ 
-      error: 'Internal server error',
-      message: error.message
-    });
-  }
+    if (isListening) {
+      recognitionRef.current.stop();
+    } else {
+      recognitionRef.current.start();
+      setIsListening(true);
+    }
+  };
+
+  return (
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', padding: '20px' }}>
+      <Head>
+        <title>Juan Pablo - Spanish Tutor</title>
+        <meta name="description" content="AI Spanish tutor for Mexico City preparation" />
+      </Head>
+      
+      <div style={{ maxWidth: '1200px', margin: '0 auto', background: 'white', borderRadius: '20px', height: '700px', display: 'flex', flexDirection: 'column', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}>
+        
+        <div style={{ background: 'linear-gradient(135deg, #ff6b6b, #ee5a24)', color: 'white', padding: '20px', textAlign: 'center', borderRadius: '20px 20px 0 0' }}>
+          <h1 style={{ fontSize: '1.8em', margin: 0 }}>🇲🇽 Juan Pablo - Tu Profesor de Español</h1>
+          <div style={{ opacity: 0.9, marginTop: '5px' }}>
+            {isConnected ? `🟢 Avatar conectado (${sessionId?.substring(0, 10)}...)` : '🔴 Modo texto - conecta avatar para video'}
+          </div>
+        </div>
+
+        <div style={{ flex: 1, display: 'flex' }}>
+          {/* Avatar section */}
+          <div style={{ flex: 2, background: '#f8f9fa', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+            <div style={{ width: '400px', height: '300px', background: '#000', borderRadius: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', marginBottom: '20px', position: 'relative' }}>
+              {isConnected ? (
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: '3em', marginBottom: '10px' }}>🎥</div>
+                  <div>Juan Pablo está aquí</div>
+                  <div style={{ fontSize: '0.8em', opacity: 0.7, marginTop: '5px' }}>Pedro avatar activo</div>
+                  <div style={{ fontSize: '0.7em', opacity: 0.5, marginTop: '5px' }}>Session: {sessionId?.substring(0, 15)}...</div>
+                </div>
+              ) : (
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: '3em', marginBottom: '10px' }}>👋</div>
+                  <div>¡Hola! Soy Juan Pablo</div>
+                  <div style={{ fontSize: '0.8em', opacity: 0.7, marginTop: '5px' }}>Conecta para ver a Pedro en video</div>
+                </div>
+              )}
+            </div>
+            
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
+              <button
+                onClick={startConversation}
+                disabled={isConnected || isLoading}
+                style={{ 
+                  padding: '12px 25px', 
+                  background: isConnected ? '#28a745' : '#667eea', 
+                  color: 'white', 
+                  border: 'none', 
+                  borderRadius: '25px', 
+                  cursor: isConnected || isLoading ? 'not-allowed' : 'pointer',
+                  opacity: isConnected || isLoading ? 0.6 : 1,
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                {isLoading ? 'Conectando...' : isConnected ? '✅ Avatar Conectado' : 'Conectar Avatar'}
+              </button>
+              <button
+                onClick={stopConversation}
+                disabled={!isConnected}
+                style={{ 
+                  padding: '12px 25px', 
+                  background: '#dc3545', 
+                  color: 'white', 
+                  border: 'none', 
+                  borderRadius: '25px', 
+                  cursor: !isConnected ? 'not-allowed' : 'pointer',
+                  opacity: !isConnected ? 0.6 : 1,
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                Desconectar
+              </button>
+            </div>
+            
+            <div style={{ marginTop: '15px', fontSize: '0.9em', color: '#666', textAlign: 'center', maxWidth: '350px' }}>
+              {isConnected ? 
+                '✅ Avatar conectado. Juan Pablo puede hablar y gesticular en tiempo real.' : 
+                'Puedes chatear ahora mismo. Conecta avatar para experiencia completa con video.'
+              }
+            </div>
+          </div>
+
+          {/* Chat section */}
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', borderLeft: '2px solid #e9ecef' }}>
+            <div style={{ flex: 1, padding: '20px', overflowY: 'auto', background: '#f8f9fa' }}>
+              {messages.map((msg, index) => (
+                <div key={index} style={{ marginBottom: '15px', textAlign: msg.sender === 'user' ? 'right' : 'left' }}>
+                  <div style={{
+                    display: 'inline-block',
+                    maxWidth: '80%',
+                    padding: '12px 18px',
+                    borderRadius: '18px',
+                    background: msg.sender === 'user' ? '#667eea' : 'white',
+                    color: msg.sender === 'user' ? 'white' : '#333',
+                    border: msg.sender === 'juan' ? '1px solid #e9ecef' : 'none',
+                    boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+                    lineHeight: '1.4'
+                  }}>
+                    {msg.text}
+                  </div>
+                </div>
+              ))}
+              {isLoading && (
+                <div style={{ textAlign: 'left', marginBottom: '15px' }}>
+                  <div style={{ display: 'inline-block', padding: '12px 18px', background: 'white', border: '1px solid #e9ecef', borderRadius: '18px', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>
+                    <span style={{ opacity: 0.7 }}>Juan Pablo está {isConnected ? 'hablando' : 'pensando'}...</span>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <div style={{ padding: '20px', background: 'white', borderTop: '2px solid #e9ecef' }}>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                <input
+                  type="text"
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && !isLoading && handleSendMessage()}
+                  placeholder="Escribe en español o inglés..."
+                  disabled={isLoading}
+                  style={{ 
+                    flex: 1, 
+                    padding: '12px 18px', 
+                    border: '2px solid #e9ecef', 
+                    borderRadius: '25px', 
+                    fontSize: '16px', 
+                    outline: 'none',
+                    transition: 'border-color 0.3s ease'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#667eea'}
+                  onBlur={(e) => e.target.style.borderColor = '#e9ecef'}
+                />
+                <button
+                  onClick={toggleVoice}
+                  style={{
+                    width: '50px',
+                    height: '50px',
+                    borderRadius: '50%',
+                    border: 'none',
+                    background: isListening ? '#4caf50' : '#ff6b6b',
+                    color: 'white',
+                    fontSize: '20px',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    transform: isListening ? 'scale(1.1)' : 'scale(1)'
+                  }}
+                  title={isListening ? 'Haz clic para parar' : 'Haz clic y habla'}
+                >
+                  🎤
+                </button>
+                <button
+                  onClick={() => handleSendMessage()}
+                  disabled={isLoading || !inputMessage.trim()}
+                  style={{ 
+                    padding: '12px 25px', 
+                    background: isLoading || !inputMessage.trim() ? '#ccc' : '#667eea', 
+                    color: 'white', 
+                    border: 'none', 
+                    borderRadius: '25px', 
+                    cursor: isLoading || !inputMessage.trim() ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.3s ease'
+                  }}
+                >
+                  {isLoading ? 'Enviando...' : 'Enviar'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
