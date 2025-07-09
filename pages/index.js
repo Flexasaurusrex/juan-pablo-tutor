@@ -41,39 +41,60 @@ export default function JuanPablo() {
 
     // Listen for messages from HeyGen embed
     const handleMessage = (event) => {
-      if (event.origin === 'https://labs.heygen.com' && 
-          event.data && 
-          event.data.type === 'streaming-embed') {
+      // Log ALL messages to debug
+      console.log('📨 Received message:', event.origin, event.data);
+      
+      if (event.origin === 'https://labs.heygen.com' && event.data) {
         
-        console.log('HeyGen message:', event.data);
+        // Handle different message formats
+        if (event.data.type === 'streaming-embed') {
+          console.log('🎭 HeyGen streaming message:', event.data);
+          
+          if (event.data.action === 'init') {
+            setAvatarLoaded(true);
+            console.log('✅ HeyGen avatar initialized');
+            
+          } else if (event.data.action === 'avatar_start_talking') {
+            setIsAvatarSpeaking(true);
+            console.log('🗣️ Avatar started speaking');
+            
+          } else if (event.data.action === 'avatar_stop_talking') {
+            setIsAvatarSpeaking(false);
+            console.log('🤐 Avatar stopped speaking');
+            
+          } else if (event.data.action === 'user_start_talking') {
+            console.log('🎤 User started talking');
+            
+          } else if (event.data.action === 'user_stop_talking') {
+            console.log('🔇 User stopped talking');
+          }
+        }
         
-        if (event.data.action === 'init') {
-          setAvatarLoaded(true);
-          console.log('✅ HeyGen avatar initialized');
+        // Check for text content in various formats
+        if (event.data.text) {
+          console.log('💬 Found text in message:', event.data.text);
           
-        } else if (event.data.action === 'avatar_start_talking') {
-          setIsAvatarSpeaking(true);
-          console.log('🗣️ Avatar started speaking');
-          
-        } else if (event.data.action === 'avatar_stop_talking') {
-          setIsAvatarSpeaking(false);
-          console.log('🤐 Avatar stopped speaking');
-          
-        } else if (event.data.action === 'user_start_talking') {
-          console.log('🎤 User started talking');
-          
-        } else if (event.data.action === 'user_stop_talking') {
-          console.log('🔇 User stopped talking');
-          
-        } else if (event.data.action === 'avatar_response' && event.data.text) {
-          // Avatar spoke - add to chat
-          console.log('💬 Avatar said:', event.data.text);
-          setMessages(prev => [...prev, { text: event.data.text, sender: 'juan' }]);
-          
-        } else if (event.data.action === 'user_transcript' && event.data.text) {
-          // User spoke to avatar - add to chat
-          console.log('👤 User said:', event.data.text);
-          setMessages(prev => [...prev, { text: event.data.text, sender: 'user' }]);
+          // Add to chat if it's an avatar response
+          if (event.data.sender === 'avatar' || event.data.type === 'avatar_message') {
+            setMessages(prev => [...prev, { text: event.data.text, sender: 'juan' }]);
+          } else if (event.data.sender === 'user' || event.data.type === 'user_message') {
+            setMessages(prev => [...prev, { text: event.data.text, sender: 'user' }]);
+          } else {
+            // Default to avatar message if unclear
+            setMessages(prev => [...prev, { text: event.data.text, sender: 'juan' }]);
+          }
+        }
+        
+        // Check for message content
+        if (event.data.message) {
+          console.log('💬 Found message content:', event.data.message);
+          setMessages(prev => [...prev, { text: event.data.message, sender: 'juan' }]);
+        }
+        
+        // Check for response content
+        if (event.data.response) {
+          console.log('💬 Found response content:', event.data.response);
+          setMessages(prev => [...prev, { text: event.data.response, sender: 'juan' }]);
         }
       }
     };
@@ -325,6 +346,27 @@ export default function JuanPablo() {
                 }}
               >
                 🎤 Activar Micrófono
+              </button>
+              <button
+                onClick={() => {
+                  // Force sync - ask user what Pedro just said
+                  const response = prompt("¿Qué acaba de decir Juan Pablo? (Para sincronizar el chat)");
+                  if (response) {
+                    setMessages(prev => [...prev, { text: response, sender: 'juan' }]);
+                  }
+                }}
+                disabled={!avatarLoaded}
+                style={{ 
+                  padding: '8px 16px', 
+                  background: avatarLoaded ? '#17a2b8' : '#ccc', 
+                  color: 'white', 
+                  border: 'none', 
+                  borderRadius: '15px', 
+                  cursor: avatarLoaded ? 'pointer' : 'not-allowed',
+                  fontSize: '0.8em'
+                }}
+              >
+                ⚡ Sincronizar
               </button>
             </div>
             
