@@ -303,89 +303,72 @@ export default function JuanPablo() {
 
   // Intro Screen with Sizzle Reel
   if (!currentMode && !showModeSelection) {
+    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+    
     return (
-      <>
+      <div style={{ 
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        background: '#000',
+        overflow: 'hidden',
+        zIndex: 9999
+      }}>
         <Head>
           <title>Juan Pablo - Spanish Learning AI</title>
           <meta name="description" content="Learn Spanish with Juan Pablo" />
           <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-          <style jsx>{`
-            .video-intro-container {
-              position: fixed;
-              top: 0;
-              left: 0;
-              width: 100vw;
-              height: 100vh;
-              background: #000;
-              overflow: hidden;
-              z-index: 9999;
-            }
-            
-            .intro-video {
-              position: absolute;
-              top: 0;
-              left: 0;
-              width: 100%;
-              height: 100%;
-              object-fit: cover;
-            }
-            
-            .skip-button {
-              position: absolute;
-              top: 20px;
-              right: 20px;
-              background: rgba(255,255,255,0.2);
-              border: none;
-              color: white;
-              padding: 10px 20px;
-              border-radius: 25px;
-              cursor: pointer;
-              font-size: 14px;
-              font-weight: bold;
-              backdrop-filter: blur(10px);
-              z-index: 10000;
-              touch-action: manipulation;
-            }
-            
-            @media (max-width: 768px) {
-              .intro-video {
-                object-fit: contain;
-              }
-              
-              .skip-button {
-                top: 15px;
-                right: 15px;
-                padding: 8px 16px;
-                font-size: 12px;
-              }
-            }
-          `}</style>
         </Head>
         
-        <div className="video-intro-container">
-          <video 
-            ref={videoRef}
-            autoPlay 
-            muted 
-            playsInline
-            onEnded={handleVideoEnd}
-            onLoadStart={() => console.log('Video loading started')}
-            onCanPlay={() => console.log('Video can play')}
-            onError={(e) => {
-              console.error('Video error:', e);
-              setTimeout(() => setShowModeSelection(true), 2000);
-            }}
-            className="intro-video"
-          >
-            <source src="/intro-sizzle.mp4" type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
-          
-          <button onClick={skipIntro} className="skip-button">
-            Saltar Intro →
-          </button>
-        </div>
-      </>
+        <video 
+          ref={videoRef}
+          autoPlay 
+          muted 
+          playsInline
+          onEnded={handleVideoEnd}
+          onLoadStart={() => console.log('Video loading started')}
+          onCanPlay={() => console.log('Video can play')}
+          onError={(e) => {
+            console.error('Video error:', e);
+            setTimeout(() => setShowModeSelection(true), 2000);
+          }}
+          style={{ 
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: isMobile ? 'contain' : 'cover'
+          }}
+        >
+          <source src="/intro-sizzle.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+        
+        <button
+          onClick={skipIntro}
+          style={{
+            position: 'absolute',
+            top: isMobile ? '15px' : '20px',
+            right: isMobile ? '15px' : '20px',
+            background: 'rgba(255,255,255,0.2)',
+            border: 'none',
+            color: 'white',
+            padding: isMobile ? '8px 16px' : '10px 20px',
+            borderRadius: '25px',
+            cursor: 'pointer',
+            fontSize: isMobile ? '12px' : '14px',
+            fontWeight: 'bold',
+            backdropFilter: 'blur(10px)',
+            zIndex: 10000,
+            touchAction: 'manipulation'
+          }}
+        >
+          Saltar Intro →
+        </button>
+      </div>
     );
   }
 
