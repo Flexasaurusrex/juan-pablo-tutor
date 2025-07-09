@@ -13,13 +13,16 @@ export default function JuanPablo() {
   const [isLoading, setIsLoading] = useState(false);
   const [avatarLoaded, setAvatarLoaded] = useState(false);
   const [isAvatarSpeaking, setIsAvatarSpeaking] = useState(false);
+  const [isListeningToPedro, setIsListeningToPedro] = useState(false);
   
   const recognitionRef = useRef(null);
+  const pedroListenerRef = useRef(null);
   const avatarIframeRef = useRef(null);
 
   useEffect(() => {
-    // Initialize speech recognition
+    // Initialize speech recognition for user input
     if (typeof window !== 'undefined' && 'webkitSpeechRecognition' in window) {
+      // User voice input (converts to text for sending)
       recognitionRef.current = new webkitSpeechRecognition();
       recognitionRef.current.continuous = false;
       recognitionRef.current.interimResults = false;
@@ -33,6 +36,33 @@ export default function JuanPablo() {
       
       recognitionRef.current.onend = () => {
         setIsListening(false);
+      };
+
+      // Pedro speech listener (captures his voice as text)
+      pedroListenerRef.current = new webkitSpeechRecognition();
+      pedroListenerRef.current.continuous = true;
+      pedroListenerRef.current.interimResults = true;
+      pedroListenerRef.current.lang = 'es-ES';
+      
+      pedroListenerRef.current.onresult = (event) => {
+        const transcript = event.results[event.results.length - 1][0].transcript;
+        
+        // Only add final results to avoid duplicates
+        if (event.results[event.results.length - 1].isFinal) {
+          console.log('🎤 Pedro said:', transcript);
+          setMessages(prev => {
+            // Avoid adding duplicate messages
+            const lastMessage = prev[prev.length - 1];
+            if (lastMessage && lastMessage.sender === 'juan' && lastMessage.text === transcript) {
+              return prev;
+            }
+            return [...prev, { text: transcript, sender: 'juan' }];
+          });
+        }
+      };
+      
+      pedroListenerRef.current.onend = () => {
+        setIsListeningToPedro(false);
       };
     }
 
@@ -276,12 +306,19 @@ export default function JuanPablo() {
     }
   };
 
-  const enableAvatarMicrophone = () => {
-    if (avatarIframeRef.current) {
-      avatarIframeRef.current.contentWindow.postMessage({
-        type: 'streaming-embed',
-        action: 'enable_microphone'
-      }, 'https://labs.heygen.com');
+  const startListeningToPedro = () => {
+    if (pedroListenerRef.current && !isListeningToPedro) {
+      setIsListeningToPedro(true);
+      pedroListenerRef.current.start();
+      console.log('👂 Started listening to Pedro...');
+    }
+  };
+
+  const stopListeningToPedro = () => {
+    if (pedroListenerRef.current && isListeningToPedro) {
+      pedroListenerRef.current.stop();
+      setIsListeningToPedro(false);
+      console.log('🔇 Stopped listening to Pedro');
     }
   };
 
@@ -354,11 +391,11 @@ export default function JuanPablo() {
                 🎬 Iniciar Conversación
               </button>
               <button
-                onClick={enableAvatarMicrophone}
-                disabled={!avatarLoaded}
+                onClick={startListeningToPedro}
+                disabled={!avatarLoaded || isListeningToPedro}
                 style={{ 
                   padding: '10px 20px', 
-                  background: avatarLoaded ? '#007bff' : '#ccc', 
+                  background: isListeningToPedro ? '#4caf50' : (avatarLoaded ? '#007bff' : '#ccc'), 
                   color: 'white', 
                   border: 'none', 
                   borderRadius: '20px', 
@@ -366,7 +403,22 @@ export default function JuanPablo() {
                   fontSize: '0.9em'
                 }}
               >
-                🎤 Activar Micrófono
+                {isListeningToPedro ? '👂 Escuchando...' : '👂 Escuchar a Pedro'}
+              </button>
+              <button
+                onClick={stopListeningToPedro}
+                disabled={!isListeningToPedro}
+                style={{ 
+                  padding: '8px 16px', 
+                  background: isListeningToPedro ? '#dc3545' : '#ccc', 
+                  color: 'white', 
+                  border: 'none', 
+                  borderRadius: '15px', 
+                  cursor: isListeningToPedro ? 'pointer' : 'not-allowed',
+                  fontSize: '0.8em'
+                }}
+              >
+                ⏹️ Parar
               </button>
               <button
                 onClick={() => {
@@ -395,7 +447,10 @@ export default function JuanPablo() {
               {avatarLoaded ? (
                 <>
                   ✅ <strong>Juan Pablo está listo</strong><br/>
-                  Habla directamente con él o escribe abajo. Las conversaciones aparecerán sincronizadas en el chat.
+                  {isListeningToPedro ? 
+                    '👂 Escuchando a Pedro - sus palabras aparecerán como texto' :
+                    'Haz clic en "Escuchar a Pedro" para ver sus palabras como texto'
+                  }
                 </>
               ) : (
                 '⏳ Cargando avatar de video... Un momento por favor.'
