@@ -1,97 +1,4 @@
-// Mode Selection Screen  
-  if (!currentMode) {
-    return (
-      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', padding: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Head>
-          <title>Juan Pablo - Spanish Tutor</title>
-          <meta name="description" content="AI Spanish tutor for Mexico City preparation" />
-          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        </Head>
-        
-        <div style={{ 
-          background: 'white', 
-          borderRadius: '20px', 
-          padding: window.innerWidth <= 768 ? '40px 20px' : '60px', 
-          maxWidth: '800px', 
-          width: '100%', 
-          textAlign: 'center', 
-          boxShadow: '0 20px 40px rgba(0,0,0,0.1)', 
-          animation: 'fadeInUp 0.8s ease-out',
-          margin: '20px'
-        }}>
-          <h1 style={{ 
-            fontSize: window.innerWidth <= 768 ? '2em' : '2.5em', 
-            margin: '0 0 20px 0', 
-            color: '#333',
-            lineHeight: '1.2'
-          }}>🇲🇽 Juan Pablo</h1>
-          <p style={{ 
-            fontSize: window.innerWidth <= 768 ? '1.1em' : '1.3em', 
-            color: '#666', 
-            margin: window.innerWidth <= 768 ? '0 0 30px 0' : '0 0 50px 0',
-            lineHeight: '1.4'
-          }}>Tu profesor de español para Ciudad de México</p>
-          
-          <div style={{ 
-            display: 'flex', 
-            gap: window.innerWidth <= 768 ? '20px' : '40px', 
-            justifyContent: 'center', 
-            flexDirection: window.innerWidth <= 768 ? 'column' : 'row',
-            alignItems: 'center'
-          }}>
-            {/* Video Mode */}
-            <div 
-              onClick={startVideoMode}
-              style={{ 
-                background: 'linear-gradient(135deg, #ff6b6b, #ee5a24)', 
-                color: 'white', 
-                padding: window.innerWidth <= 768 ? '30px 20px' : '40px 30px', 
-                borderRadius: '20px', 
-                cursor: 'pointer', 
-                width: window.innerWidth <= 768 ? '100%' : '300px',
-                maxWidth: '400px',
-                transition: 'all 0.3s ease',
-                boxShadow: '0 10px 30px rgba(255, 107, 107, 0.3)',
-                animation: 'slideInLeft 0.6s ease-out 0.3s both'
-              }}
-              onMouseOver={(e) => e.target.style.transform = 'translateY(-5px)'}
-              onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
-            >
-              <div style={{ fontSize: window.innerWidth <= 768 ? '2.5em' : '3em', marginBottom: '15px' }}>🎥</div>
-              <h2 style={{ fontSize: window.innerWidth <= 768 ? '1.3em' : '1.5em', margin: '0 0 15px 0' }}>Conversación en Video</h2>
-              <p style={{ opacity: 0.9, lineHeight: '1.5', margin: 0, fontSize: window.innerWidth <= 768 ? '0.9em' : '1em' }}>
-                Habla directamente con Pedro para practicar pronunciación y comprensión oral. 
-                Ve sus respuestas como texto para aprender escritura.
-              </p>
-            </div>
-
-            {/* Chat Mode */}
-            <div 
-              onClick={startChatMode}
-              style={{ 
-                background: 'linear-gradient(135deg, #667eea, #764ba2)', 
-                color: 'white', 
-                padding: window.innerWidth <= 768 ? '30px 20px' : '40px 30px', 
-                borderRadius: '20px', 
-                cursor: 'pointer', 
-                width: window.innerWidth <= 768 ? '100%' : '300px',
-                maxWidth: '400px',
-                transition: 'all 0.3s ease',
-                boxShadow: '0 10px 30px rgba(102, 126, 234, 0.3)',
-                animation: 'slideInRight 0.6s ease-out 0.5s both'
-              }}
-              onMouseOver={(e) => e.target.style.transform = 'translateY(-5px)'}
-              onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
-            >
-              <div style={{ fontSize: window.innerWidth <= 768 ? '2.5em' : '3em', marginBottom: '15px' }}>💬</div>
-              <h2 style={{ fontSize: window.innerWidth <= 768 ? '1.3em' : '1.5em', margin: '0 0 15px 0' }}>Chat de Texto</h2>
-              <p style={{ opacity: 0.9, lineHeight: '1.5', margin: 0, fontSize: window.innerWidth <= 768 ? '0.9em' : '1em' }}>
-                Conversa por texto con Juan Pablo. Practica gramática, vocabulario 
-                y recibe correcciones detalladas para Ciudad de México.
-              </p>
-            </div>
-          </div>
-        </div>import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 
 export default function JuanPablo() {
@@ -399,10 +306,10 @@ export default function JuanPablo() {
             background: 'rgba(0, 0, 0, 0.7)',
             color: 'white',
             border: 'none',
-            padding: window.innerWidth <= 768 ? '10px 16px' : '12px 20px',
+            padding: '10px 16px',
             borderRadius: '25px',
             cursor: 'pointer',
-            fontSize: window.innerWidth <= 768 ? '12px' : '14px',
+            fontSize: '12px',
             zIndex: 10,
             transition: 'all 0.3s ease'
           }}
@@ -423,8 +330,8 @@ export default function JuanPablo() {
           zIndex: 10,
           padding: '0 20px'
         }}>
-          <div style={{ fontSize: window.innerWidth <= 768 ? '1em' : '1.2em', marginBottom: '10px' }}>🇲🇽 Juan Pablo</div>
-          <div style={{ opacity: 0.8, fontSize: window.innerWidth <= 768 ? '0.9em' : '1em' }}>Cargando tu experiencia de español...</div>
+          <div style={{ fontSize: '1em', marginBottom: '10px' }}>🇲🇽 Juan Pablo</div>
+          <div style={{ opacity: 0.8, fontSize: '0.9em' }}>Cargando tu experiencia de español...</div>
         </div>
       </div>
     );
@@ -437,33 +344,59 @@ export default function JuanPablo() {
         <Head>
           <title>Juan Pablo - Spanish Tutor</title>
           <meta name="description" content="AI Spanish tutor for Mexico City preparation" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         </Head>
         
-        <div style={{ background: 'white', borderRadius: '20px', padding: '60px', maxWidth: '800px', width: '100%', textAlign: 'center', boxShadow: '0 20px 40px rgba(0,0,0,0.1)', animation: 'fadeInUp 0.8s ease-out' }}>
-          <h1 style={{ fontSize: '2.5em', margin: '0 0 20px 0', color: '#333' }}>🇲🇽 Juan Pablo</h1>
-          <p style={{ fontSize: '1.3em', color: '#666', margin: '0 0 50px 0' }}>Tu profesor de español para Ciudad de México</p>
+        <div style={{ 
+          background: 'white', 
+          borderRadius: '20px', 
+          padding: '40px 20px', 
+          maxWidth: '800px', 
+          width: '100%', 
+          textAlign: 'center', 
+          boxShadow: '0 20px 40px rgba(0,0,0,0.1)', 
+          animation: 'fadeInUp 0.8s ease-out',
+          margin: '20px'
+        }}>
+          <h1 style={{ 
+            fontSize: '2em', 
+            margin: '0 0 20px 0', 
+            color: '#333',
+            lineHeight: '1.2'
+          }}>🇲🇽 Juan Pablo</h1>
+          <p style={{ 
+            fontSize: '1.1em', 
+            color: '#666', 
+            margin: '0 0 30px 0',
+            lineHeight: '1.4'
+          }}>Tu profesor de español para Ciudad de México</p>
           
-          <div style={{ display: 'flex', gap: '40px', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <div style={{ 
+            display: 'flex', 
+            gap: '20px', 
+            justifyContent: 'center', 
+            flexDirection: 'column',
+            alignItems: 'center'
+          }}>
             {/* Video Mode */}
             <div 
               onClick={startVideoMode}
               style={{ 
                 background: 'linear-gradient(135deg, #ff6b6b, #ee5a24)', 
                 color: 'white', 
-                padding: '40px 30px', 
+                padding: '30px 20px', 
                 borderRadius: '20px', 
                 cursor: 'pointer', 
-                minWidth: '300px',
+                width: '100%',
+                maxWidth: '400px',
                 transition: 'all 0.3s ease',
                 boxShadow: '0 10px 30px rgba(255, 107, 107, 0.3)',
                 animation: 'slideInLeft 0.6s ease-out 0.3s both'
               }}
-              onMouseOver={(e) => e.target.style.transform = 'translateY(-5px)'}
-              onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
             >
-              <div style={{ fontSize: '3em', marginBottom: '20px' }}>🎥</div>
-              <h2 style={{ fontSize: '1.5em', margin: '0 0 15px 0' }}>Conversación en Video</h2>
-              <p style={{ opacity: 0.9, lineHeight: '1.5', margin: 0 }}>
+              <div style={{ fontSize: '2.5em', marginBottom: '15px' }}>🎥</div>
+              <h2 style={{ fontSize: '1.3em', margin: '0 0 15px 0' }}>Conversación en Video</h2>
+              <p style={{ opacity: 0.9, lineHeight: '1.5', margin: 0, fontSize: '0.9em' }}>
                 Habla directamente con Pedro para practicar pronunciación y comprensión oral. 
                 Ve sus respuestas como texto para aprender escritura.
               </p>
@@ -475,20 +408,19 @@ export default function JuanPablo() {
               style={{ 
                 background: 'linear-gradient(135deg, #667eea, #764ba2)', 
                 color: 'white', 
-                padding: '40px 30px', 
+                padding: '30px 20px', 
                 borderRadius: '20px', 
                 cursor: 'pointer', 
-                minWidth: '300px',
+                width: '100%',
+                maxWidth: '400px',
                 transition: 'all 0.3s ease',
                 boxShadow: '0 10px 30px rgba(102, 126, 234, 0.3)',
                 animation: 'slideInRight 0.6s ease-out 0.5s both'
               }}
-              onMouseOver={(e) => e.target.style.transform = 'translateY(-5px)'}
-              onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
             >
-              <div style={{ fontSize: '3em', marginBottom: '20px' }}>💬</div>
-              <h2 style={{ fontSize: '1.5em', margin: '0 0 15px 0' }}>Chat de Texto</h2>
-              <p style={{ opacity: 0.9, lineHeight: '1.5', margin: 0 }}>
+              <div style={{ fontSize: '2.5em', marginBottom: '15px' }}>💬</div>
+              <h2 style={{ fontSize: '1.3em', margin: '0 0 15px 0' }}>Chat de Texto</h2>
+              <p style={{ opacity: 0.9, lineHeight: '1.5', margin: 0, fontSize: '0.9em' }}>
                 Conversa por texto con Juan Pablo. Practica gramática, vocabulario 
                 y recibe correcciones detalladas para Ciudad de México.
               </p>
@@ -517,36 +449,38 @@ export default function JuanPablo() {
   // Video Mode
   if (currentMode === 'video') {
     return (
-      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #ff6b6b, #ee5a24)', padding: '20px' }}>
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #ff6b6b, #ee5a24)', padding: '10px' }}>
         <Head>
           <title>Juan Pablo - Video Mode</title>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         </Head>
         
-        <div style={{ maxWidth: '1200px', margin: '0 auto', background: 'white', borderRadius: '20px', height: '700px', display: 'flex', flexDirection: 'column', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', background: 'white', borderRadius: '20px', minHeight: '95vh', display: 'flex', flexDirection: 'column', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}>
           
-          <div style={{ background: 'linear-gradient(135deg, #ff6b6b, #ee5a24)', color: 'white', padding: '20px', display: 'flex', alignItems: 'center', borderRadius: '20px 20px 0 0' }}>
+          <div style={{ background: 'linear-gradient(135deg, #ff6b6b, #ee5a24)', color: 'white', padding: '15px', display: 'flex', alignItems: 'center', borderRadius: '20px 20px 0 0', flexWrap: 'wrap', gap: '10px' }}>
             <button 
               onClick={goBack}
-              style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', padding: '8px 15px', borderRadius: '15px', cursor: 'pointer', marginRight: '20px' }}
+              style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', padding: '8px 15px', borderRadius: '15px', cursor: 'pointer' }}
             >
               ← Volver
             </button>
-            <div style={{ flex: 1, textAlign: 'center' }}>
-              <h1 style={{ fontSize: '1.8em', margin: 0 }}>🎥 Video Conversación con Pedro</h1>
-              <div style={{ opacity: 0.9, marginTop: '5px' }}>
-                {isListeningToPedro ? '👂 Escuchando sus respuestas...' : 'Habla con Pedro directamente'}
+            <div style={{ flex: 1, textAlign: 'center', minWidth: '200px' }}>
+              <h1 style={{ fontSize: '1.3em', margin: 0 }}>🎥 Video con Pedro</h1>
+              <div style={{ opacity: 0.9, marginTop: '5px', fontSize: '0.9em' }}>
+                {isListeningToPedro ? '👂 Escuchando respuestas...' : 'Habla con Pedro directamente'}
               </div>
             </div>
           </div>
 
-          <div style={{ flex: 1, display: 'flex' }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: window.innerWidth <= 768 ? 'column' : 'row' }}>
             {/* Video section */}
-            <div style={{ flex: 2, background: '#f8f9fa', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+            <div style={{ flex: window.innerWidth <= 768 ? 'none' : 2, background: '#f8f9fa', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
               <div 
                 id="avatar-video-container"
                 style={{ 
-                  width: window.innerWidth <= 768 ? '320px' : '400px', 
-                  height: window.innerWidth <= 768 ? '240px' : '300px', 
+                  width: window.innerWidth <= 768 ? '100%' : '400px', 
+                  height: window.innerWidth <= 768 ? '250px' : '300px', 
+                  maxWidth: '400px',
                   background: '#000', 
                   borderRadius: '15px', 
                   display: 'flex', 
@@ -564,18 +498,18 @@ export default function JuanPablo() {
                 </div>
               </div>
               
-              <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
+              <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', flexWrap: 'wrap' }}>
                 <button
                   onClick={startListeningToPedro}
                   disabled={isListeningToPedro}
                   style={{ 
-                    padding: '12px 25px', 
+                    padding: '12px 20px', 
                     background: isListeningToPedro ? '#4caf50' : '#007bff', 
                     color: 'white', 
                     border: 'none', 
                     borderRadius: '25px', 
                     cursor: 'pointer',
-                    fontSize: '1em',
+                    fontSize: '0.9em',
                     transition: 'all 0.3s ease'
                   }}
                 >
@@ -585,13 +519,13 @@ export default function JuanPablo() {
                   <button
                     onClick={stopListeningToPedro}
                     style={{ 
-                      padding: '12px 25px', 
+                      padding: '12px 20px', 
                       background: '#dc3545', 
                       color: 'white', 
                       border: 'none', 
                       borderRadius: '25px', 
                       cursor: 'pointer',
-                      fontSize: '1em'
+                      fontSize: '0.9em'
                     }}
                   >
                     ⏹️ Parar
@@ -599,8 +533,8 @@ export default function JuanPablo() {
                 )}
               </div>
               
-              <div style={{ marginTop: '20px', textAlign: 'center', maxWidth: '350px' }}>
-                <p style={{ color: '#666', fontSize: '0.9em', lineHeight: '1.4' }}>
+              <div style={{ marginTop: '15px', textAlign: 'center', maxWidth: '350px' }}>
+                <p style={{ color: '#666', fontSize: '0.9em', lineHeight: '1.4', margin: 0 }}>
                   {isListeningToPedro ? 
                     '👂 Escuchando a Pedro - sus palabras aparecerán como texto →' :
                     'Habla con Pedro y haz clic en "Escuchar" para ver sus respuestas como texto'
@@ -610,7 +544,7 @@ export default function JuanPablo() {
             </div>
 
             {/* Transcript section */}
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', borderLeft: '2px solid #e9ecef' }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', borderLeft: window.innerWidth <= 768 ? 'none' : '2px solid #e9ecef', borderTop: window.innerWidth <= 768 ? '2px solid #e9ecef' : 'none' }}>
               <div style={{ padding: '15px', background: '#f8f9fa', borderBottom: '1px solid #e9ecef' }}>
                 <h3 style={{ color: '#333', margin: '0 0 5px 0', fontSize: '1.1em' }}>📝 Transcripción</h3>
                 <p style={{ color: '#666', fontSize: '0.85em', margin: 0 }}>
@@ -618,7 +552,7 @@ export default function JuanPablo() {
                 </p>
               </div>
               
-              <div style={{ flex: 1, padding: '20px', overflowY: 'auto', background: 'white' }}>
+              <div style={{ flex: 1, padding: '20px', overflowY: 'auto', background: 'white', minHeight: window.innerWidth <= 768 ? '200px' : 'auto' }}>
                 {messages.map((msg, index) => (
                   <div key={index} style={{ marginBottom: '15px' }}>
                     <div style={{
@@ -653,23 +587,24 @@ export default function JuanPablo() {
   // Chat Mode
   if (currentMode === 'chat') {
     return (
-      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #667eea, #764ba2)', padding: '20px' }}>
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #667eea, #764ba2)', padding: '10px' }}>
         <Head>
           <title>Juan Pablo - Chat Mode</title>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         </Head>
         
-        <div style={{ maxWidth: '800px', margin: '0 auto', background: 'white', borderRadius: '20px', height: '700px', display: 'flex', flexDirection: 'column', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto', background: 'white', borderRadius: '20px', minHeight: '95vh', display: 'flex', flexDirection: 'column', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}>
           
-          <div style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)', color: 'white', padding: '20px', display: 'flex', alignItems: 'center', borderRadius: '20px 20px 0 0' }}>
+          <div style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)', color: 'white', padding: '15px', display: 'flex', alignItems: 'center', borderRadius: '20px 20px 0 0', flexWrap: 'wrap', gap: '10px' }}>
             <button 
               onClick={goBack}
-              style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', padding: '8px 15px', borderRadius: '15px', cursor: 'pointer', marginRight: '20px' }}
+              style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', padding: '8px 15px', borderRadius: '15px', cursor: 'pointer' }}
             >
               ← Volver
             </button>
-            <div style={{ flex: 1, textAlign: 'center' }}>
-              <h1 style={{ fontSize: '1.8em', margin: 0 }}>💬 Chat con Juan Pablo</h1>
-              <div style={{ opacity: 0.9, marginTop: '5px' }}>
+            <div style={{ flex: 1, textAlign: 'center', minWidth: '200px' }}>
+              <h1 style={{ fontSize: '1.3em', margin: 0 }}>💬 Chat con Juan Pablo</h1>
+              <div style={{ opacity: 0.9, marginTop: '5px', fontSize: '0.9em' }}>
                 Práctica de texto, gramática y vocabulario
               </div>
             </div>
@@ -703,7 +638,7 @@ export default function JuanPablo() {
           </div>
           
           <div style={{ padding: '20px', background: 'white', borderTop: '2px solid #e9ecef' }}>
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
               <input
                 type="text"
                 value={inputMessage}
@@ -713,6 +648,7 @@ export default function JuanPablo() {
                 disabled={isLoading}
                 style={{ 
                   flex: 1, 
+                  minWidth: '200px',
                   padding: '12px 18px', 
                   border: '2px solid #e9ecef', 
                   borderRadius: '25px', 
@@ -726,13 +662,13 @@ export default function JuanPablo() {
               <button
                 onClick={toggleVoice}
                 style={{
-                  width: '50px',
-                  height: '50px',
+                  width: '45px',
+                  height: '45px',
                   borderRadius: '50%',
                   border: 'none',
                   background: isListening ? '#4caf50' : '#ff6b6b',
                   color: 'white',
-                  fontSize: '20px',
+                  fontSize: '18px',
                   cursor: 'pointer',
                   transition: 'all 0.3s ease',
                   transform: isListening ? 'scale(1.1)' : 'scale(1)'
@@ -745,13 +681,14 @@ export default function JuanPablo() {
                 onClick={() => handleSendMessage()}
                 disabled={isLoading || !inputMessage.trim()}
                 style={{ 
-                  padding: '12px 25px', 
+                  padding: '12px 20px', 
                   background: isLoading || !inputMessage.trim() ? '#ccc' : '#667eea', 
                   color: 'white', 
                   border: 'none', 
                   borderRadius: '25px', 
                   cursor: isLoading || !inputMessage.trim() ? 'not-allowed' : 'pointer',
-                  transition: 'all 0.3s ease'
+                  transition: 'all 0.3s ease',
+                  fontSize: '14px'
                 }}
               >
                 {isLoading ? 'Enviando...' : 'Enviar'}
