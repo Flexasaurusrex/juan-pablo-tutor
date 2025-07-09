@@ -12,8 +12,10 @@ export default function JuanPablo() {
   const [isListening, setIsListening] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [avatarLoaded, setAvatarLoaded] = useState(false);
+  const [isAvatarSpeaking, setIsAvatarSpeaking] = useState(false);
   
   const recognitionRef = useRef(null);
+  const avatarIframeRef = useRef(null);
 
   useEffect(() => {
     // Initialize speech recognition
@@ -34,18 +36,44 @@ export default function JuanPablo() {
       };
     }
 
-    // Load HeyGen embed script
+    // Load HeyGen embed and set up communication
     loadHeyGenEmbed();
 
-    // Listen for HeyGen embed messages
+    // Listen for messages from HeyGen embed
     const handleMessage = (event) => {
       if (event.origin === 'https://labs.heygen.com' && 
           event.data && 
           event.data.type === 'streaming-embed') {
         
+        console.log('HeyGen message:', event.data);
+        
         if (event.data.action === 'init') {
           setAvatarLoaded(true);
           console.log('✅ HeyGen avatar initialized');
+          
+        } else if (event.data.action === 'avatar_start_talking') {
+          setIsAvatarSpeaking(true);
+          console.log('🗣️ Avatar started speaking');
+          
+        } else if (event.data.action === 'avatar_stop_talking') {
+          setIsAvatarSpeaking(false);
+          console.log('🤐 Avatar stopped speaking');
+          
+        } else if (event.data.action === 'user_start_talking') {
+          console.log('🎤 User started talking');
+          
+        } else if (event.data.action === 'user_stop_talking') {
+          console.log('🔇 User stopped talking');
+          
+        } else if (event.data.action === 'avatar_response' && event.data.text) {
+          // Avatar spoke - add to chat
+          console.log('💬 Avatar said:', event.data.text);
+          setMessages(prev => [...prev, { text: event.data.text, sender: 'juan' }]);
+          
+        } else if (event.data.action === 'user_transcript' && event.data.text) {
+          // User spoke to avatar - add to chat
+          console.log('👤 User said:', event.data.text);
+          setMessages(prev => [...prev, { text: event.data.text, sender: 'user' }]);
         }
       }
     };
@@ -110,11 +138,14 @@ export default function JuanPablo() {
     iframe.allow = "microphone";
     iframe.src = url;
     
+    // Store reference to iframe
+    avatarIframeRef.current = iframe;
+    
     container.appendChild(iframe);
     wrapDiv.appendChild(stylesheet);
     wrapDiv.appendChild(container);
     
-    // Add to avatar container instead of body
+    // Add to avatar container
     const avatarContainer = document.getElementById('avatar-video-container');
     if (avatarContainer) {
       avatarContainer.appendChild(wrapDiv);
@@ -126,39 +157,48 @@ export default function JuanPablo() {
     }, 1000);
   };
 
+  const sendMessageToAvatar = (message) => {
+    if (avatarIframeRef.current && avatarLoaded) {
+      // Send message to HeyGen avatar
+      avatarIframeRef.current.contentWindow.postMessage({
+        type: 'streaming-embed',
+        action: 'chat',
+        message: message
+      }, 'https://labs.heygen.com');
+      
+      console.log('📤 Sent to avatar:', message);
+    }
+  };
+
   const handleSendMessage = async (message = inputMessage) => {
     if (!message.trim()) return;
 
-    // Add user message
+    // Add user message to chat immediately
     setMessages(prev => [...prev, { text: message, sender: 'user' }]);
     setInputMessage('');
     setIsLoading(true);
 
     try {
-      // Get response from Together.ai
-      const chatResponse = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: message
-        }),
-      });
-
-      const chatData = await chatResponse.json();
-      
-      // Add Juan Pablo's response
-      setMessages(prev => [...prev, { text: chatData.reply, sender: 'juan' }]);
-
-      // Send message to HeyGen embed (it will automatically speak)
       if (avatarLoaded) {
-        const embedFrame = document.querySelector('#heygen-streaming-embed iframe');
-        if (embedFrame) {
-          embedFrame.contentWindow.postMessage({
-            type: 'streaming-embed',
-            action: 'speak',
-            text: chatData.reply
-          }, 'https://labs.heygen.com');
-        }
+        // Send directly to HeyGen avatar - it will handle the response
+        sendMessageToAvatar(message);
+        
+        // Show loading state
+        setTimeout(() => setIsLoading(false), 1000);
+        
+      } else {
+        // Fallback to our Together.ai if avatar not loaded
+        const chatResponse = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: message
+          }),
+        });
+
+        const chatData = await chatResponse.json();
+        setMessages(prev => [...prev, { text: chatData.reply, sender: 'juan' }]);
+        setIsLoading(false);
       }
 
     } catch (error) {
@@ -167,7 +207,6 @@ export default function JuanPablo() {
         text: 'Lo siento, tuve un problema técnico. ¿Puedes repetir?', 
         sender: 'juan' 
       }]);
-    } finally {
       setIsLoading(false);
     }
   };
@@ -186,17 +225,21 @@ export default function JuanPablo() {
     }
   };
 
-  const showAvatar = () => {
-    const embed = document.getElementById('heygen-streaming-embed');
-    if (embed) {
-      embed.classList.add('show');
+  const startAvatarConversation = () => {
+    if (avatarIframeRef.current) {
+      avatarIframeRef.current.contentWindow.postMessage({
+        type: 'streaming-embed',
+        action: 'start_conversation'
+      }, 'https://labs.heygen.com');
     }
   };
 
-  const hideAvatar = () => {
-    const embed = document.getElementById('heygen-streaming-embed');
-    if (embed) {
-      embed.classList.remove('show');
+  const enableAvatarMicrophone = () => {
+    if (avatarIframeRef.current) {
+      avatarIframeRef.current.contentWindow.postMessage({
+        type: 'streaming-embed',
+        action: 'enable_microphone'
+      }, 'https://labs.heygen.com');
     }
   };
 
@@ -212,7 +255,9 @@ export default function JuanPablo() {
         <div style={{ background: 'linear-gradient(135deg, #ff6b6b, #ee5a24)', color: 'white', padding: '20px', textAlign: 'center', borderRadius: '20px 20px 0 0' }}>
           <h1 style={{ fontSize: '1.8em', margin: 0 }}>🇲🇽 Juan Pablo - Tu Profesor de Español</h1>
           <div style={{ opacity: 0.9, marginTop: '5px' }}>
-            {avatarLoaded ? '🟢 Avatar cargado - Pedro está listo' : '🟡 Cargando avatar...'}
+            {avatarLoaded ? (
+              isAvatarSpeaking ? '🗣️ Juan Pablo está hablando...' : '🟢 Listo para conversar'
+            ) : '🟡 Cargando avatar...'}
           </div>
         </div>
 
@@ -232,7 +277,8 @@ export default function JuanPablo() {
                 color: 'white', 
                 marginBottom: '20px',
                 position: 'relative',
-                overflow: 'hidden'
+                overflow: 'hidden',
+                border: isAvatarSpeaking ? '3px solid #4caf50' : '1px solid #ccc'
               }}
             >
               {!avatarLoaded && (
@@ -242,44 +288,55 @@ export default function JuanPablo() {
                   <div style={{ fontSize: '0.8em', opacity: 0.7, marginTop: '5px' }}>Pedro está preparándose</div>
                 </div>
               )}
+              {isAvatarSpeaking && (
+                <div style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(76, 175, 80, 0.8)', padding: '5px 10px', borderRadius: '15px', fontSize: '0.8em' }}>
+                  Hablando...
+                </div>
+              )}
             </div>
             
             <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
               <button
-                onClick={showAvatar}
+                onClick={startAvatarConversation}
+                disabled={!avatarLoaded}
                 style={{ 
-                  padding: '12px 25px', 
-                  background: '#28a745', 
+                  padding: '10px 20px', 
+                  background: avatarLoaded ? '#28a745' : '#ccc', 
                   color: 'white', 
                   border: 'none', 
-                  borderRadius: '25px', 
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease'
+                  borderRadius: '20px', 
+                  cursor: avatarLoaded ? 'pointer' : 'not-allowed',
+                  fontSize: '0.9em'
                 }}
               >
-                Mostrar Juan Pablo
+                🎬 Iniciar Conversación
               </button>
               <button
-                onClick={hideAvatar}
+                onClick={enableAvatarMicrophone}
+                disabled={!avatarLoaded}
                 style={{ 
-                  padding: '12px 25px', 
-                  background: '#dc3545', 
+                  padding: '10px 20px', 
+                  background: avatarLoaded ? '#007bff' : '#ccc', 
                   color: 'white', 
                   border: 'none', 
-                  borderRadius: '25px', 
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease'
+                  borderRadius: '20px', 
+                  cursor: avatarLoaded ? 'pointer' : 'not-allowed',
+                  fontSize: '0.9em'
                 }}
               >
-                Ocultar Avatar
+                🎤 Activar Micrófono
               </button>
             </div>
             
             <div style={{ marginTop: '15px', fontSize: '0.9em', color: '#666', textAlign: 'center', maxWidth: '350px' }}>
-              {avatarLoaded ? 
-                '✅ Juan Pablo está listo. Habla con él y responderá con video y voz.' : 
+              {avatarLoaded ? (
+                <>
+                  ✅ <strong>Juan Pablo está listo</strong><br/>
+                  Habla directamente con él o escribe abajo. Las conversaciones aparecerán sincronizadas en el chat.
+                </>
+              ) : (
                 '⏳ Cargando avatar de video... Un momento por favor.'
-              }
+              )}
             </div>
           </div>
 
@@ -297,22 +354,33 @@ export default function JuanPablo() {
                     color: msg.sender === 'user' ? 'white' : '#333',
                     border: msg.sender === 'juan' ? '1px solid #e9ecef' : 'none',
                     boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-                    lineHeight: '1.4'
+                    lineHeight: '1.4',
+                    animation: 'fadeIn 0.3s ease-out'
                   }}>
                     {msg.text}
+                    {msg.sender === 'juan' && isAvatarSpeaking && index === messages.length - 1 && (
+                      <div style={{ fontSize: '0.8em', opacity: 0.6, marginTop: '5px' }}>
+                        🗣️ Juan Pablo está diciendo esto ahora
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
               {isLoading && (
                 <div style={{ textAlign: 'left', marginBottom: '15px' }}>
                   <div style={{ display: 'inline-block', padding: '12px 18px', background: 'white', border: '1px solid #e9ecef', borderRadius: '18px', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>
-                    <span style={{ opacity: 0.7 }}>Juan Pablo está respondiendo...</span>
+                    <span style={{ opacity: 0.7 }}>
+                      {avatarLoaded ? 'Juan Pablo está pensando...' : 'Procesando mensaje...'}
+                    </span>
                   </div>
                 </div>
               )}
             </div>
             
             <div style={{ padding: '20px', background: 'white', borderTop: '2px solid #e9ecef' }}>
+              <div style={{ marginBottom: '10px', fontSize: '0.8em', color: '#666', textAlign: 'center' }}>
+                💡 Tip: {avatarLoaded ? 'Puedes hablar directamente con Juan Pablo arriba o escribir aquí' : 'Escribe tu mensaje mientras se carga el avatar'}
+              </div>
               <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                 <input
                   type="text"
@@ -347,7 +415,7 @@ export default function JuanPablo() {
                     transition: 'all 0.3s ease',
                     transform: isListening ? 'scale(1.1)' : 'scale(1)'
                   }}
-                  title={isListening ? 'Haz clic para parar' : 'Haz clic y habla'}
+                  title={isListening ? 'Haz clic para parar' : 'Haz clic y habla (se enviará automáticamente)'}
                 >
                   🎤
                 </button>
@@ -371,6 +439,13 @@ export default function JuanPablo() {
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </div>
   );
 }
