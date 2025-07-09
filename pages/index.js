@@ -44,7 +44,15 @@ export default function JuanPablo() {
       // Log ALL messages to debug
       console.log('📨 Received message:', event.origin, event.data);
       
-      if (event.origin === 'https://labs.heygen.com' && event.data) {
+      // Accept messages from multiple origins since embed can be from different sources
+      if ((event.origin === 'https://labs.heygen.com' || 
+           event.origin === 'https://juanpablotutor.vercel.app' ||
+           event.origin === window.location.origin) && event.data) {
+        
+        // Handle MetaMask and other irrelevant messages
+        if (event.data.target === 'metamask-inpage' || event.data.type === 'wallet') {
+          return; // Ignore wallet messages
+        }
         
         // Handle different message formats
         if (event.data.type === 'streaming-embed') {
@@ -70,14 +78,20 @@ export default function JuanPablo() {
           }
         }
         
+        // Check for avatar speech/transcript in any format
+        if (event.data.transcript) {
+          console.log('📝 Found transcript:', event.data.transcript);
+          setMessages(prev => [...prev, { text: event.data.transcript, sender: 'juan' }]);
+        }
+        
         // Check for text content in various formats
-        if (event.data.text) {
+        if (event.data.text && !event.data.target) {
           console.log('💬 Found text in message:', event.data.text);
           
           // Add to chat if it's an avatar response
-          if (event.data.sender === 'avatar' || event.data.type === 'avatar_message') {
+          if (event.data.sender === 'avatar' || event.data.type === 'avatar_message' || event.data.from === 'avatar') {
             setMessages(prev => [...prev, { text: event.data.text, sender: 'juan' }]);
-          } else if (event.data.sender === 'user' || event.data.type === 'user_message') {
+          } else if (event.data.sender === 'user' || event.data.type === 'user_message' || event.data.from === 'user') {
             setMessages(prev => [...prev, { text: event.data.text, sender: 'user' }]);
           } else {
             // Default to avatar message if unclear
@@ -86,15 +100,21 @@ export default function JuanPablo() {
         }
         
         // Check for message content
-        if (event.data.message) {
+        if (event.data.message && typeof event.data.message === 'string') {
           console.log('💬 Found message content:', event.data.message);
           setMessages(prev => [...prev, { text: event.data.message, sender: 'juan' }]);
         }
         
         // Check for response content
-        if (event.data.response) {
+        if (event.data.response && typeof event.data.response === 'string') {
           console.log('💬 Found response content:', event.data.response);
           setMessages(prev => [...prev, { text: event.data.response, sender: 'juan' }]);
+        }
+        
+        // Check for HeyGen specific formats
+        if (event.data.data && event.data.data.text) {
+          console.log('💬 Found nested text:', event.data.data.text);
+          setMessages(prev => [...prev, { text: event.data.data.text, sender: 'juan' }]);
         }
       }
     };
@@ -112,7 +132,7 @@ export default function JuanPablo() {
 
     // Create the HeyGen embed
     const host = "https://labs.heygen.com";
-    const url = host + "/guest/streaming-embed?share=eyJxdWFsaXR5IjoiaGlnaCIsImF2YXRhck5hbWUiOiJQZWRyb19Qcm9mZXNzaW9uYWxMb29rMl9w%0D%0AdWJsaWMiLCJwcmV2aWV3SW1nIjoiaHR0cHM6Ly9maWxlczIuaGV5Z2VuLmFpL2F2YXRhci92My9m%0D%0AOWM5NGFlN2JkMTU0NWU4YjY1MzFhOTFiYTk3NmFkOV81NTkxMC9wcmV2aWV3X3RhbGtfMS53ZWJw%0D%0AIiwibmVlZFJlbW92ZUJhY2tncm91bmQiOnRydWUsImtub3dsZWRnZUJhc2VJZCI6ImE0MjZkNGFj%0D%0AYWUzMTQ0MTI4NWZkMGViZjk3YTU2ZjA3IiwidXNlcm5hbWUiOiI4NjE0MmI4MzMyM2Q0YmY0YmFl%0D%0AMmM5OTFmYWFmZmE5YyJ9&inIFrame=1";
+    const url = host + "/guest/streaming-embed?share=eyJxdWFsaXR5IjoiaGlnaCIsImF2YXRhck5hbWUiOiJQZWRyb19Qcm9mZXNzaW9uYWxMb29rMl9w%0D%0AdWJsaWMiLCJwcmV2aWV3SW1nIjoiaHR0cHM6Ly9maWxlczIuaGV5Z2VuLmFpL2F2YXRhci92My9m%0D%0AOWM5NGFlN2JkMTU0NWU4YjY1MzFhOTFiYTk3NmFkOV81NTkxMC9wcmV2aWV3X3RhbGtfMS53ZWJw%0D%0AIiwibmVlZFJlbW92ZUJhY2tncm91bmQiOnRydWUsImtub3dsZWRnZUJhc2VJZCI6ImRlbW8tMSIs%0D%0AInVzZXJuYW1lIjoiODYxNDJiODMzMjNkNGJmNGJhZTJjOTkxZmFhZmZhOWMifQ%3D%3D&inIFrame=1";jA3IiwidXNlcm5hbWUiOiI4NjE0MmI4MzMyM2Q0YmY0YmFl%0D%0AMmM5OTFmYWFmZmE5YyJ9&inIFrame=1";
     
     const clientWidth = document.body.clientWidth;
     const wrapDiv = document.createElement("div");
