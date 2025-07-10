@@ -464,6 +464,7 @@ export default function JuanPablo() {
             autoPlay 
             muted 
             playsInline
+            src="https://d1yei2z3i6k35z.cloudfront.net/3867221/67540ace8dd44_HeyGenClone.mp4"
             onLoadedData={() => setShowModeSelection(true)}
             onError={() => setShowModeSelection(true)}
             style={{ 
