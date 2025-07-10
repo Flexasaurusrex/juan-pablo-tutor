@@ -67,7 +67,10 @@ export default function JuanPablo() {
   const startChatMode = () => {
     setCurrentMode('chat');
     setMessages([
-      { text: "¡Hola! Soy Juan Pablo, tu profesor de español. Estoy aquí para ayudarte a prepararte para tu mudanza a Ciudad de México. ¿En qué te gustaría practicar hoy?", sender: 'juan' }
+      { 
+        text: "¡Hola! 👋🇲🇽 Soy Juan Pablo, tu profesor de español mexicano. Estoy súper emocionado de ayudarte a prepararte para tu mudanza a Ciudad de México en septiembre.\n\n🎯 Puedo ayudarte con:\n• Correcciones de gramática y pronunciación\n• Frases útiles para la vida diaria en CDMX\n• Modismos y cultura mexicana\n• Situaciones reales (transporte, comida, trabajo)\n\n¿En qué te gustaría empezar a practicar hoy? Puedes escribir en inglés o español - ¡yo te ayudo! 😊", 
+        sender: 'juan' 
+      }
     ]);
   };
 
@@ -199,12 +202,17 @@ export default function JuanPablo() {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: inputMessage })
+        body: JSON.stringify({ 
+          message: inputMessage,
+          conversationHistory: messages // Send conversation context
+        })
       });
 
       console.log('📡 API Response status:', response.status);
       
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ HTTP Error:', response.status, errorText);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
@@ -216,11 +224,17 @@ export default function JuanPablo() {
         console.log('✅ Added Juan Pablo response to messages');
       } else {
         console.error('❌ No response field in API data:', data);
-        setMessages(prev => [...prev, { text: "No recibí una respuesta válida. ¿Puedes intentar de nuevo?", sender: 'juan' }]);
+        setMessages(prev => [...prev, { 
+          text: "¡Hola! 👋 Parece que tuve un problema técnico. ¿Puedes intentar de nuevo? Estoy aquí para ayudarte a practicar español. 🇲🇽", 
+          sender: 'juan' 
+        }]);
       }
     } catch (error) {
       console.error('❌ Chat API Error:', error);
-      setMessages(prev => [...prev, { text: "Lo siento, hubo un error conectando con Juan Pablo. ¿Puedes intentar de nuevo?", sender: 'juan' }]);
+      setMessages(prev => [...prev, { 
+        text: "Lo siento, hubo un error de conexión. 😅 ¿Puedes intentar escribir tu mensaje otra vez? ¡Estoy aquí para ayudarte!", 
+        sender: 'juan' 
+      }]);
     }
 
     setInputMessage('');
@@ -241,17 +255,53 @@ export default function JuanPablo() {
       recognitionRef.current = new webkitSpeechRecognition();
       recognitionRef.current.continuous = false;
       recognitionRef.current.interimResults = false;
-      recognitionRef.current.lang = 'es-MX';
+      recognitionRef.current.lang = 'es-MX'; // Mexican Spanish for pronunciation practice
 
       recognitionRef.current.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
-        setInputMessage(transcript);
-        console.log('🎙️ User said:', transcript);
+        const confidence = event.results[0][0].confidence;
+        
+        console.log('🎙️ User said:', transcript, 'Confidence:', confidence);
+        
+        // Add pronunciation feedback if in Spanish
+        if (currentMode === 'chat') {
+          const pronunciationFeedback = confidence > 0.8 ? 
+            " 🎯 ¡Excelente pronunciación!" : 
+            confidence > 0.6 ? 
+            " 👍 Buena pronunciación" : 
+            " 💪 Sigue practicando - intenta hablar más claro";
+            
+          setInputMessage(transcript + pronunciationFeedback);
+          
+          // Auto-send pronunciation practice messages
+          setTimeout(() => {
+            if (transcript.length > 5) { // Only for substantial speech
+              setMessages(prev => [...prev, 
+                { text: transcript, sender: 'user' },
+                { text: `🎙️ Pronunciación detectada: "${transcript}"${pronunciationFeedback}\n\n¿Te gustaría que te ayude a mejorar esta frase o practiquemos algo nuevo?`, sender: 'juan' }
+              ]);
+            }
+          }, 1000);
+        } else {
+          setInputMessage(transcript);
+        }
       };
 
       recognitionRef.current.onerror = (event) => {
         console.error('Speech recognition error:', event.error);
         setIsLoading(false);
+        
+        if (event.error === 'not-allowed') {
+          setMessages(prev => [...prev, { 
+            text: "🎤 Necesito permiso para usar tu micrófono para practicar pronunciación. Por favor, permite el acceso al micrófono.", 
+            sender: 'juan' 
+          }]);
+        } else if (event.error === 'no-speech') {
+          setMessages(prev => [...prev, { 
+            text: "🤔 No pude escucharte claramente. ¿Puedes intentar hablar un poco más fuerte?", 
+            sender: 'juan' 
+          }]);
+        }
       };
 
       recognitionRef.current.onend = () => {
@@ -264,7 +314,7 @@ export default function JuanPablo() {
         recognitionRef.current.stop();
       }
     };
-  }, []);
+  }, [currentMode]);
 
   // Intro Screen with Sizzle Reel
   if (!currentMode && !showModeSelection) {
