@@ -62,7 +62,7 @@ export default function JuanPablo() {
   };
 
   const loadHeyGenEmbed = () => {
-    console.log('🎬 Loading HeyGen embed...');
+    console.log('🎬 Loading HeyGen embed with Creator plan...');
     
     setTimeout(() => {
       const container = document.getElementById('avatar-video-container');
@@ -77,7 +77,7 @@ export default function JuanPablo() {
         existingEmbed.remove();
       }
 
-      // Create the HeyGen embed with language learning knowledge base
+      // Create the HeyGen embed with Creator plan (no time limits)
       const host = "https://labs.heygen.com";
       const shareParams = "eyJxdWFsaXR5IjoiaGlnaCIsImF2YXRhck5hbWUiOiJQZWRyb19Qcm9mZXNzaW9uYWxMb29rMl9wdWJsaWMiLCJwcmV2aWV3SW1nIjoiaHR0cHM6Ly9maWxlczIuaGV5Z2VuLmFpL2F2YXRhci92My9mOWM5NGFlN2JkMTU0NWU4YjY1MzFhOTFiYTk3NmFkOV81NTkxMC9wcmV2aWV3X3RhbGtfMS53ZWJwIiwibmVlZFJlbW92ZUJhY2tncm91bmQiOnRydWUsImtub3dsZWRnZUJhc2VJZCI6ImE0MjZkNGFjYWUzMTQ0MTI4NWZkMGViZjk3YTU2ZjA3IiwidXNlcm5hbWUiOiI4NjE0MmI4MzMyM2Q0YmY0YmFlMmM5OTFmYWFmZmE5YyJ9";
       const url = host + "/guest/streaming-embed?share=" + shareParams + "&inIFrame=1";
@@ -122,7 +122,7 @@ export default function JuanPablo() {
       
       const iframe = document.createElement("iframe");
       iframe.allowFullscreen = false;
-      iframe.title = "Juan Pablo - Pedro";
+      iframe.title = "Juan Pablo - Pedro (Creator Plan)";
       iframe.role = "dialog";
       iframe.allow = "microphone";
       iframe.src = url;
@@ -136,7 +136,7 @@ export default function JuanPablo() {
             initial = true;
             wrapDiv.classList.toggle("show", initial);
             setAvatarLoaded(true);
-            console.log('✅ Pedro loaded successfully with language learning knowledge base');
+            console.log('✅ Pedro loaded successfully with Creator plan (unlimited time)');
           }
         }
       });
@@ -146,7 +146,7 @@ export default function JuanPablo() {
       wrapDiv.appendChild(containerDiv);
       container.appendChild(wrapDiv);
       
-      console.log('🎬 HeyGen embed created with language learning KB');
+      console.log('🎬 HeyGen embed created with Creator plan - should have no time limits');
     }, 500);
   };
 
@@ -180,76 +180,61 @@ export default function JuanPablo() {
       pedroListenerRef.current.interimResults = true;
       pedroListenerRef.current.lang = 'es-MX'; // Mexican Spanish
       
-      let silenceTimer;
-      let currentTranscript = '';
+      let sentenceTimer;
+      let currentSentence = '';
       let isProcessing = false;
       
       pedroListenerRef.current.onstart = () => {
         console.log('🎙️ Pedro listener started successfully');
-        console.log('🔊 Make sure to speak TO Pedro in the video, then his responses should appear as text');
+        console.log('🔊 Listening for complete sentences from Pedro...');
       };
       
       pedroListenerRef.current.onresult = (event) => {
         console.log('🎙️ Pedro speech detected! Event:', event);
-        console.log('📊 Number of results:', event.results.length);
         
-        // Get ONLY the latest result to avoid cumulative buildup
-        const lastResult = event.results[event.results.length - 1];
-        const transcript = lastResult[0].transcript;
-        const confidence = lastResult[0].confidence;
-        const isFinal = lastResult.isFinal;
+        // Build complete transcript from all results
+        let fullTranscript = '';
+        for (let i = 0; i < event.results.length; i++) {
+          fullTranscript += event.results[i][0].transcript + ' ';
+        }
         
-        console.log('📝 New transcript piece:', transcript);
-        console.log('📊 Confidence:', confidence);
-        console.log('✅ Is Final:', isFinal);
+        const cleanTranscript = fullTranscript.trim();
+        console.log('📝 Full transcript so far:', cleanTranscript);
         
-        // Only process final results or high-confidence interim results
-        if (isFinal || (confidence && confidence > 0.8)) {
-          const cleanTranscript = transcript.trim();
-          console.log('🧹 Clean transcript:', cleanTranscript);
-          
-          if (!isProcessing && cleanTranscript.length > 2) {
+        // Update current sentence
+        currentSentence = cleanTranscript;
+        
+        // Clear existing timer
+        if (sentenceTimer) clearTimeout(sentenceTimer);
+        
+        // Wait for sentence to complete (4 seconds of silence)
+        sentenceTimer = setTimeout(() => {
+          if (!isProcessing && currentSentence.trim().length > 3) {
             isProcessing = true;
-            console.log('✅ Adding Pedro response to chat:', cleanTranscript);
+            console.log('✅ Adding complete Pedro sentence:', currentSentence);
             
-            // Create message object
             const newMessage = { 
-              text: cleanTranscript, 
+              text: currentSentence.trim(), 
               sender: 'juan',
-              timestamp: new Date().toLocaleTimeString(),
-              confidence: confidence ? Math.round(confidence * 100) + '%' : 'N/A'
+              timestamp: new Date().toLocaleTimeString()
             };
-            
-            console.log('📨 New message object:', newMessage);
             
             setMessages(prev => {
               const updated = [...prev, newMessage];
-              console.log('📝 Updated messages array:', updated);
+              console.log('📝 Updated messages with complete sentence');
               return updated;
             });
+            
+            // Reset for next sentence
+            currentSentence = '';
             
             // Reset processing flag
             setTimeout(() => {
               isProcessing = false;
-              console.log('🔄 Reset processing flag');
-            }, 2000);
-          } else {
-            console.log('⚠️ Skipped - either processing or transcript too short:', {
-              isProcessing,
-              transcriptLength: cleanTranscript.length,
-              transcript: cleanTranscript
-            });
+              console.log('🔄 Ready for next sentence');
+            }, 1000);
           }
-        } else {
-          console.log('⚠️ Skipped - not final and low confidence:', {
-            isFinal,
-            confidence,
-            transcript
-          });
-        }
-        
-        // Clear any existing timer since we got a new result
-        if (silenceTimer) clearTimeout(silenceTimer);
+        }, 4000); // Wait 4 seconds for complete sentence
       };
       
       pedroListenerRef.current.onerror = (event) => {
