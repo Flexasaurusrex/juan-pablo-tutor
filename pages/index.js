@@ -178,56 +178,118 @@ export default function JuanPablo() {
       pedroListenerRef.current = new webkitSpeechRecognition();
       pedroListenerRef.current.continuous = true;
       pedroListenerRef.current.interimResults = true;
-      pedroListenerRef.current.lang = 'es-ES';
+      pedroListenerRef.current.lang = 'es-MX'; // Mexican Spanish
       
       let silenceTimer;
       let currentTranscript = '';
+      let isProcessing = false;
+      
+      pedroListenerRef.current.onstart = () => {
+        console.log('🎙️ Pedro listener started successfully');
+        console.log('🔊 Make sure to speak TO Pedro in the video, then his responses should appear as text');
+      };
       
       pedroListenerRef.current.onresult = (event) => {
-        console.log('🎙️ Pedro speech event:', event);
+        console.log('🎙️ Pedro speech detected! Event:', event);
+        console.log('📊 Number of results:', event.results.length);
         
-        // Build up the complete transcript
-        let fullTranscript = '';
-        for (let i = 0; i < event.results.length; i++) {
-          fullTranscript += event.results[i][0].transcript;
+        // Get the latest result
+        const lastResult = event.results[event.results.length - 1];
+        const transcript = lastResult[0].transcript;
+        const confidence = lastResult[0].confidence;
+        const isFinal = lastResult.isFinal;
+        
+        console.log('📝 Transcript:', transcript);
+        console.log('📊 Confidence:', confidence);
+        console.log('✅ Is Final:', isFinal);
+        
+        // Update current transcript
+        currentTranscript = transcript;
+        
+        // Add transcript immediately if it's substantial
+        if ((isFinal || confidence > 0.7) && !isProcessing && currentTranscript.trim().length > 2) {
+          isProcessing = true;
+          console.log('✅ Adding Pedro response to chat:', currentTranscript);
+          
+          setMessages(prev => [...prev, { 
+            text: currentTranscript.trim(), 
+            sender: 'juan',
+            timestamp: new Date().toLocaleTimeString(),
+            confidence: confidence ? Math.round(confidence * 100) + '%' : 'N/A'
+          }]);
+          
+          currentTranscript = '';
+          
+          // Reset processing flag
+          setTimeout(() => {
+            isProcessing = false;
+          }, 1500);
         }
-        
-        currentTranscript = fullTranscript;
-        console.log('📝 Current transcript:', currentTranscript);
         
         // Clear existing timer
         if (silenceTimer) clearTimeout(silenceTimer);
         
-        // Set new timer - add to chat after 2 seconds of silence
-        silenceTimer = setTimeout(() => {
-          if (currentTranscript.trim()) {
-            console.log('✅ Adding Pedro response to chat:', currentTranscript);
-            setMessages(prev => [...prev, { 
-              text: currentTranscript.trim(), 
-              sender: 'juan',
-              timestamp: new Date().toLocaleTimeString()
-            }]);
-            currentTranscript = '';
-          }
-        }, 2000);
+        // Backup timer for non-final results
+        if (!isFinal && currentTranscript.trim().length > 2) {
+          silenceTimer = setTimeout(() => {
+            if (!isProcessing && currentTranscript.trim()) {
+              console.log('⏰ Adding Pedro response after silence:', currentTranscript);
+              setMessages(prev => [...prev, { 
+                text: currentTranscript.trim(), 
+                sender: 'juan',
+                timestamp: new Date().toLocaleTimeString(),
+                source: 'timeout'
+              }]);
+              currentTranscript = '';
+            }
+          }, 3000);
+        }
       };
       
       pedroListenerRef.current.onerror = (event) => {
         console.error('❌ Pedro listener error:', event.error);
+        console.error('❌ Full error event:', event);
+        
         setIsListeningToPedro(false);
         
-        // Auto-restart on error
-        setTimeout(() => {
-          if (pedroListenerRef.current && !isListeningToPedro) {
-            try {
-              pedroListenerRef.current.start();
-              setIsListeningToPedro(true);
-              console.log('🔄 Restarted Pedro listener after error');
-            } catch (e) {
-              console.error('Failed to restart Pedro listener:', e);
+        // Show specific error messages to user
+        let errorMessage = "❌ Error de transcripción: ";
+        switch(event.error) {
+          case 'not-allowed':
+            errorMessage += "Permisos de micrófono denegados. Por favor, permite el acceso al micrófono.";
+            break;
+          case 'no-speech':
+            errorMessage += "No se detectó habla. Asegúrate de que Pedro esté hablando.";
+            break;
+          case 'audio-capture':
+            errorMessage += "Error de captura de audio. Verifica tu micrófono.";
+            break;
+          case 'network':
+            errorMessage += "Error de red. Verifica tu conexión a internet.";
+            break;
+          default:
+            errorMessage += event.error;
+        }
+        
+        setMessages(prev => [...prev, { 
+          text: errorMessage, 
+          sender: 'system',
+          timestamp: new Date().toLocaleTimeString()
+        }]);
+        
+        // Auto-restart after certain errors
+        if (event.error !== 'not-allowed') {
+          setTimeout(() => {
+            if (currentMode === 'video') {
+              console.log('🔄 Attempting to restart Pedro listener...');
+              try {
+                startListeningToPedro();
+              } catch (e) {
+                console.error('Failed to restart Pedro listener:', e);
+              }
             }
-          }
-        }, 1000);
+          }, 2000);
+        }
       };
       
       pedroListenerRef.current.onend = () => {
@@ -257,10 +319,38 @@ export default function JuanPablo() {
   }, []);
 
   const startListeningToPedro = () => {
-    if (pedroListenerRef.current && !isListeningToPedro) {
+    if (!pedroListenerRef.current) {
+      console.error('❌ Pedro listener not initialized');
+      return;
+    }
+    
+    if (isListeningToPedro) {
+      console.log('⚠️ Already listening to Pedro');
+      return;
+    }
+    
+    try {
       setIsListeningToPedro(true);
       pedroListenerRef.current.start();
       console.log('👂 Started listening to Pedro...');
+      
+      // Add visual feedback
+      setMessages(prev => [...prev, { 
+        text: "🎙️ Escuchando a Pedro... (Habla con él para ver la transcripción)", 
+        sender: 'system',
+        timestamp: new Date().toLocaleTimeString()
+      }]);
+      
+    } catch (e) {
+      console.error('❌ Failed to start Pedro listener:', e);
+      setIsListeningToPedro(false);
+      
+      // Show error to user
+      setMessages(prev => [...prev, { 
+        text: "❌ Error: No se pudo activar la escucha. Verifica los permisos del micrófono.", 
+        sender: 'system',
+        timestamp: new Date().toLocaleTimeString()
+      }]);
     }
   };
 
