@@ -65,7 +65,7 @@ export default function JuanPablo() {
       icon: '🚇',
       description: 'Metro, Metrobús, taxis y más',
       progress: userProgress.moduleProgress.transport,
-      totalLessons: 8,
+      totalLessons: 4,
       xpReward: 25,
       lessons: [
         {
@@ -112,8 +112,7 @@ export default function JuanPablo() {
           steps: [
             {
               type: 'introduction',
-              content: 'Aprende a pedir direcciones en el Metro de CDMX',
-              audio: true
+              content: 'Aprende a pedir direcciones en el Metro de CDMX'
             },
             {
               type: 'vocabulary',
@@ -132,11 +131,6 @@ export default function JuanPablo() {
               question: 'Complete: "Disculpe, ¿cómo _____ a Polanco?"',
               answer: 'llego',
               hint: 'Es el verbo "llegar" en primera persona'
-            },
-            {
-              type: 'practice',
-              instruction: 'Practica preguntando direcciones a estos lugares:',
-              places: ['Condesa', 'Coyoacán', 'Xochimilco', 'Centro Histórico']
             }
           ]
         },
@@ -153,19 +147,8 @@ export default function JuanPablo() {
                 { spanish: 'Metrobús', english: 'Bus Rapid Transit', audio: true },
                 { spanish: 'pesero', english: 'Mini bus', audio: true },
                 { spanish: 'taxi', english: 'Taxi', audio: true },
-                { spanish: 'Uber', english: 'Uber', audio: true },
                 { spanish: 'estación', english: 'Station', audio: true },
-                { spanish: 'línea', english: 'Line', audio: true },
-                { spanish: 'andén', english: 'Platform', audio: true }
-              ]
-            },
-            {
-              type: 'matching',
-              instruction: 'Conecta el transporte con su descripción:',
-              pairs: [
-                { spanish: 'Metro', description: 'Sistema subterráneo rápido' },
-                { spanish: 'Metrobús', description: 'Autobús en carril exclusivo' },
-                { spanish: 'pesero', description: 'Transporte colectivo pequeño' }
+                { spanish: 'línea', english: 'Line', audio: true }
               ]
             }
           ]
@@ -182,8 +165,7 @@ export default function JuanPablo() {
                 { name: 'Insurgentes', phonetic: 'in-sur-HEN-tes' },
                 { name: 'Chapultepec', phonetic: 'cha-pul-TE-pec' },
                 { name: 'Zócalo', phonetic: 'SO-ca-lo' },
-                { name: 'Coyoacán', phonetic: 'co-yo-a-CAN' },
-                { name: 'Xochimilco', phonetic: 'so-chi-MIL-co' }
+                { name: 'Coyoacán', phonetic: 'co-yo-a-CAN' }
               ]
             }
           ]
@@ -196,7 +178,7 @@ export default function JuanPablo() {
       icon: '🌮',
       description: 'Tacos, restaurantes y mercados',
       progress: userProgress.moduleProgress.food,
-      totalLessons: 10,
+      totalLessons: 3,
       xpReward: 30,
       lessons: [
         {
@@ -207,8 +189,7 @@ export default function JuanPablo() {
           steps: [
             {
               type: 'introduction',
-              content: '¡Aprende a pedir tacos como un verdadero mexicano!',
-              audio: true
+              content: '¡Aprende a pedir tacos como un verdadero mexicano!'
             },
             {
               type: 'vocabulary',
@@ -252,6 +233,30 @@ export default function JuanPablo() {
               ]
             }
           ]
+        },
+        {
+          id: 'food_3',
+          title: 'En el mercado',
+          type: 'conversation',
+          xp: 35,
+          steps: [
+            {
+              type: 'introduction',
+              content: 'Aprende a comprar en los mercados de CDMX'
+            },
+            {
+              type: 'vocabulary',
+              question: '¿Cómo preguntas el precio en un mercado?',
+              options: [
+                '¿Cuánto cuesta?',
+                'How much?',
+                '¿Precio please?',
+                '¿Money cuánto?'
+              ],
+              correct: 0,
+              explanation: '"¿Cuánto cuesta?" es la forma correcta y educada.'
+            }
+          ]
         }
       ]
     },
@@ -261,7 +266,7 @@ export default function JuanPablo() {
       icon: '🏘️',
       description: 'Roma, Condesa, Polanco y más',
       progress: userProgress.moduleProgress.neighborhoods,
-      totalLessons: 6,
+      totalLessons: 2,
       xpReward: 35,
       lessons: [
         {
@@ -272,13 +277,38 @@ export default function JuanPablo() {
           steps: [
             {
               type: 'introduction',
-              content: 'Roma Norte es uno de los barrios más trendy de CDMX',
-              audio: true
+              content: 'Roma Norte es uno de los barrios más trendy de CDMX'
             },
             {
-              type: 'cultural_info',
-              content: 'Roma Norte es famosa por sus cafeterías, galerías de arte y vida nocturna. Es muy popular entre expatriados.',
-              vocabulary: ['trendy', 'expatriados', 'galerías', 'vida nocturna']
+              type: 'vocabulary',
+              question: '¿Cómo describes un barrio "trendy" en español?',
+              options: ['moderno', 'viejo', 'feo', 'caro'],
+              correct: 0,
+              explanation: '"Moderno" o "de moda" son buenas traducciones para "trendy".'
+            }
+          ]
+        },
+        {
+          id: 'neighborhoods_2',
+          title: 'La Condesa y sus cafés',
+          type: 'cultural',
+          xp: 30,
+          steps: [
+            {
+              type: 'introduction',
+              content: 'La Condesa es famosa por sus cafeterías y parques'
+            },
+            {
+              type: 'vocabulary',
+              question: '¿Cómo pides un café en México?',
+              options: [
+                'Un café, por favor',
+                'One coffee please',
+                'Dame coffee',
+                'Café give me'
+              ],
+              correct: 0,
+              explanation: '"Un café, por favor" es la forma más educada.'
             }
           ]
         }
@@ -541,6 +571,231 @@ export default function JuanPablo() {
       };
     }
   }, []);
+
+  // Intro video
+  if (!showModeSelection) {
+    return (
+      <div style={{ 
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        background: '#000',
+        overflow: 'hidden',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <Head>
+          <title>Juan Pablo - Spanish Learning AI</title>
+        </Head>
+        
+        <video 
+          ref={videoRef}
+          autoPlay 
+          muted 
+          playsInline
+          onLoadedData={() => setShowModeSelection(true)}
+          onError={() => setShowModeSelection(true)}
+          style={{ 
+            width: isMobile ? '100%' : 'auto',
+            height: isMobile ? 'auto' : '100%',
+            maxWidth: '100%',
+            objectFit: isMobile ? 'contain' : 'cover'
+          }}
+        >
+          <source src="/intro-video.mp4" type="video/mp4" />
+        </video>
+      </div>
+    );
+  }
+
+  // Mode selection
+  if (!currentMode) {
+    return (
+      <div style={{ 
+        minHeight: '100vh', 
+        background: '#000000',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px'
+      }}>
+        <Head>
+          <title>Juan Pablo - Elige tu modo</title>
+        </Head>
+
+        <div style={{ 
+          textAlign: 'center',
+          maxWidth: '1200px',
+          width: '100%'
+        }}>
+          <h1 style={{ 
+            color: 'white', 
+            fontSize: isMobile ? '2.5em' : '3.5em', 
+            marginBottom: '20px',
+            fontWeight: '700'
+          }}>
+            🇲🇽 Juan Pablo
+          </h1>
+          <p style={{ 
+            color: 'rgba(255,255,255,0.8)', 
+            fontSize: isMobile ? '1.1em' : '1.3em',
+            marginBottom: '50px',
+            maxWidth: '600px',
+            margin: '0 auto 50px auto'
+          }}>
+            Tu compañero de aprendizaje de español mexicano para Ciudad de México
+          </p>
+
+          {/* Mode Cards */}
+          <div style={{ 
+            display: 'grid',
+            gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr',
+            gap: '25px',
+            maxWidth: '1000px',
+            margin: '0 auto'
+          }}>
+            {/* Video Chat */}
+            <div 
+              onClick={startVideoMode}
+              style={{
+                background: 'rgba(255,255,255,0.1)',
+                border: '2px solid white',
+                borderRadius: '20px',
+                padding: '40px 30px',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                textAlign: 'center'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-5px)';
+                e.target.style.background = 'rgba(255,255,255,0.15)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.background = 'rgba(255,255,255,0.1)';
+              }}
+            >
+              <div style={{ fontSize: '3em', marginBottom: '20px' }}>🎥</div>
+              <h3 style={{ 
+                color: 'white', 
+                fontSize: '1.4em', 
+                marginBottom: '15px',
+                fontWeight: '600'
+              }}>
+                Video Chat
+              </h3>
+              <p style={{ 
+                color: 'rgba(255,255,255,0.8)', 
+                fontSize: '1em',
+                lineHeight: '1.5',
+                margin: 0
+              }}>
+                Conversa cara a cara con Pedro en español mexicano
+              </p>
+            </div>
+
+            {/* Text Chat */}
+            <div 
+              onClick={startChatMode}
+              style={{
+                background: 'rgba(255,255,255,0.1)',
+                border: '2px solid white',
+                borderRadius: '20px',
+                padding: '40px 30px',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                textAlign: 'center'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-5px)';
+                e.target.style.background = 'rgba(255,255,255,0.15)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.background = 'rgba(255,255,255,0.1)';
+              }}
+            >
+              <div style={{ fontSize: '3em', marginBottom: '20px' }}>💬</div>
+              <h3 style={{ 
+                color: 'white', 
+                fontSize: '1.4em', 
+                marginBottom: '15px',
+                fontWeight: '600'
+              }}>
+                Chat Texto
+              </h3>
+              <p style={{ 
+                color: 'rgba(255,255,255,0.8)', 
+                fontSize: '1em',
+                lineHeight: '1.5',
+                margin: 0
+              }}>
+                Chatea por texto con Juan Pablo y practica español
+              </p>
+            </div>
+
+            {/* Learning Lessons */}
+            <div 
+              onClick={startLearningMode}
+              style={{
+                background: 'linear-gradient(135deg, rgba(76,175,80,0.2), rgba(33,150,243,0.2))',
+                border: '2px solid white',
+                borderRadius: '20px',
+                padding: '40px 30px',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                textAlign: 'center',
+                position: 'relative'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.transform = 'translateY(-5px)';
+                e.target.style.background = 'linear-gradient(135deg, rgba(76,175,80,0.3), rgba(33,150,243,0.3))';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.background = 'linear-gradient(135deg, rgba(76,175,80,0.2), rgba(33,150,243,0.2))';
+              }}
+            >
+              <div style={{
+                position: 'absolute',
+                top: '10px',
+                right: '15px',
+                background: '#4CAF50',
+                color: 'white',
+                padding: '5px 10px',
+                borderRadius: '15px',
+                fontSize: '0.7em',
+                fontWeight: '700'
+              }}>
+                ✨ NUEVO
+              </div>
+              <div style={{ fontSize: '3em', marginBottom: '20px' }}>📚</div>
+              <h3 style={{ 
+                color: 'white', 
+                fontSize: '1.4em', 
+                marginBottom: '15px',
+                fontWeight: '600'
+              }}>
+                Lecciones CDMX
+              </h3>
+              <p style={{ 
+                color: 'rgba(255,255,255,0.8)', 
+                fontSize: '1em',
+                lineHeight: '1.5',
+                margin: 0
+              }}>
+                Sistema de aprendizaje estructurado para vivir en CDMX
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Video Mode
   if (currentMode === 'video') {
@@ -1359,7 +1614,7 @@ export default function JuanPablo() {
             <div style={{ display: 'grid', gap: '15px' }}>
               {selectedModule.lessons.map((lesson, index) => {
                 const isCompleted = userProgress.completedLessons.includes(lesson.id);
-                const isUnlocked = index === 0 || userProgress.completedLessons.includes(selectedModule.lessons[index - 1].id);
+                const isUnlocked = index === 0 || userProgress.completedLessons.includes(selectedModule.lessons[index - 1]?.id);
                 
                 return (
                   <div key={lesson.id} style={{
@@ -1371,8 +1626,7 @@ export default function JuanPablo() {
                     padding: '20px',
                     cursor: isUnlocked ? 'pointer' : 'not-allowed',
                     opacity: isUnlocked ? 1 : 0.5,
-                    transition: 'all 0.2s ease',
-                    ':hover': isUnlocked ? { transform: 'translateY(-2px)' } : {}
+                    transition: 'all 0.2s ease'
                   }}
                   onClick={() => isUnlocked && setCurrentLesson(lesson)}
                   >
@@ -1582,4 +1836,114 @@ export default function JuanPablo() {
           
           <div style={{
             display: 'grid',
-            gridTemplateColumns: isMobile ? '1fr
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: '20px'
+          }}>
+            {learningModules.map((module) => (
+              <div 
+                key={module.id}
+                onClick={() => setSelectedModule(module)}
+                style={{
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '2px solid rgba(255,255,255,0.3)',
+                  borderRadius: '15px',
+                  padding: '25px',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  textAlign: 'center'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-3px)';
+                  e.target.style.background = 'rgba(255,255,255,0.15)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.background = 'rgba(255,255,255,0.1)';
+                }}
+              >
+                <div style={{ fontSize: '2.5em', marginBottom: '15px' }}>
+                  {module.icon}
+                </div>
+                <h3 style={{ 
+                  color: 'white', 
+                  fontSize: '1.3em', 
+                  marginBottom: '10px',
+                  fontWeight: '600'
+                }}>
+                  {module.title}
+                </h3>
+                <p style={{ 
+                  color: 'rgba(255,255,255,0.7)', 
+                  fontSize: '0.9em',
+                  marginBottom: '20px'
+                }}>
+                  {module.description}
+                </p>
+                
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '15px'
+                }}>
+                  <div style={{ 
+                    color: '#4CAF50', 
+                    fontSize: '1.1em',
+                    fontWeight: '600'
+                  }}>
+                    {module.progress}/{module.totalLessons} lecciones
+                  </div>
+                  <div style={{
+                    background: '#FF9800',
+                    color: 'white',
+                    padding: '4px 12px',
+                    borderRadius: '15px',
+                    fontSize: '0.8em',
+                    fontWeight: '600'
+                  }}>
+                    +{module.xpReward} XP
+                  </div>
+                </div>
+
+                <div style={{
+                  background: 'rgba(0,0,0,0.3)',
+                  borderRadius: '8px',
+                  height: '6px',
+                  overflow: 'hidden'
+                }}>
+                  <div style={{
+                    background: '#4CAF50',
+                    height: '100%',
+                    width: `${(module.progress / module.totalLessons) * 100}%`,
+                    transition: 'width 0.3s ease'
+                  }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Back Button */}
+        <div style={{ textAlign: 'center' }}>
+          <button
+            onClick={goBack}
+            style={{
+              background: 'rgba(255,255,255,0.2)',
+              color: 'white',
+              border: '2px solid white',
+              borderRadius: '15px',
+              padding: '15px 30px',
+              fontSize: '16px',
+              fontWeight: '600',
+              cursor: 'pointer'
+            }}
+          >
+            ← Volver al menú principal
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+}
