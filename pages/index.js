@@ -262,6 +262,27 @@ export default function JuanPablo() {
     const timer = setTimeout(() => {
       setShowModeSelection(true);
     }, 3000);
+    
+    // Also show mode selection if video fails to load
+    const videoElement = videoRef.current;
+    if (videoElement) {
+      const handleVideoLoad = () => {
+        setTimeout(() => setShowModeSelection(true), 2000);
+      };
+      const handleVideoError = () => {
+        setShowModeSelection(true);
+      };
+      
+      videoElement.addEventListener('loadeddata', handleVideoLoad);
+      videoElement.addEventListener('error', handleVideoError);
+      
+      return () => {
+        videoElement.removeEventListener('loadeddata', handleVideoLoad);
+        videoElement.removeEventListener('error', handleVideoError);
+        clearTimeout(timer);
+      };
+    }
+    
     return () => clearTimeout(timer);
   }, []);
 
@@ -457,9 +478,6 @@ export default function JuanPablo() {
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
         padding: '20px'
       }}>
-        <Head>
-          <title>Juan Pablo - Spanish Learning Companion</title>
-        </Head>
         
         {!showModeSelection && (
           <video 
@@ -467,6 +485,7 @@ export default function JuanPablo() {
             autoPlay 
             muted 
             playsInline
+            src="https://d1yei2z3i6k35z.cloudfront.net/3867221/67540ace8dd44_HeyGenClone.mp4"
             onLoadedData={() => setShowModeSelection(true)}
             onError={() => setShowModeSelection(true)}
             style={{ 
@@ -624,9 +643,6 @@ export default function JuanPablo() {
           padding: '20px',
           color: 'white'
         }}>
-          <Head>
-            <title>Juan Pablo - {currentLesson.title}</title>
-          </Head>
 
           {/* Header */}
           <div style={{ 
@@ -852,9 +868,6 @@ export default function JuanPablo() {
           padding: '20px',
           color: 'white'
         }}>
-          <Head>
-            <title>Juan Pablo - {module.title}</title>
-          </Head>
 
           <button 
             onClick={() => setSelectedModule(null)}
@@ -987,9 +1000,6 @@ export default function JuanPablo() {
         padding: '20px',
         color: 'white'
       }}>
-        <Head>
-          <title>Juan Pablo - Lecciones CDMX</title>
-        </Head>
 
         <button 
           onClick={goBack}
@@ -1213,9 +1223,6 @@ export default function JuanPablo() {
         justifyContent: 'center',
         flexDirection: 'column'
       }}>
-        <Head>
-          <title>Juan Pablo - Video Chat</title>
-        </Head>
         
         <button 
           onClick={goBack}
@@ -1341,9 +1348,6 @@ export default function JuanPablo() {
         background: '#000000',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
       }}>
-        <Head>
-          <title>Juan Pablo - Chat</title>
-        </Head>
         
         <button 
           onClick={goBack}
