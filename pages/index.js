@@ -762,287 +762,385 @@ export default function JuanPablo() {
     return (
       <div style={{ 
         minHeight: '100vh', 
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
-        padding: '20px',
-        overflow: 'auto'
+        background: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)', 
+        position: 'relative',
+        overflow: 'hidden'
       }}>
         <Head>
-          <title>Juan Pablo - Conversación con Pedro</title>
+          <title>Juan Pablo - Conversación Inmersiva</title>
           <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
         </Head>
         
+        {/* Animated Background */}
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: `
+            radial-gradient(circle at 20% 50%, rgba(255,255,255,0.05) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255,255,255,0.05) 0%, transparent 50%),
+            radial-gradient(circle at 40% 80%, rgba(255,255,255,0.05) 0%, transparent 50%)
+          `,
+          animation: 'float 6s ease-in-out infinite'
+        }} />
+
         {/* Header */}
         <div style={{ 
+          position: 'relative',
+          zIndex: 10,
+          padding: '20px 30px',
           display: 'flex', 
           alignItems: 'center', 
-          marginBottom: '30px',
-          maxWidth: '1200px',
-          margin: '0 auto 30px auto'
+          justifyContent: 'space-between'
         }}>
           <button
             onClick={goBack}
             style={{
-              background: 'rgba(255,255,255,0.2)',
+              background: 'rgba(255,255,255,0.15)',
               border: 'none',
               color: 'white',
               padding: '12px 24px',
-              borderRadius: '25px',
+              borderRadius: '50px',
               cursor: 'pointer',
               fontSize: '16px',
-              fontWeight: 'bold',
-              backdropFilter: 'blur(10px)',
-              transition: 'all 0.3s ease'
+              fontWeight: '600',
+              backdropFilter: 'blur(20px)',
+              transition: 'all 0.3s ease',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}
+            onMouseOver={(e) => {
+              e.target.style.background = 'rgba(255,255,255,0.25)';
+              e.target.style.transform = 'translateY(-2px)';
+            }}
+            onMouseOut={(e) => {
+              e.target.style.background = 'rgba(255,255,255,0.15)';
+              e.target.style.transform = 'translateY(0)';
             }}
           >
-            ← Volver al Inicio
+            ← Inicio
           </button>
           
-          <h1 style={{ 
-            color: 'white', 
-            margin: '0 0 0 30px', 
-            fontSize: isMobile ? '1.8em' : '2.5em',
-            fontWeight: '700',
-            textShadow: '0 2px 10px rgba(0,0,0,0.3)'
-          }}>
-            Conversación con Pedro 🇲🇽
-          </h1>
+          <div style={{ textAlign: 'center' }}>
+            <h1 style={{ 
+              color: 'white', 
+              margin: 0, 
+              fontSize: isMobile ? '1.8em' : '2.2em',
+              fontWeight: '700',
+              textShadow: '0 4px 20px rgba(0,0,0,0.3)',
+              letterSpacing: '-0.5px'
+            }}>
+              Conversación Inmersiva
+            </h1>
+            <p style={{
+              color: 'rgba(255,255,255,0.8)',
+              margin: '5px 0 0 0',
+              fontSize: '1em',
+              fontWeight: '400'
+            }}>
+              Practica español con Pedro en tiempo real
+            </p>
+          </div>
+          
+          <div style={{ width: '120px' }} /> {/* Spacer */}
         </div>
 
-        {/* Main Content Grid */}
+        {/* Main Container */}
         <div style={{
-          maxWidth: '1200px',
+          position: 'relative',
+          zIndex: 10,
+          maxWidth: '1400px',
           margin: '0 auto',
+          padding: '0 30px 30px',
           display: 'grid',
-          gridTemplateColumns: isMobile ? '1fr' : '1fr 350px',
-          gap: '30px',
+          gridTemplateColumns: isMobile ? '1fr' : '2fr 1fr',
+          gap: '40px',
           alignItems: 'start'
         }}>
           
-          {/* Pedro Video Section */}
+          {/* Pedro Conversation Hub */}
           <div style={{ 
-            background: 'white', 
-            borderRadius: '20px', 
-            padding: '30px',
-            boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
-            textAlign: 'center'
+            background: 'rgba(255,255,255,0.98)', 
+            borderRadius: '24px', 
+            padding: '40px',
+            boxShadow: '0 25px 50px rgba(0,0,0,0.15)',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(255,255,255,0.2)',
+            position: 'relative',
+            overflow: 'hidden'
           }}>
-            <h2 style={{ 
-              color: '#333', 
-              marginBottom: '20px', 
-              fontSize: '2em',
-              fontWeight: '600'
-            }}>
-              Habla con Pedro
-            </h2>
+            {/* Premium gradient accent */}
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '4px',
+              background: 'linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4)'
+            }} />
             
+            <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+              <h2 style={{ 
+                color: '#2c3e50', 
+                margin: '0 0 10px 0', 
+                fontSize: '2.2em',
+                fontWeight: '700',
+                letterSpacing: '-0.5px'
+              }}>
+                Pedro
+              </h2>
+              <p style={{
+                color: '#7f8c8d',
+                fontSize: '1.1em',
+                margin: 0,
+                fontWeight: '500'
+              }}>
+                Tu profesor de español mexicano
+              </p>
+            </div>
+            
+            {/* Pedro Video Container */}
             <div 
               id="avatar-video-container"
               style={{ 
                 width: '100%', 
-                maxWidth: '500px',
+                maxWidth: '550px',
                 height: '400px', 
-                background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)', 
-                borderRadius: '15px', 
-                margin: '0 auto 25px',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
+                borderRadius: '20px', 
+                margin: '0 auto 30px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 position: 'relative',
-                border: '3px solid #e9ecef',
-                transition: 'border-color 0.3s ease'
+                border: avatarLoaded ? '3px solid #4ecdc4' : '3px solid rgba(255,255,255,0.2)',
+                transition: 'all 0.4s ease',
+                boxShadow: '0 15px 35px rgba(0,0,0,0.1)',
+                overflow: 'hidden'
               }}
             >
               {!avatarLoaded && (
-                <div style={{ textAlign: 'center', color: '#666' }}>
-                  <div style={{ fontSize: '3em', marginBottom: '15px' }}>🎬</div>
-                  <div style={{ fontSize: '1.2em', fontWeight: '600' }}>Cargando Pedro...</div>
-                  <div style={{ fontSize: '1em', marginTop: '10px', opacity: 0.8 }}>
-                    Preparando tu profesor de español
+                <div style={{ textAlign: 'center', color: 'white' }}>
+                  <div style={{ 
+                    fontSize: '4em', 
+                    marginBottom: '20px',
+                    animation: 'pulse 2s infinite'
+                  }}>
+                    🎭
+                  </div>
+                  <div style={{ fontSize: '1.4em', fontWeight: '600', marginBottom: '10px' }}>
+                    Conectando con Pedro...
+                  </div>
+                  <div style={{ fontSize: '1em', opacity: 0.8 }}>
+                    Preparando tu experiencia inmersiva
                   </div>
                 </div>
               )}
             </div>
             
-            {avatarLoaded && (
+            {/* Status & Instructions */}
+            {avatarLoaded ? (
               <div style={{ 
-                background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-                padding: '20px',
-                borderRadius: '15px',
+                background: 'linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%)',
+                padding: '25px',
+                borderRadius: '16px',
                 color: 'white',
-                marginBottom: '20px'
+                textAlign: 'center',
+                marginBottom: '25px',
+                boxShadow: '0 10px 25px rgba(78, 205, 196, 0.3)'
               }}>
-                <h3 style={{ margin: '0 0 10px 0', fontSize: '1.3em' }}>
-                  ✅ Pedro está listo para conversar
-                </h3>
-                <p style={{ margin: 0, opacity: 0.9 }}>
-                  Habla directamente con él en español o inglés. ¡Pedro te responderá y te ayudará a mejorar!
+                <div style={{ fontSize: '1.5em', marginBottom: '10px' }}>
+                  🎉 ¡Pedro está listo!
+                </div>
+                <p style={{ margin: 0, fontSize: '1.1em', opacity: 0.95, lineHeight: '1.5' }}>
+                  Comienza a hablar con Pedro en español o inglés. Él te guiará y corregirá amablemente.
+                </p>
+              </div>
+            ) : (
+              <div style={{ 
+                background: 'linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%)',
+                padding: '20px',
+                borderRadius: '16px',
+                color: '#2d3436',
+                textAlign: 'center',
+                marginBottom: '25px'
+              }}>
+                <div style={{ fontSize: '1.3em', fontWeight: '600', marginBottom: '8px' }}>
+                  Cargando Pedro...
+                </div>
+                <p style={{ margin: 0, opacity: 0.8 }}>
+                  Esto puede tomar unos segundos
                 </p>
               </div>
             )}
-            
-            <div style={{ 
-              display: 'flex', 
-              flexDirection: 'column', 
-              gap: '15px',
-              maxWidth: '400px',
-              margin: '0 auto'
+
+            {/* Learning Tips */}
+            <div style={{
+              background: '#f8f9fa',
+              padding: '25px',
+              borderRadius: '16px',
+              border: '1px solid #e9ecef'
             }}>
-              <div style={{
-                background: '#f8f9fa',
-                padding: '15px',
-                borderRadius: '10px',
-                fontSize: '0.95em',
-                color: '#666',
-                lineHeight: '1.5'
+              <h4 style={{ 
+                color: '#2c3e50', 
+                margin: '0 0 15px 0', 
+                fontSize: '1.2em',
+                fontWeight: '600',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
               }}>
-                <strong>💡 Consejos:</strong><br/>
-                • Habla claro y despacio<br/>
-                • Usa frases simples al principio<br/>
-                • No tengas miedo de cometer errores<br/>
-                • Pedro es muy paciente y te ayudará
+                💡 Consejos para Mejor Conversación
+              </h4>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                <div style={{ fontSize: '0.95em', color: '#555' }}>
+                  • Habla despacio y claro<br/>
+                  • Usa gestos naturales<br/>
+                  • No temas cometer errores
+                </div>
+                <div style={{ fontSize: '0.95em', color: '#555' }}>
+                  • Practica pronunciación<br/>
+                  • Haz preguntas frecuentes<br/>
+                  • Pedro es muy paciente
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Learning Tools Sidebar */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {/* Learning Assistant Panel */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
             
-            {/* Quick Phrases */}
+            {/* Quick Spanish Phrases */}
             <div style={{
-              background: 'white',
-              borderRadius: '15px',
-              padding: '20px',
-              boxShadow: '0 10px 25px rgba(0,0,0,0.1)'
+              background: 'rgba(255,255,255,0.95)',
+              borderRadius: '20px',
+              padding: '25px',
+              boxShadow: '0 15px 35px rgba(0,0,0,0.1)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255,255,255,0.2)'
             }}>
               <h3 style={{ 
-                color: '#333', 
-                marginBottom: '15px', 
-                fontSize: '1.3em',
+                color: '#2c3e50', 
+                margin: '0 0 20px 0', 
+                fontSize: '1.4em',
+                fontWeight: '700',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '10px'
               }}>
-                🗣️ Frases Útiles
-              </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {[
-                  { es: 'Hola, ¿cómo estás?', en: 'Hello, how are you?' },
-                  { es: 'No entiendo', en: "I don't understand" },
-                  { es: '¿Puedes repetir?', en: 'Can you repeat?' },
-                  { es: '¿Cómo se dice...?', en: 'How do you say...?' },
-                  { es: 'Habla más despacio', en: 'Speak slower' },
-                  { es: '¿Qué significa...?', en: 'What does... mean?' }
-                ].map((phrase, index) => (
-                  <div key={index} style={{
-                    padding: '8px 12px',
-                    background: '#f8f9fa',
-                    borderRadius: '8px',
-                    fontSize: '0.9em',
-                    borderLeft: '3px solid #007bff'
-                  }}>
-                    <div style={{ fontWeight: 'bold', color: '#333' }}>{phrase.es}</div>
-                    <div style={{ color: '#666', fontSize: '0.85em' }}>{phrase.en}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Mexico City Vocabulary */}
-            <div style={{
-              background: 'white',
-              borderRadius: '15px',
-              padding: '20px',
-              boxShadow: '0 10px 25px rgba(0,0,0,0.1)'
-            }}>
-              <h3 style={{ 
-                color: '#333', 
-                marginBottom: '15px', 
-                fontSize: '1.3em',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px'
-              }}>
-                🏙️ Vocabulario CDMX
-              </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {[
-                  { word: 'Chilango', def: 'Persona de Ciudad de México' },
-                  { word: 'Camión', def: 'Autobús (bus)' },
-                  { word: 'Neta', def: 'En serio, verdad' },
-                  { word: 'Chela', def: 'Cerveza (beer)' },
-                  { word: 'Fresa', def: 'Persona adinerada/pija' },
-                  { word: 'Órale', def: '¡Wow! / ¡Vamos!' }
-                ].map((item, index) => (
-                  <div key={index} style={{
-                    padding: '8px 12px',
-                    background: '#fff3cd',
-                    borderRadius: '8px',
-                    fontSize: '0.9em',
-                    borderLeft: '3px solid #ffc107'
-                  }}>
-                    <div style={{ fontWeight: 'bold', color: '#333' }}>{item.word}</div>
-                    <div style={{ color: '#666', fontSize: '0.85em' }}>{item.def}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Grammar Tips */}
-            <div style={{
-              background: 'white',
-              borderRadius: '15px',
-              padding: '20px',
-              boxShadow: '0 10px 25px rgba(0,0,0,0.1)'
-            }}>
-              <h3 style={{ 
-                color: '#333', 
-                marginBottom: '15px', 
-                fontSize: '1.3em',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px'
-              }}>
-                📚 Tips Rápidos
+                🗣️ Frases Esenciales
               </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <div style={{
-                  padding: '12px',
-                  background: '#e8f5e8',
-                  borderRadius: '8px',
-                  fontSize: '0.9em',
-                  borderLeft: '3px solid #28a745'
-                }}>
-                  <strong>Género:</strong><br/>
-                  • -a = femenino (la mesa)<br/>
-                  • -o = masculino (el libro)
-                </div>
-                <div style={{
-                  padding: '12px',
-                  background: '#e3f2fd',
-                  borderRadius: '8px',
-                  fontSize: '0.9em',
-                  borderLeft: '3px solid #2196f3'
-                }}>
-                  <strong>Presente:</strong><br/>
-                  Hablar: hablo, hablas, habla<br/>
-                  Comer: como, comes, come
-                </div>
-                <div style={{
-                  padding: '12px',
-                  background: '#fce4ec',
-                  borderRadius: '8px',
-                  fontSize: '0.9em',
-                  borderLeft: '3px solid #e91e63'
-                }}>
-                  <strong>Pregunta:</strong><br/>
-                  ¿Cómo? ¿Qué? ¿Dónde?<br/>
-                  ¿Cuándo? ¿Por qué?
-                </div>
+                {[
+                  { es: 'Hola, ¿cómo estás?', en: 'Hello, how are you?', icon: '👋' },
+                  { es: 'No entiendo', en: "I don't understand", icon: '🤔' },
+                  { es: '¿Puedes repetir?', en: 'Can you repeat?', icon: '🔄' },
+                  { es: '¿Cómo se dice...?', en: 'How do you say...?', icon: '❓' },
+                  { es: 'Más despacio, por favor', en: 'Slower, please', icon: '🐌' }
+                ].map((phrase, index) => (
+                  <div key={index} style={{
+                    padding: '15px',
+                    background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
+                    borderRadius: '12px',
+                    border: '1px solid #dee2e6',
+                    transition: 'all 0.3s ease',
+                    cursor: 'pointer'
+                  }}
+                  onMouseOver={(e) => {
+                    e.target.style.transform = 'translateY(-2px)';
+                    e.target.style.boxShadow = '0 8px 20px rgba(0,0,0,0.1)';
+                  }}
+                  onMouseOut={(e) => {
+                    e.target.style.transform = 'translateY(0)';
+                    e.target.style.boxShadow = 'none';
+                  }}>
+                    <div style={{ 
+                      fontWeight: '600', 
+                      color: '#2c3e50',
+                      fontSize: '1.05em',
+                      marginBottom: '5px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}>
+                      {phrase.icon} {phrase.es}
+                    </div>
+                    <div style={{ color: '#6c757d', fontSize: '0.9em' }}>
+                      {phrase.en}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Mexico City Slang */}
+            <div style={{
+              background: 'rgba(255,255,255,0.95)',
+              borderRadius: '20px',
+              padding: '25px',
+              boxShadow: '0 15px 35px rgba(0,0,0,0.1)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255,255,255,0.2)'
+            }}>
+              <h3 style={{ 
+                color: '#2c3e50', 
+                margin: '0 0 20px 0', 
+                fontSize: '1.4em',
+                fontWeight: '700',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px'
+              }}>
+                🏙️ Jerga Chilanga
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {[
+                  { word: 'Órale', def: '¡Wow! / ¡Vamos!', color: '#ff6b6b' },
+                  { word: 'Neta', def: 'En serio, verdad', color: '#4ecdc4' },
+                  { word: 'Chela', def: 'Cerveza', color: '#45b7d1' },
+                  { word: 'Camión', def: 'Autobús', color: '#f39c12' },
+                  { word: 'Fresa', def: 'Persona adinerada', color: '#e74c3c' }
+                ].map((item, index) => (
+                  <div key={index} style={{
+                    padding: '15px',
+                    background: `linear-gradient(135deg, ${item.color}15 0%, ${item.color}25 100%)`,
+                    borderRadius: '12px',
+                    border: `2px solid ${item.color}30`,
+                    transition: 'all 0.3s ease'
+                  }}>
+                    <div style={{ 
+                      fontWeight: '700', 
+                      color: item.color,
+                      fontSize: '1.1em',
+                      marginBottom: '5px'
+                    }}>
+                      {item.word}
+                    </div>
+                    <div style={{ color: '#555', fontSize: '0.95em' }}>
+                      {item.def}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
           </div>
         </div>
+        
+        <style jsx>{`
+          @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(120deg); }
+            66% { transform: translate(-20px, 20px) rotate(240deg); }
+          }
+          @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+          }
+        `}</style>
       </div>
     );
   }
