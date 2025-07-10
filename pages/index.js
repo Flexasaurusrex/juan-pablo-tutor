@@ -1,101 +1,4 @@
-// Translator function for video mode
-  const translateText = async (text) => {
-    if (!text.trim()) return;
-    
-    setIsTranslating(true);
-    try {
-      const response = await fetch('/api/translate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: text.trim() })
-      });
-      
-      const data = await response.json();
-      if (data.translation) {
-        setTranslatorOutput(data.translation);
-      }
-    } catch (error) {
-      console.error('Translation error:', error);
-      setTranslatorOutput('Error de traducción');
-    }
-    setIsTranslating(false);
-  };
-
-  // Translate Juan Pablo's message to English
-  const translateMessage = async (messageText, messageIndex) => {
-    if (messageTranslations[messageIndex]) {
-      // If already translated, hide the translation
-      setMessageTranslations(prev => ({
-        ...prev,
-        [messageIndex]: null
-      }));
-      return;
-    }
-
-    setTranslatingMessageId(messageIndex);
-    
-    try {
-      const response = await fetch('/api/translate-to-english', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ spanishText: messageText })
-      });
-      
-      const data = await response.json();
-      
-      if (data.translation) {
-        setMessageTranslations(prev => ({
-          ...prev,
-          [messageIndex]: data.translation
-        }));
-      }
-    } catch (error) {
-      console.error('Translation error:', error);
-      setMessageTranslations(prev => ({
-        ...prev,
-        [messageIndex]: 'Translation failed - try again'
-      }));
-    }
-    
-    setTranslatingMessageId(null);
-  };  // Translate Juan Pablo's message to English
-  const translateMessage = async (messageText, messageIndex) => {
-    if (messageTranslations[messageIndex]) {
-      // If already translated, hide the translation
-      setMessageTranslations(prev => ({
-        ...prev,
-        [messageIndex]: null
-      }));
-      return;
-    }
-
-    setTranslatingMessageId(messageIndex);
-    
-    try {
-      const response = await fetch('/api/translate-to-english', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ spanishText: messageText })
-      });
-      
-      const data = await response.json();
-      
-      if (data.translation) {
-        setMessageTranslations(prev => ({
-          ...prev,
-          [messageIndex]: data.translation
-        }));
-      }
-    } catch (error) {
-      console.error('Translation error:', error);
-      setMessageTranslations(prev => ({
-        ...prev,
-        [messageIndex]: 'Translation failed - try again'
-      }));
-    }
-    
-    setTranslatingMessageId(null);
-  };import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 
 export default function JuanPablo() {
@@ -109,7 +12,7 @@ export default function JuanPablo() {
   const [isListeningToPedro, setIsListeningToPedro] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   
-  // Translation features - FIXED: Added all missing state variables
+  // Translation features - ALL state variables defined here
   const [messageTranslations, setMessageTranslations] = useState({});
   const [translatingMessageId, setTranslatingMessageId] = useState(null);
   const [speakingMessageId, setSpeakingMessageId] = useState(null);
@@ -135,6 +38,68 @@ export default function JuanPablo() {
     
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  // Translator function for video mode (English to Spanish)
+  const translateText = async (text) => {
+    if (!text.trim()) return;
+    
+    setIsTranslating(true);
+    try {
+      const response = await fetch('/api/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: text.trim() })
+      });
+      
+      const data = await response.json();
+      if (data.translation) {
+        setTranslatorOutput(data.translation);
+      }
+    } catch (error) {
+      console.error('Translation error:', error);
+      setTranslatorOutput('Error de traducción');
+    }
+    setIsTranslating(false);
+  };
+
+  // Translate Juan Pablo's message to English (for chat mode) - ONLY ONE DEFINITION
+  const translateMessage = async (messageText, messageIndex) => {
+    if (messageTranslations[messageIndex]) {
+      // If already translated, hide the translation
+      setMessageTranslations(prev => ({
+        ...prev,
+        [messageIndex]: null
+      }));
+      return;
+    }
+
+    setTranslatingMessageId(messageIndex);
+    
+    try {
+      const response = await fetch('/api/translate-to-english', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ spanishText: messageText })
+      });
+      
+      const data = await response.json();
+      
+      if (data.translation) {
+        setMessageTranslations(prev => ({
+          ...prev,
+          [messageIndex]: data.translation
+        }));
+      }
+    } catch (error) {
+      console.error('Translation error:', error);
+      setMessageTranslations(prev => ({
+        ...prev,
+        [messageIndex]: 'Translation failed - try again'
+      }));
+    }
+    
+    setTranslatingMessageId(null);
+  };
 
   // Speak Juan Pablo's message with Mexican Spanish pronunciation
   const speakMessage = async (messageText, messageIndex) => {
@@ -243,6 +208,12 @@ export default function JuanPablo() {
     setMessages([]);
     setTranslatorInput('');
     setTranslatorOutput('');
+    setMessageTranslations({});
+    setSpeakingMessageId(null);
+    if (currentAudio) {
+      currentAudio.pause();
+      setCurrentAudio(null);
+    }
   };
 
   const handleVideoEnd = () => {
@@ -421,53 +392,17 @@ export default function JuanPablo() {
       recognitionRef.current = new webkitSpeechRecognition();
       recognitionRef.current.continuous = false;
       recognitionRef.current.interimResults = false;
-      recognitionRef.current.lang = 'es-MX'; // Mexican Spanish for pronunciation practice
+      recognitionRef.current.lang = 'es-MX';
 
       recognitionRef.current.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
-        const confidence = event.results[0][0].confidence;
-        
-        console.log('🎙️ User said:', transcript, 'Confidence:', confidence);
-        
-        // Add pronunciation feedback if in Spanish
-        if (currentMode === 'chat') {
-          const pronunciationFeedback = confidence > 0.8 ? 
-            " 🎯 ¡Excelente pronunciación!" : 
-            confidence > 0.6 ? 
-            " 👍 Buena pronunciación" : 
-            " 💪 Sigue practicando - intenta hablar más claro";
-            
-          setInputMessage(transcript + pronunciationFeedback);
-          
-          // Auto-send pronunciation practice messages
-          setTimeout(() => {
-            if (transcript.length > 5) { // Only for substantial speech
-              setMessages(prev => [...prev, 
-                { text: transcript, sender: 'user' },
-                { text: `🎙️ Pronunciación detectada: "${transcript}"${pronunciationFeedback}\n\n¿Te gustaría que te ayude a mejorar esta frase o practiquemos algo nuevo?`, sender: 'juan' }
-              ]);
-            }
-          }, 1000);
-        } else {
-          setInputMessage(transcript);
-        }
+        setInputMessage(transcript);
+        console.log('🎙️ User said:', transcript);
       };
 
       recognitionRef.current.onerror = (event) => {
         console.error('Speech recognition error:', event.error);
         setIsLoading(false);
-        
-        if (event.error === 'not-allowed') {
-          setMessages(prev => [...prev, { 
-            text: "🎤 Necesito permiso para usar tu micrófono para practicar pronunciación. Por favor, permite el acceso al micrófono.", 
-            sender: 'juan' 
-          }]);
-        } else if (event.error === 'no-speech') {
-          setMessages(prev => [...prev, { 
-            text: "🤔 No pude escucharte claramente. ¿Puedes intentar hablar un poco más fuerte?", 
-            sender: 'juan' 
-          }]);
-        }
       };
 
       recognitionRef.current.onend = () => {
@@ -480,7 +415,7 @@ export default function JuanPablo() {
         recognitionRef.current.stop();
       }
     };
-  }, [currentMode]);
+  }, []);
 
   // Intro Screen with Sizzle Reel
   if (!currentMode && !showModeSelection) {
@@ -969,7 +904,7 @@ export default function JuanPablo() {
     );
   }
 
-  // Chat Mode - Dark Theme
+  // Chat Mode - Dark Theme with Translation and Pronunciation Features
   if (currentMode === 'chat') {
     return (
       <div style={{ 
