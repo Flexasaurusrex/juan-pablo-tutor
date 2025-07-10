@@ -1,4 +1,30 @@
-const startChatMode = () => {
+// Sample lessons for transport module with REAL lesson content
+  const transportLessons = [
+    {
+      id: 'transport_1',
+      title: 'Comprando tu primera tarjeta del Metro',
+      type: 'interactive',
+      scenario: 'metro_station',
+      xpReward: 25,
+      completed: userProgress.completedLessons.includes('transport_1'),
+      content: {
+        introduction: "¡Aprende a comprar tu tarjeta del Metro en CDMX!",
+        steps: [
+          {
+            type: 'vocabulary',
+            question: '¿Cómo se dice "Metro card" en español?',
+            options: ['Tarjeta del Metro', 'Carta del tren', 'Boleto de autobús'],
+            correct: 0,
+            explanation: '¡Correcto! "Tarjeta del Metro" es como compras acceso al sistema de Metro en CDMX.'
+          },
+          {
+            type: 'pronunciation',
+            text: 'Una tarjeta del Metro, por favor',
+            translation: 'One Metro card, please'
+          },
+          {
+            type: 'scenario',
+            situation: 'Estás en la estación Insurgentes. ¿Qué dices para comprar una tarjeta?  const startChatMode = () => {
     setCurrentMode('chat');
     setMessages([
       { 
@@ -34,8 +60,10 @@ export default function JuanPablo() {
   // Learning system state
   const [selectedModule, setSelectedModule] = useState(null);
   const [currentLesson, setCurrentLesson] = useState(null);
+  const [lessonStep, setLessonStep] = useState(0);
+  const [lessonAnswers, setLessonAnswers] = useState({});
   const [userProgress, setUserProgress] = useState({
-    completedLessons: [],
+    completedLessons: ['transport_1', 'transport_2', 'transport_3'], // Real completed lessons
     currentStreak: 7,
     totalXP: 2340,
     level: 'Intermedio',
@@ -84,40 +112,148 @@ export default function JuanPablo() {
     }
   ];
 
-  // Sample lessons for transport module
-  const transportLessons = [
+  // Sample lessons for transport module with REAL interactive content
+  const getTransportLessons = () => [
     {
-      id: 1,
+      id: 'transport_1',
       title: 'Comprando tu primera tarjeta del Metro',
       type: 'interactive',
       scenario: 'metro_station',
       xpReward: 25,
-      completed: true
+      completed: userProgress.completedLessons.includes('transport_1'),
+      content: {
+        introduction: "Aprende las frases esenciales para comprar tu tarjeta del Metro en CDMX",
+        steps: [
+          {
+            type: 'vocabulary',
+            question: '¿Cómo se dice "Metro card" en español mexicano?',
+            options: ['Tarjeta del Metro', 'Carta del tren', 'Boleto de autobús', 'Pase del Metro'],
+            correct: 0,
+            explanation: '¡Correcto! En CDMX se dice "Tarjeta del Metro". También puedes decir "tarjeta" simplemente.'
+          },
+          {
+            type: 'phrase',
+            question: 'Completa la frase: "Una _____ del Metro, por favor"',
+            answer: 'tarjeta',
+            hint: 'Es lo que necesitas para entrar al Metro'
+          },
+          {
+            type: 'conversation',
+            scenario: 'Empleado del Metro: "¿En qué le puedo ayudar?"',
+            question: '¿Qué respondes?',
+            options: [
+              'Quiero una tarjeta del Metro, por favor',
+              'Dame una carta del tren',
+              'Necesito un boleto de avión'
+            ],
+            correct: 0,
+            explanation: 'Perfecto! Esta es la forma más educada y clara de pedir una tarjeta.'
+          }
+        ]
+      }
     },
     {
-      id: 2,
+      id: 'transport_2', 
       title: 'Direcciones: ¿Cómo llego a...?',
       type: 'conversation',
       scenario: 'asking_directions',
       xpReward: 30,
-      completed: true
+      completed: userProgress.completedLessons.includes('transport_2'),
+      content: {
+        introduction: "Aprende a pedir direcciones como un verdadero chilango",
+        steps: [
+          {
+            type: 'vocabulary',
+            question: '¿Cómo preguntas "How do I get to..." en español?',
+            options: ['¿Cómo llego a...?', '¿Dónde está...?', '¿Cuándo voy a...?'],
+            correct: 0,
+            explanation: '"¿Cómo llego a...?" es la forma más común de pedir direcciones en México.'
+          },
+          {
+            type: 'phrase',
+            question: 'Completa: "Disculpe, ¿cómo _____ a Polanco?"',
+            answer: 'llego',
+            hint: 'Verbo que significa "to arrive" o "to get to"'
+          },
+          {
+            type: 'realworld',
+            scenario: 'Estás perdido en CDMX y necesitas llegar a Roma Norte',
+            question: '¿Qué preguntas a un local?',
+            options: [
+              'Disculpe, ¿cómo llego a Roma Norte?',
+              'Hey, ¿dónde está Roma Norte?',
+              '¿Cuándo llego a Roma Norte?'
+            ],
+            correct: 0,
+            explanation: 'Excelente! "Disculpe" es muy educado en México, y esta frase te ayudará muchísimo.'
+          }
+        ]
+      }
     },
     {
-      id: 3,
+      id: 'transport_3',
       title: 'Vocabulario: Medios de transporte',
       type: 'vocabulary',
       scenario: 'transport_vocab',
       xpReward: 20,
-      completed: true
+      completed: userProgress.completedLessons.includes('transport_3'),
+      content: {
+        introduction: "Domina el vocabulario del transporte en Ciudad de México",
+        steps: [
+          {
+            type: 'matching',
+            question: 'Conecta el transporte con su descripción:',
+            pairs: [
+              { spanish: 'Metro', english: 'Subway/Underground train system' },
+              { spanish: 'Metrobús', english: 'Bus Rapid Transit (BRT)' },
+              { spanish: 'Pesero/Micro', english: 'Shared minibus' },
+              { spanish: 'Uber/DiDi', english: 'Ride-sharing apps' }
+            ]
+          },
+          {
+            type: 'vocabulary',
+            question: '¿Cómo se llama el autobús pequeño compartido en CDMX?',
+            options: ['Pesero', 'Camión', 'Taxi', 'Bicicleta'],
+            correct: 0,
+            explanation: '"Pesero" o "micro" son los minibuses compartidos. ¡Muy mexicanos!'
+          }
+        ]
+      }
     },
     {
-      id: 4,
+      id: 'transport_4',
       title: 'Pronunciación: Estaciones del Metro',
       type: 'pronunciation',
       scenario: 'metro_stations',
       xpReward: 35,
       completed: false,
-      current: true
+      current: true,
+      content: {
+        introduction: "Practica la pronunciación de estaciones importantes del Metro",
+        steps: [
+          {
+            type: 'pronunciation',
+            word: 'Insurgentes',
+            phonetic: 'in-sur-HEN-tes',
+            audio: 'Estación Insurgentes',
+            tip: 'La "g" suena como "h" suave en español mexicano'
+          },
+          {
+            type: 'pronunciation',
+            word: 'Chapultepec',
+            phonetic: 'cha-pul-TE-pec',
+            audio: 'Estación Chapultepec',
+            tip: 'Palabra náhuatl - muy importante en CDMX'
+          },
+          {
+            type: 'pronunciation',
+            word: 'Zócalo',
+            phonetic: 'SO-ca-lo',
+            audio: 'Estación Zócalo',
+            tip: 'El centro histórico de la ciudad'
+          }
+        ]
+      }
     }
   ];
 
@@ -665,6 +801,340 @@ export default function JuanPablo() {
               }}>
                 🎥
               </div>
+            )}
+
+            {/* ACTUAL LESSON INTERFACE - This is where the real learning happens */}
+            {currentLesson && (
+              <div style={{ 
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: '#000000',
+                zIndex: 2000,
+                padding: '20px',
+                overflow: 'auto'
+              }}>
+                <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+                  {/* Lesson Header */}
+                  <div style={{ display: 'flex', alignItems: 'center', marginBottom: '30px' }}>
+                    <button 
+                      onClick={() => {
+                        setCurrentLesson(null);
+                        setLessonStep(0);
+                        setLessonAnswers({});
+                      }}
+                      style={{
+                        background: 'rgba(255,255,255,0.1)',
+                        border: '1px solid rgba(255,255,255,0.3)',
+                        color: 'white',
+                        padding: '10px 20px',
+                        borderRadius: '10px',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        marginRight: '20px'
+                      }}
+                    >
+                      ← Volver a lecciones
+                    </button>
+                    <div>
+                      <h2 style={{ color: 'white', margin: 0, fontSize: '1.5em' }}>
+                        {currentLesson.title}
+                      </h2>
+                      <p style={{ color: 'rgba(255,255,255,0.7)', margin: '5px 0 0 0' }}>
+                        Paso {lessonStep + 1} de {currentLesson.content.steps.length} • +{currentLesson.xpReward} XP
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Progress Bar */}
+                  <div style={{
+                    background: 'rgba(255,255,255,0.1)',
+                    borderRadius: '10px',
+                    height: '8px',
+                    marginBottom: '30px'
+                  }}>
+                    <div style={{
+                      background: '#00ff88',
+                      height: '100%',
+                      width: `${((lessonStep + 1) / currentLesson.content.steps.length) * 100}%`,
+                      borderRadius: '10px',
+                      transition: 'width 0.3s ease'
+                    }} />
+                  </div>
+
+                  {/* Lesson Content */}
+                  <div style={{
+                    background: 'rgba(255,255,255,0.05)',
+                    borderRadius: '20px',
+                    padding: '30px',
+                    marginBottom: '20px'
+                  }}>
+                    {lessonStep === 0 && (
+                      <div style={{ textAlign: 'center', color: 'white' }}>
+                        <div style={{ fontSize: '3em', marginBottom: '20px' }}>🚇</div>
+                        <h3 style={{ margin: '0 0 15px 0', fontSize: '1.8em' }}>
+                          {currentLesson.content.introduction}
+                        </h3>
+                        <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '1.1em', lineHeight: '1.6' }}>
+                          En esta lección aprenderás frases esenciales que necesitarás en el Metro de CDMX.
+                        </p>
+                        <button
+                          onClick={() => setLessonStep(1)}
+                          style={{
+                            background: '#00ff88',
+                            color: '#000',
+                            border: 'none',
+                            padding: '15px 30px',
+                            borderRadius: '25px',
+                            fontSize: '1.1em',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            marginTop: '20px'
+                          }}
+                        >
+                          ¡Empezar lección!
+                        </button>
+                      </div>
+                    )}
+
+                    {lessonStep > 0 && lessonStep <= currentLesson.content.steps.length && (() => {
+                      const step = currentLesson.content.steps[lessonStep - 1];
+                      const stepKey = `step_${lessonStep}`;
+                      
+                      if (step.type === 'vocabulary') {
+                        return (
+                          <div style={{ color: 'white' }}>
+                            <h3 style={{ margin: '0 0 20px 0', fontSize: '1.4em' }}>
+                              📚 {step.question}
+                            </h3>
+                            <div style={{ display: 'grid', gap: '15px' }}>
+                              {step.options.map((option, index) => (
+                                <button
+                                  key={index}
+                                  onClick={() => {
+                                    setLessonAnswers(prev => ({ ...prev, [stepKey]: index }));
+                                    setTimeout(() => {
+                                      if (index === step.correct) {
+                                        setLessonStep(lessonStep + 1);
+                                      }
+                                    }, 1000);
+                                  }}
+                                  style={{
+                                    background: lessonAnswers[stepKey] === index 
+                                      ? (index === step.correct ? '#00ff88' : '#ff4444')
+                                      : 'rgba(255,255,255,0.1)',
+                                    color: lessonAnswers[stepKey] === index 
+                                      ? '#000' 
+                                      : 'white',
+                                    border: '1px solid rgba(255,255,255,0.3)',
+                                    padding: '15px 20px',
+                                    borderRadius: '10px',
+                                    fontSize: '1.1em',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.3s ease'
+                                  }}
+                                >
+                                  {option}
+                                </button>
+                              ))}
+                            </div>
+                            {lessonAnswers[stepKey] !== undefined && (
+                              <div style={{ 
+                                marginTop: '20px', 
+                                padding: '15px', 
+                                background: lessonAnswers[stepKey] === step.correct ? 'rgba(0,255,136,0.1)' : 'rgba(255,68,68,0.1)',
+                                borderRadius: '10px',
+                                color: lessonAnswers[stepKey] === step.correct ? '#00ff88' : '#ff4444'
+                              }}>
+                                {lessonAnswers[stepKey] === step.correct ? '¡Correcto! ' : '¡Incorrecto! '}
+                                {step.explanation}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      }
+
+                      if (step.type === 'phrase') {
+                        return (
+                          <div style={{ color: 'white' }}>
+                            <h3 style={{ margin: '0 0 20px 0', fontSize: '1.4em' }}>
+                              ✏️ {step.question}
+                            </h3>
+                            <input
+                              type="text"
+                              value={lessonAnswers[stepKey] || ''}
+                              onChange={(e) => setLessonAnswers(prev => ({ ...prev, [stepKey]: e.target.value }))}
+                              placeholder="Escribe tu respuesta..."
+                              style={{
+                                width: '100%',
+                                padding: '15px',
+                                fontSize: '1.2em',
+                                background: 'rgba(255,255,255,0.1)',
+                                border: '1px solid rgba(255,255,255,0.3)',
+                                borderRadius: '10px',
+                                color: 'white',
+                                marginBottom: '15px'
+                              }}
+                            />
+                            <div style={{ fontSize: '0.9em', color: 'rgba(255,255,255,0.6)', marginBottom: '20px' }}>
+                              💡 Pista: {step.hint}
+                            </div>
+                            <button
+                              onClick={() => {
+                                if (lessonAnswers[stepKey]?.toLowerCase().trim() === step.answer.toLowerCase()) {
+                                  setLessonStep(lessonStep + 1);
+                                } else {
+                                  alert('¡Intenta de nuevo! Revisa tu respuesta.');
+                                }
+                              }}
+                              disabled={!lessonAnswers[stepKey]?.trim()}
+                              style={{
+                                background: lessonAnswers[stepKey]?.trim() ? '#00ff88' : 'rgba(255,255,255,0.3)',
+                                color: lessonAnswers[stepKey]?.trim() ? '#000' : 'rgba(255,255,255,0.5)',
+                                border: 'none',
+                                padding: '12px 25px',
+                                borderRadius: '20px',
+                                fontSize: '1em',
+                                fontWeight: '600',
+                                cursor: lessonAnswers[stepKey]?.trim() ? 'pointer' : 'not-allowed'
+                              }}
+                            >
+                              Verificar respuesta
+                            </button>
+                          </div>
+                        );
+                      }
+
+                      if (step.type === 'conversation') {
+                        return (
+                          <div style={{ color: 'white' }}>
+                            <div style={{ 
+                              background: 'rgba(255,255,255,0.1)', 
+                              padding: '15px', 
+                              borderRadius: '10px', 
+                              marginBottom: '20px',
+                              fontStyle: 'italic'
+                            }}>
+                              💭 Situación: {step.scenario}
+                            </div>
+                            <h3 style={{ margin: '0 0 20px 0', fontSize: '1.4em' }}>
+                              {step.question}
+                            </h3>
+                            <div style={{ display: 'grid', gap: '15px' }}>
+                              {step.options.map((option, index) => (
+                                <button
+                                  key={index}
+                                  onClick={() => {
+                                    setLessonAnswers(prev => ({ ...prev, [stepKey]: index }));
+                                    setTimeout(() => {
+                                      if (index === step.correct) {
+                                        setLessonStep(lessonStep + 1);
+                                      }
+                                    }, 1500);
+                                  }}
+                                  style={{
+                                    background: lessonAnswers[stepKey] === index 
+                                      ? (index === step.correct ? '#00ff88' : '#ff4444')
+                                      : 'rgba(255,255,255,0.1)',
+                                    color: lessonAnswers[stepKey] === index 
+                                      ? '#000' 
+                                      : 'white',
+                                    border: '1px solid rgba(255,255,255,0.3)',
+                                    padding: '15px 20px',
+                                    borderRadius: '10px',
+                                    fontSize: '1.1em',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.3s ease',
+                                    textAlign: 'left'
+                                  }}
+                                >
+                                  {option}
+                                </button>
+                              ))}
+                            </div>
+                            {lessonAnswers[stepKey] !== undefined && (
+                              <div style={{ 
+                                marginTop: '20px', 
+                                padding: '15px', 
+                                background: lessonAnswers[stepKey] === step.correct ? 'rgba(0,255,136,0.1)' : 'rgba(255,68,68,0.1)',
+                                borderRadius: '10px',
+                                color: lessonAnswers[stepKey] === step.correct ? '#00ff88' : '#ff4444'
+                              }}>
+                                {lessonAnswers[stepKey] === step.correct ? '¡Excelente! ' : '¡No del todo! '}
+                                {step.explanation}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      }
+
+                      return null;
+                    })()}
+
+                    {lessonStep > currentLesson.content.steps.length && (
+                      <div style={{ textAlign: 'center', color: 'white' }}>
+                        <div style={{ fontSize: '4em', marginBottom: '20px' }}>🎉</div>
+                        <h3 style={{ margin: '0 0 15px 0', fontSize: '2em' }}>
+                          ¡Lección completada!
+                        </h3>
+                        <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '1.2em', marginBottom: '20px' }}>
+                          Has ganado {currentLesson.xpReward} XP
+                        </p>
+                        <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
+                          <button
+                            onClick={() => {
+                              setCurrentLesson(null);
+                              setLessonStep(0);
+                              setLessonAnswers({});
+                              // Mark lesson as completed
+                              setUserProgress(prev => ({
+                                ...prev,
+                                completedLessons: [...prev.completedLessons, currentLesson.id],
+                                totalXP: prev.totalXP + currentLesson.xpReward,
+                                weeklyXP: prev.weeklyXP + currentLesson.xpReward
+                              }));
+                            }}
+                            style={{
+                              background: '#00ff88',
+                              color: '#000',
+                              border: 'none',
+                              padding: '15px 25px',
+                              borderRadius: '25px',
+                              fontSize: '1.1em',
+                              fontWeight: '600',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            Continuar a siguiente lección
+                          </button>
+                          <button
+                            onClick={() => {
+                              setCurrentLesson(null);
+                              setLessonStep(0);
+                              setLessonAnswers({});
+                            }}
+                            style={{
+                              background: 'rgba(255,255,255,0.1)',
+                              color: 'white',
+                              border: '1px solid rgba(255,255,255,0.3)',
+                              padding: '15px 25px',
+                              borderRadius: '25px',
+                              fontSize: '1.1em',
+                              fontWeight: '600',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            Volver a módulos
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
               <h3 style={{ 
                 fontSize: '1.3em', 
                 marginBottom: '12px', 
@@ -1648,7 +2118,7 @@ export default function JuanPablo() {
 
                 {/* Lesson List */}
                 <div style={{ display: 'grid', gap: '15px' }}>
-                  {transportLessons.map((lesson, index) => (
+                  {getTransportLessons().map((lesson, index) => (
                     <div key={lesson.id} style={{
                       background: lesson.completed ? 'rgba(0,255,136,0.1)' : lesson.current ? 'rgba(255,193,7,0.1)' : 'rgba(255,255,255,0.05)',
                       border: lesson.current ? '2px solid #ffc107' : '1px solid rgba(255,255,255,0.1)',
@@ -1672,7 +2142,7 @@ export default function JuanPablo() {
                             color: lesson.completed || lesson.current ? '#000' : '#fff',
                             fontWeight: '700'
                           }}>
-                            {lesson.completed ? '✓' : lesson.current ? '▶' : lesson.id}
+                            {lesson.completed ? '✓' : lesson.current ? '▶' : index + 1}
                           </div>
                           <div>
                             <h4 style={{ 
@@ -1703,26 +2173,19 @@ export default function JuanPablo() {
                           }}>
                             +{lesson.xpReward} XP
                           </div>
-                          {lesson.current && (
-                            <button style={{
-                              background: '#ffc107',
-                              color: '#000',
-                              border: 'none',
-                              padding: '8px 16px',
-                              borderRadius: '20px',
-                              fontSize: '0.8em',
-                              fontWeight: '600',
-                              marginTop: '5px',
-                              cursor: 'pointer'
-                            }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              alert('¡Próximamente! Esta lección estará disponible pronto.');
-                            }}
-                            >
-                              Continuar
-                            </button>
-                          )}
+                          <button style={{
+                            background: lesson.completed ? 'rgba(0,255,136,0.2)' : '#ffc107',
+                            color: lesson.completed ? '#00ff88' : '#000',
+                            border: 'none',
+                            padding: '8px 16px',
+                            borderRadius: '20px',
+                            fontSize: '0.8em',
+                            fontWeight: '600',
+                            marginTop: '5px',
+                            cursor: 'pointer'
+                          }}>
+                            {lesson.completed ? 'Completado' : lesson.current ? 'Continuar' : 'Empezar'}
+                          </button>
                         </div>
                       </div>
                     </div>
