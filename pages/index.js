@@ -1,38 +1,4 @@
-// Sample lessons for transport module with REAL lesson content
-  const transportLessons = [
-    {
-      id: 'transport_1',
-      title: 'Comprando tu primera tarjeta del Metro',
-      type: 'interactive',
-      scenario: 'metro_station',
-      xpReward: 25,
-      completed: userProgress.completedLessons.includes('transport_1'),
-      content: {
-        introduction: "¡Aprende a comprar tu tarjeta del Metro en CDMX!",
-        steps: [
-          {
-            type: 'vocabulary',
-            question: '¿Cómo se dice "Metro card" en español?',
-            options: ['Tarjeta del Metro', 'Carta del tren', 'Boleto de autobús'],
-            correct: 0,
-            explanation: '¡Correcto! "Tarjeta del Metro" es como compras acceso al sistema de Metro en CDMX.'
-          },
-          {
-            type: 'pronunciation',
-            text: 'Una tarjeta del Metro, por favor',
-            translation: 'One Metro card, please'
-          },
-          {
-            type: 'scenario',
-            situation: 'Estás en la estación Insurgentes. ¿Qué dices para comprar una tarjeta?  const startChatMode = () => {
-    setCurrentMode('chat');
-    setMessages([
-      { 
-        text: "¡Hola! 👋🇲🇽 Soy Juan Pablo, tu profesor de español mexicano. Estoy súper emocionado de ayudarte a prepararte para tu mudanza a Ciudad de México en septiembre.\n\n🎯 Puedo ayudarte con:\n• Correcciones de gramática y pronunciación\n• Frases útiles para la vida diaria en CDMX\n• Modismos y cultura mexicana\n• Situaciones reales (transporte, comida, trabajo)\n\n¿En qué te gustaría empezar a practicar hoy? Puedes escribir en inglés o español - ¡yo te ayudo! 😊", 
-        sender: 'juan' 
-      }
-    ]);
-  };import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 
 export default function JuanPablo() {
@@ -46,7 +12,7 @@ export default function JuanPablo() {
   const [isListeningToPedro, setIsListeningToPedro] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   
-  // Translation features - ALL state variables defined here
+  // Translation features
   const [messageTranslations, setMessageTranslations] = useState({});
   const [translatingMessageId, setTranslatingMessageId] = useState(null);
   const [speakingMessageId, setSpeakingMessageId] = useState(null);
@@ -63,7 +29,7 @@ export default function JuanPablo() {
   const [lessonStep, setLessonStep] = useState(0);
   const [lessonAnswers, setLessonAnswers] = useState({});
   const [userProgress, setUserProgress] = useState({
-    completedLessons: ['transport_1', 'transport_2', 'transport_3'], // Real completed lessons
+    completedLessons: ['transport_1', 'transport_2', 'transport_3'],
     currentStreak: 7,
     totalXP: 2340,
     level: 'Intermedio',
@@ -82,8 +48,8 @@ export default function JuanPablo() {
       title: 'Transporte CDMX',
       icon: '🚇',
       description: 'Metro, Metrobús, taxis y Uber',
-      lessons: 12,
-      completed: 8,
+      lessons: 4,
+      completed: 3,
       difficulty: 'Principiante',
       estimatedTime: '2 semanas',
       color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
@@ -112,13 +78,12 @@ export default function JuanPablo() {
     }
   ];
 
-  // Sample lessons for transport module with REAL interactive content
+  // Transport lessons with real content
   const getTransportLessons = () => [
     {
       id: 'transport_1',
       title: 'Comprando tu primera tarjeta del Metro',
       type: 'interactive',
-      scenario: 'metro_station',
       xpReward: 25,
       completed: userProgress.completedLessons.includes('transport_1'),
       content: {
@@ -127,36 +92,23 @@ export default function JuanPablo() {
           {
             type: 'vocabulary',
             question: '¿Cómo se dice "Metro card" en español mexicano?',
-            options: ['Tarjeta del Metro', 'Carta del tren', 'Boleto de autobús', 'Pase del Metro'],
+            options: ['Tarjeta del Metro', 'Carta del tren', 'Boleto de autobús'],
             correct: 0,
-            explanation: '¡Correcto! En CDMX se dice "Tarjeta del Metro". También puedes decir "tarjeta" simplemente.'
+            explanation: '¡Correcto! En CDMX se dice "Tarjeta del Metro".'
           },
           {
             type: 'phrase',
-            question: 'Completa la frase: "Una _____ del Metro, por favor"',
+            question: 'Completa: "Una _____ del Metro, por favor"',
             answer: 'tarjeta',
             hint: 'Es lo que necesitas para entrar al Metro'
-          },
-          {
-            type: 'conversation',
-            scenario: 'Empleado del Metro: "¿En qué le puedo ayudar?"',
-            question: '¿Qué respondes?',
-            options: [
-              'Quiero una tarjeta del Metro, por favor',
-              'Dame una carta del tren',
-              'Necesito un boleto de avión'
-            ],
-            correct: 0,
-            explanation: 'Perfecto! Esta es la forma más educada y clara de pedir una tarjeta.'
           }
         ]
       }
     },
     {
-      id: 'transport_2', 
+      id: 'transport_2',
       title: 'Direcciones: ¿Cómo llego a...?',
       type: 'conversation',
-      scenario: 'asking_directions',
       xpReward: 30,
       completed: userProgress.completedLessons.includes('transport_2'),
       content: {
@@ -167,25 +119,7 @@ export default function JuanPablo() {
             question: '¿Cómo preguntas "How do I get to..." en español?',
             options: ['¿Cómo llego a...?', '¿Dónde está...?', '¿Cuándo voy a...?'],
             correct: 0,
-            explanation: '"¿Cómo llego a...?" es la forma más común de pedir direcciones en México.'
-          },
-          {
-            type: 'phrase',
-            question: 'Completa: "Disculpe, ¿cómo _____ a Polanco?"',
-            answer: 'llego',
-            hint: 'Verbo que significa "to arrive" o "to get to"'
-          },
-          {
-            type: 'conversation',
-            scenario: 'Estás perdido en CDMX y necesitas llegar a Roma Norte',
-            question: '¿Qué preguntas a un local?',
-            options: [
-              'Disculpe, ¿cómo llego a Roma Norte?',
-              'Hey, ¿dónde está Roma Norte?',
-              '¿Cuándo llego a Roma Norte?'
-            ],
-            correct: 0,
-            explanation: 'Excelente! "Disculpe" es muy educado en México, y esta frase te ayudará muchísimo.'
+            explanation: '"¿Cómo llego a...?" es la forma más común de pedir direcciones.'
           }
         ]
       }
@@ -194,25 +128,17 @@ export default function JuanPablo() {
       id: 'transport_3',
       title: 'Vocabulario: Medios de transporte',
       type: 'vocabulary',
-      scenario: 'transport_vocab',
       xpReward: 20,
       completed: userProgress.completedLessons.includes('transport_3'),
       content: {
-        introduction: "Domina el vocabulario del transporte en Ciudad de México",
+        introduction: "Domina el vocabulario del transporte en CDMX",
         steps: [
           {
             type: 'vocabulary',
-            question: '¿Cómo se llama el sistema de transporte subterráneo en CDMX?',
-            options: ['Metro', 'Subte', 'Tren', 'Underground'],
-            correct: 0,
-            explanation: 'Correcto! El Metro es el sistema de transporte subterráneo de CDMX.'
-          },
-          {
-            type: 'vocabulary',
             question: '¿Cómo se llama el autobús pequeño compartido en CDMX?',
-            options: ['Pesero', 'Camión', 'Taxi', 'Bicicleta'],
+            options: ['Pesero', 'Camión', 'Taxi'],
             correct: 0,
-            explanation: '"Pesero" o "micro" son los minibuses compartidos. ¡Muy mexicanos!'
+            explanation: '"Pesero" son los minibuses compartidos en México.'
           }
         ]
       }
@@ -221,26 +147,18 @@ export default function JuanPablo() {
       id: 'transport_4',
       title: 'Pronunciación: Estaciones del Metro',
       type: 'pronunciation',
-      scenario: 'metro_stations',
       xpReward: 35,
       completed: false,
       current: true,
       content: {
-        introduction: "Practica la pronunciación de estaciones importantes del Metro",
+        introduction: "Practica la pronunciación de estaciones del Metro",
         steps: [
-          {
-            type: 'vocabulary',
-            question: '¿Cómo se pronuncia "Insurgentes"?',
-            options: ['in-sur-HEN-tes', 'IN-sur-gen-tes', 'in-SUR-gen-TES'],
-            correct: 0,
-            explanation: 'Correcto! La "g" suena como "h" suave en español mexicano'
-          },
           {
             type: 'vocabulary',
             question: '¿Cuál es la estación del centro histórico?',
             options: ['Zócalo', 'Centro', 'Histórico'],
             correct: 0,
-            explanation: 'Zócalo es la estación que te lleva al centro histórico de CDMX'
+            explanation: 'Zócalo es la estación del centro histórico de CDMX'
           }
         ]
       }
@@ -259,7 +177,7 @@ export default function JuanPablo() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Translator function for video mode (English to Spanish)
+  // Translator function for video mode
   const translateText = async (text) => {
     if (!text.trim()) return;
     
@@ -282,10 +200,9 @@ export default function JuanPablo() {
     setIsTranslating(false);
   };
 
-  // Translate Juan Pablo's message to English (for chat mode) - ONLY ONE DEFINITION
+  // Translate Juan Pablo's message to English
   const translateMessage = async (messageText, messageIndex) => {
     if (messageTranslations[messageIndex]) {
-      // If already translated, hide the translation
       setMessageTranslations(prev => ({
         ...prev,
         [messageIndex]: null
@@ -323,7 +240,6 @@ export default function JuanPablo() {
 
   // Speak Juan Pablo's message with Mexican Spanish pronunciation
   const speakMessage = async (messageText, messageIndex) => {
-    // Stop any currently playing audio
     if (currentAudio) {
       currentAudio.pause();
       currentAudio.currentTime = 0;
@@ -331,7 +247,6 @@ export default function JuanPablo() {
       setSpeakingMessageId(null);
     }
 
-    // If clicking the same message that's already speaking, just stop
     if (speakingMessageId === messageIndex) {
       return;
     }
@@ -339,24 +254,20 @@ export default function JuanPablo() {
     setSpeakingMessageId(messageIndex);
 
     try {
-      // Clean the text for better TTS (remove emojis, extra formatting)
       const cleanText = messageText
-        .replace(/[🎯📚🔄✏️🌮🚇👋💼🆘💰🏢🇲🇽😊👍💪🎙️✅❌📝📡🚀⚠️🔍🤖🌟]/g, '') // Remove emojis
-        .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold markdown
-        .replace(/•/g, '') // Remove bullet points
+        .replace(/[🎯📚🔄✏️🌮🚇👋💼🆘💰🏢🇲🇽😊👍💪🎙️✅❌📝📡🚀⚠️🔍🤖🌟]/g, '')
+        .replace(/\*\*(.*?)\*\*/g, '$1')
+        .replace(/•/g, '')
         .trim();
 
-      // Use high-quality Mexican Spanish TTS
       if ('speechSynthesis' in window) {
         const utterance = new SpeechSynthesisUtterance(cleanText);
         
-        // Configure for Mexican Spanish
-        utterance.lang = 'es-MX'; // Mexican Spanish
-        utterance.rate = 0.85; // Slightly slower for learning
+        utterance.lang = 'es-MX';
+        utterance.rate = 0.85;
         utterance.pitch = 1.0;
         utterance.volume = 0.9;
 
-        // Try to find a Mexican Spanish voice
         const voices = speechSynthesis.getVoices();
         const mexicanVoice = voices.find(voice => 
           voice.lang.includes('es-MX') || 
@@ -366,14 +277,6 @@ export default function JuanPablo() {
         
         if (mexicanVoice) {
           utterance.voice = mexicanVoice;
-          console.log('🎙️ Using voice:', mexicanVoice.name, mexicanVoice.lang);
-        } else {
-          // Fallback to any Spanish voice
-          const spanishVoice = voices.find(voice => voice.lang.startsWith('es'));
-          if (spanishVoice) {
-            utterance.voice = spanishVoice;
-            console.log('🎙️ Using fallback Spanish voice:', spanishVoice.name);
-          }
         }
 
         utterance.onend = () => {
@@ -381,25 +284,15 @@ export default function JuanPablo() {
           setCurrentAudio(null);
         };
 
-        utterance.onerror = (error) => {
-          console.error('Speech synthesis error:', error);
+        utterance.onerror = () => {
           setSpeakingMessageId(null);
           setCurrentAudio(null);
         };
 
-        // Store reference for stopping
         setCurrentAudio(utterance);
-        
         speechSynthesis.speak(utterance);
-        console.log('🔊 Speaking Mexican Spanish:', cleanText.substring(0, 50) + '...');
-        
-      } else {
-        console.error('Speech synthesis not supported');
-        setSpeakingMessageId(null);
       }
-
     } catch (error) {
-      console.error('Error speaking message:', error);
       setSpeakingMessageId(null);
     }
   };
@@ -410,6 +303,16 @@ export default function JuanPablo() {
       { text: "¡Hola! Habla conmigo directamente para practicar conversación.", sender: 'juan' }
     ]);
     setTimeout(loadHeyGenEmbed, 1000);
+  };
+
+  const startChatMode = () => {
+    setCurrentMode('chat');
+    setMessages([
+      { 
+        text: "¡Hola! 👋🇲🇽 Soy Juan Pablo, tu profesor de español mexicano. Estoy súper emocionado de ayudarte a prepararte para tu mudanza a Ciudad de México en septiembre.\n\n🎯 Puedo ayudarte con:\n• Correcciones de gramática y pronunciación\n• Frases útiles para la vida diaria en CDMX\n• Modismos y cultura mexicana\n• Situaciones reales (transporte, comida, trabajo)\n\n¿En qué te gustaría empezar a practicar hoy? Puedes escribir en inglés o español - ¡yo te ayudo! 😊", 
+        sender: 'juan' 
+      }
+    ]);
   };
 
   const startLearningMode = () => {
@@ -425,6 +328,10 @@ export default function JuanPablo() {
     setTranslatorOutput('');
     setMessageTranslations({});
     setSpeakingMessageId(null);
+    setSelectedModule(null);
+    setCurrentLesson(null);
+    setLessonStep(0);
+    setLessonAnswers({});
     if (currentAudio) {
       currentAudio.pause();
       setCurrentAudio(null);
@@ -443,27 +350,19 @@ export default function JuanPablo() {
   };
 
   const loadHeyGenEmbed = () => {
-    console.log('🎬 Loading HeyGen embed with Creator plan...');
-    
     setTimeout(() => {
       const container = document.getElementById('avatar-video-container');
-      if (!container) {
-        console.error('❌ Avatar container not found');
-        return;
-      }
+      if (!container) return;
 
-      // Remove existing embed if any
       const existingEmbed = document.getElementById('heygen-streaming-embed');
       if (existingEmbed) {
         existingEmbed.remove();
       }
 
-      // Create the HeyGen embed with Creator plan (no time limits)
       const host = "https://labs.heygen.com";
       const shareParams = "eyJxdWFsaXR5IjoiaGlnaCIsImF2YXRhck5hbWUiOiJQZWRyb19Qcm9mZXNzaW9uYWxMb29rMl9wdWJsaWMiLCJwcmV2aWV3SW1nIjoiaHR0cHM6Ly9maWxlczIuaGV5Z2VuLmFpL2F2YXRhci92My9mOWM5NGFlN2JkMTU0NWU4YjY1MzFhOTFiYTk3NmFkOV81NTkxMC9wcmV2aWV3X3RhbGtfMS53ZWJwIiwibmVlZFJlbW92ZUJhY2tncm91bmQiOnRydWUsImtub3dsZWRnZUJhc2VJZCI6ImE0MjZkNGFjYWUzMTQ0MTI4NWZkMGViZjk3YTU2ZjA3IiwidXNlcm5hbWUiOiI4NjE0MmI4MzMyM2Q0YmY0YmFlMmM5OTFmYWFmZmE5YyJ9";
       const url = host + "/guest/streaming-embed?share=" + shareParams + "&inIFrame=1";
       
-      const clientWidth = document.body.clientWidth;
       const wrapDiv = document.createElement("div");
       wrapDiv.id = "heygen-streaming-embed";
       
@@ -503,21 +402,16 @@ export default function JuanPablo() {
       
       const iframe = document.createElement("iframe");
       iframe.allowFullscreen = false;
-      iframe.title = "Juan Pablo - Pedro (Creator Plan)";
+      iframe.title = "Juan Pablo - Pedro";
       iframe.role = "dialog";
       iframe.allow = "microphone";
       iframe.src = url;
       
-      let visible = false;
-      let initial = false;
-      
       window.addEventListener("message", (e) => {
         if (e.origin === host && e.data && e.data.type && "streaming-embed" === e.data.type) {
           if ("init" === e.data.action) {
-            initial = true;
-            wrapDiv.classList.toggle("show", initial);
+            wrapDiv.classList.toggle("show", true);
             setAvatarLoaded(true);
-            console.log('✅ Pedro loaded successfully with Creator plan (unlimited time)');
           }
         }
       });
@@ -526,8 +420,6 @@ export default function JuanPablo() {
       wrapDiv.appendChild(stylesheet);
       wrapDiv.appendChild(containerDiv);
       container.appendChild(wrapDiv);
-      
-      console.log('🎬 HeyGen embed created with Creator plan - should have no time limits');
     }, 500);
   };
 
@@ -545,46 +437,29 @@ export default function JuanPablo() {
     setMessages(prev => [...prev, userMessage]);
     setIsLoading(true);
 
-    console.log('🚀 Sending message to chat API:', inputMessage);
-
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           message: inputMessage,
-          conversationHistory: messages // Send conversation context
+          conversationHistory: messages
         })
       });
-
-      console.log('📡 API Response status:', response.status);
       
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('❌ HTTP Error:', response.status, errorText);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
-      console.log('📝 API Response data:', data);
-      
-      // Handle both 'reply' and 'response' fields for compatibility
       const juanPabloResponse = data.reply || data.response;
       
       if (juanPabloResponse) {
         setMessages(prev => [...prev, { text: juanPabloResponse, sender: 'juan' }]);
-        console.log('✅ Added Juan Pablo response to messages');
-      } else {
-        console.error('❌ No reply/response field in API data:', data);
-        setMessages(prev => [...prev, { 
-          text: "¡Hola! 👋 Parece que tuve un problema técnico. ¿Puedes intentar de nuevo? Estoy aquí para ayudarte a practicar español. 🇲🇽", 
-          sender: 'juan' 
-        }]);
       }
     } catch (error) {
-      console.error('❌ Chat API Error:', error);
       setMessages(prev => [...prev, { 
-        text: "Lo siento, hubo un error de conexión. 😅 ¿Puedes intentar escribir tu mensaje otra vez? ¡Estoy aquí para ayudarte!", 
+        text: "Lo siento, hubo un error de conexión. 😅 ¿Puedes intentar escribir tu mensaje otra vez?", 
         sender: 'juan' 
       }]);
     }
@@ -601,9 +476,7 @@ export default function JuanPablo() {
   };
 
   useEffect(() => {
-    // Initialize speech recognition for user input
     if (typeof window !== 'undefined' && 'webkitSpeechRecognition' in window) {
-      // User voice input (converts to text for sending)
       recognitionRef.current = new webkitSpeechRecognition();
       recognitionRef.current.continuous = false;
       recognitionRef.current.interimResults = false;
@@ -612,11 +485,9 @@ export default function JuanPablo() {
       recognitionRef.current.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
         setInputMessage(transcript);
-        console.log('🎙️ User said:', transcript);
       };
 
-      recognitionRef.current.onerror = (event) => {
-        console.error('Speech recognition error:', event.error);
+      recognitionRef.current.onerror = () => {
         setIsLoading(false);
       };
 
@@ -632,7 +503,7 @@ export default function JuanPablo() {
     };
   }, []);
 
-  // Intro Screen with Sizzle Reel
+  // Intro Screen
   if (!currentMode && !showModeSelection) {
     return (
       <div style={{ 
@@ -649,7 +520,6 @@ export default function JuanPablo() {
       }}>
         <Head>
           <title>Juan Pablo - Spanish Learning AI</title>
-          <meta name="description" content="Learn Spanish with Juan Pablo" />
           <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
         </Head>
         
@@ -659,12 +529,6 @@ export default function JuanPablo() {
           muted 
           playsInline
           onEnded={handleVideoEnd}
-          onLoadStart={() => console.log('Video loading started')}
-          onCanPlay={() => console.log('Video can play')}
-          onError={(e) => {
-            console.error('Video error:', e);
-            setTimeout(() => setShowModeSelection(true), 2000);
-          }}
           style={{ 
             width: isMobile ? '100%' : 'auto', 
             height: isMobile ? 'auto' : '100%',
@@ -675,7 +539,6 @@ export default function JuanPablo() {
           }}
         >
           <source src="/intro-sizzle.mp4" type="video/mp4" />
-          Your browser does not support the video tag.
         </video>
         
         <button
@@ -693,8 +556,7 @@ export default function JuanPablo() {
             fontSize: isMobile ? '12px' : '14px',
             fontWeight: 'bold',
             backdropFilter: 'blur(10px)',
-            zIndex: 10000,
-            touchAction: 'manipulation'
+            zIndex: 10000
           }}
         >
           Saltar Intro →
@@ -703,7 +565,7 @@ export default function JuanPablo() {
     );
   }
 
-  // Mode Selection Screen - Dark Theme
+  // Mode Selection Screen
   if (!currentMode) {
     return (
       <div style={{ 
@@ -718,37 +580,25 @@ export default function JuanPablo() {
         justifyContent: 'center',
         padding: '20px',
         boxSizing: 'border-box',
-        zIndex: 1000,
-        overflow: 'auto',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
       }}>
         <Head>
           <title>Juan Pablo - Choose Your Learning Style</title>
-          <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
         </Head>
         
-        <div style={{ 
-          maxWidth: '1000px', 
-          width: '100%', 
-          textAlign: 'center'
-        }}>
-          {/* Hero Section */}
+        <div style={{ maxWidth: '1000px', width: '100%', textAlign: 'center' }}>
           <div style={{ marginBottom: '60px' }}>
             <h1 style={{ 
               fontSize: isMobile ? '2.5em' : '3.5em', 
               marginBottom: '20px', 
               color: 'white', 
-              fontWeight: '700',
-              lineHeight: '1.1',
-              letterSpacing: '-0.02em'
+              fontWeight: '700'
             }}>
               ¡Hola! Soy Juan Pablo 🇲🇽
             </h1>
             <p style={{ 
               fontSize: isMobile ? '1.1em' : '1.3em', 
               color: 'rgba(255,255,255,0.8)', 
-              fontWeight: '400',
-              lineHeight: '1.6',
               maxWidth: '600px',
               margin: '0 auto'
             }}>
@@ -756,7 +606,6 @@ export default function JuanPablo() {
             </p>
           </div>
           
-          {/* Mode Cards */}
           <div style={{ 
             display: 'grid',
             gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr',
@@ -764,7 +613,6 @@ export default function JuanPablo() {
             maxWidth: '1000px',
             margin: '0 auto'
           }}>
-            {/* Video Mode Card */}
             <div 
               onClick={startVideoMode}
               style={{ 
@@ -773,377 +621,18 @@ export default function JuanPablo() {
                 borderRadius: '16px',
                 padding: '30px 25px',
                 cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                touchAction: 'manipulation'
-              }}
-              onMouseOver={(e) => {
-                e.target.style.borderColor = 'rgba(255,255,255,0.4)';
-                e.target.style.transform = 'translateY(-4px)';
-              }}
-              onMouseOut={(e) => {
-                e.target.style.borderColor = 'rgba(255,255,255,0.2)';
-                e.target.style.transform = 'translateY(0)';
+                transition: 'all 0.3s ease'
               }}
             >
-              <div style={{ 
-                fontSize: '2.5em', 
-                marginBottom: '15px'
-              }}>
-                🎥
-              </div>
-            )}
-
-            {/* ACTUAL LESSON INTERFACE - This is where the real learning happens */}
-            {currentLesson && (
-              <div style={{ 
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                background: '#000000',
-                zIndex: 2000,
-                padding: '20px',
-                overflow: 'auto'
-              }}>
-                <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-                  {/* Lesson Header */}
-                  <div style={{ display: 'flex', alignItems: 'center', marginBottom: '30px' }}>
-                    <button 
-                      onClick={() => {
-                        setCurrentLesson(null);
-                        setLessonStep(0);
-                        setLessonAnswers({});
-                      }}
-                      style={{
-                        background: 'rgba(255,255,255,0.1)',
-                        border: '1px solid rgba(255,255,255,0.3)',
-                        color: 'white',
-                        padding: '10px 20px',
-                        borderRadius: '10px',
-                        cursor: 'pointer',
-                        fontSize: '14px',
-                        marginRight: '20px'
-                      }}
-                    >
-                      ← Volver a lecciones
-                    </button>
-                    <div>
-                      <h2 style={{ color: 'white', margin: 0, fontSize: '1.5em' }}>
-                        {currentLesson.title}
-                      </h2>
-                      <p style={{ color: 'rgba(255,255,255,0.7)', margin: '5px 0 0 0' }}>
-                        Paso {lessonStep + 1} de {currentLesson.content.steps.length} • +{currentLesson.xpReward} XP
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Progress Bar */}
-                  <div style={{
-                    background: 'rgba(255,255,255,0.1)',
-                    borderRadius: '10px',
-                    height: '8px',
-                    marginBottom: '30px'
-                  }}>
-                    <div style={{
-                      background: '#00ff88',
-                      height: '100%',
-                      width: `${((lessonStep + 1) / currentLesson.content.steps.length) * 100}%`,
-                      borderRadius: '10px',
-                      transition: 'width 0.3s ease'
-                    }} />
-                  </div>
-
-                  {/* Lesson Content */}
-                  <div style={{
-                    background: 'rgba(255,255,255,0.05)',
-                    borderRadius: '20px',
-                    padding: '30px',
-                    marginBottom: '20px'
-                  }}>
-                    {lessonStep === 0 && (
-                      <div style={{ textAlign: 'center', color: 'white' }}>
-                        <div style={{ fontSize: '3em', marginBottom: '20px' }}>🚇</div>
-                        <h3 style={{ margin: '0 0 15px 0', fontSize: '1.8em' }}>
-                          {currentLesson.content.introduction}
-                        </h3>
-                        <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '1.1em', lineHeight: '1.6' }}>
-                          En esta lección aprenderás frases esenciales que necesitarás en el Metro de CDMX.
-                        </p>
-                        <button
-                          onClick={() => setLessonStep(1)}
-                          style={{
-                            background: '#00ff88',
-                            color: '#000',
-                            border: 'none',
-                            padding: '15px 30px',
-                            borderRadius: '25px',
-                            fontSize: '1.1em',
-                            fontWeight: '600',
-                            cursor: 'pointer',
-                            marginTop: '20px'
-                          }}
-                        >
-                          ¡Empezar lección!
-                        </button>
-                      </div>
-                    )}
-
-                    {lessonStep > 0 && lessonStep <= currentLesson.content.steps.length && (() => {
-                      const step = currentLesson.content.steps[lessonStep - 1];
-                      const stepKey = `step_${lessonStep}`;
-                      
-                      if (step.type === 'vocabulary') {
-                        return (
-                          <div style={{ color: 'white' }}>
-                            <h3 style={{ margin: '0 0 20px 0', fontSize: '1.4em' }}>
-                              📚 {step.question}
-                            </h3>
-                            <div style={{ display: 'grid', gap: '15px' }}>
-                              {step.options.map((option, index) => (
-                                <button
-                                  key={index}
-                                  onClick={() => {
-                                    setLessonAnswers(prev => ({ ...prev, [stepKey]: index }));
-                                    setTimeout(() => {
-                                      if (index === step.correct) {
-                                        setLessonStep(lessonStep + 1);
-                                      }
-                                    }, 1000);
-                                  }}
-                                  style={{
-                                    background: lessonAnswers[stepKey] === index 
-                                      ? (index === step.correct ? '#00ff88' : '#ff4444')
-                                      : 'rgba(255,255,255,0.1)',
-                                    color: lessonAnswers[stepKey] === index 
-                                      ? '#000' 
-                                      : 'white',
-                                    border: '1px solid rgba(255,255,255,0.3)',
-                                    padding: '15px 20px',
-                                    borderRadius: '10px',
-                                    fontSize: '1.1em',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.3s ease'
-                                  }}
-                                >
-                                  {option}
-                                </button>
-                              ))}
-                            </div>
-                            {lessonAnswers[stepKey] !== undefined && (
-                              <div style={{ 
-                                marginTop: '20px', 
-                                padding: '15px', 
-                                background: lessonAnswers[stepKey] === step.correct ? 'rgba(0,255,136,0.1)' : 'rgba(255,68,68,0.1)',
-                                borderRadius: '10px',
-                                color: lessonAnswers[stepKey] === step.correct ? '#00ff88' : '#ff4444'
-                              }}>
-                                {lessonAnswers[stepKey] === step.correct ? '¡Correcto! ' : '¡Incorrecto! '}
-                                {step.explanation}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      }
-
-                      if (step.type === 'phrase') {
-                        return (
-                          <div style={{ color: 'white' }}>
-                            <h3 style={{ margin: '0 0 20px 0', fontSize: '1.4em' }}>
-                              ✏️ {step.question}
-                            </h3>
-                            <input
-                              type="text"
-                              value={lessonAnswers[stepKey] || ''}
-                              onChange={(e) => setLessonAnswers(prev => ({ ...prev, [stepKey]: e.target.value }))}
-                              placeholder="Escribe tu respuesta..."
-                              style={{
-                                width: '100%',
-                                padding: '15px',
-                                fontSize: '1.2em',
-                                background: 'rgba(255,255,255,0.1)',
-                                border: '1px solid rgba(255,255,255,0.3)',
-                                borderRadius: '10px',
-                                color: 'white',
-                                marginBottom: '15px'
-                              }}
-                            />
-                            <div style={{ fontSize: '0.9em', color: 'rgba(255,255,255,0.6)', marginBottom: '20px' }}>
-                              💡 Pista: {step.hint}
-                            </div>
-                            <button
-                              onClick={() => {
-                                if (lessonAnswers[stepKey]?.toLowerCase().trim() === step.answer.toLowerCase()) {
-                                  setLessonStep(lessonStep + 1);
-                                } else {
-                                  alert('¡Intenta de nuevo! Revisa tu respuesta.');
-                                }
-                              }}
-                              disabled={!lessonAnswers[stepKey]?.trim()}
-                              style={{
-                                background: lessonAnswers[stepKey]?.trim() ? '#00ff88' : 'rgba(255,255,255,0.3)',
-                                color: lessonAnswers[stepKey]?.trim() ? '#000' : 'rgba(255,255,255,0.5)',
-                                border: 'none',
-                                padding: '12px 25px',
-                                borderRadius: '20px',
-                                fontSize: '1em',
-                                fontWeight: '600',
-                                cursor: lessonAnswers[stepKey]?.trim() ? 'pointer' : 'not-allowed'
-                              }}
-                            >
-                              Verificar respuesta
-                            </button>
-                          </div>
-                        );
-                      }
-
-                      if (step.type === 'conversation') {
-                        return (
-                          <div style={{ color: 'white' }}>
-                            <div style={{ 
-                              background: 'rgba(255,255,255,0.1)', 
-                              padding: '15px', 
-                              borderRadius: '10px', 
-                              marginBottom: '20px',
-                              fontStyle: 'italic'
-                            }}>
-                              💭 Situación: {step.scenario}
-                            </div>
-                            <h3 style={{ margin: '0 0 20px 0', fontSize: '1.4em' }}>
-                              {step.question}
-                            </h3>
-                            <div style={{ display: 'grid', gap: '15px' }}>
-                              {step.options.map((option, index) => (
-                                <button
-                                  key={index}
-                                  onClick={() => {
-                                    setLessonAnswers(prev => ({ ...prev, [stepKey]: index }));
-                                    setTimeout(() => {
-                                      if (index === step.correct) {
-                                        setLessonStep(lessonStep + 1);
-                                      }
-                                    }, 1500);
-                                  }}
-                                  style={{
-                                    background: lessonAnswers[stepKey] === index 
-                                      ? (index === step.correct ? '#00ff88' : '#ff4444')
-                                      : 'rgba(255,255,255,0.1)',
-                                    color: lessonAnswers[stepKey] === index 
-                                      ? '#000' 
-                                      : 'white',
-                                    border: '1px solid rgba(255,255,255,0.3)',
-                                    padding: '15px 20px',
-                                    borderRadius: '10px',
-                                    fontSize: '1.1em',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.3s ease',
-                                    textAlign: 'left'
-                                  }}
-                                >
-                                  {option}
-                                </button>
-                              ))}
-                            </div>
-                            {lessonAnswers[stepKey] !== undefined && (
-                              <div style={{ 
-                                marginTop: '20px', 
-                                padding: '15px', 
-                                background: lessonAnswers[stepKey] === step.correct ? 'rgba(0,255,136,0.1)' : 'rgba(255,68,68,0.1)',
-                                borderRadius: '10px',
-                                color: lessonAnswers[stepKey] === step.correct ? '#00ff88' : '#ff4444'
-                              }}>
-                                {lessonAnswers[stepKey] === step.correct ? '¡Excelente! ' : '¡No del todo! '}
-                                {step.explanation}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      }
-
-                      return null;
-                    })()}
-
-                    {lessonStep > currentLesson.content.steps.length && (
-                      <div style={{ textAlign: 'center', color: 'white' }}>
-                        <div style={{ fontSize: '4em', marginBottom: '20px' }}>🎉</div>
-                        <h3 style={{ margin: '0 0 15px 0', fontSize: '2em' }}>
-                          ¡Lección completada!
-                        </h3>
-                        <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '1.2em', marginBottom: '20px' }}>
-                          Has ganado {currentLesson.xpReward} XP
-                        </p>
-                        <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
-                          <button
-                            onClick={() => {
-                              setCurrentLesson(null);
-                              setLessonStep(0);
-                              setLessonAnswers({});
-                              // Mark lesson as completed
-                              setUserProgress(prev => ({
-                                ...prev,
-                                completedLessons: [...prev.completedLessons, currentLesson.id],
-                                totalXP: prev.totalXP + currentLesson.xpReward,
-                                weeklyXP: prev.weeklyXP + currentLesson.xpReward
-                              }));
-                            }}
-                            style={{
-                              background: '#00ff88',
-                              color: '#000',
-                              border: 'none',
-                              padding: '15px 25px',
-                              borderRadius: '25px',
-                              fontSize: '1.1em',
-                              fontWeight: '600',
-                              cursor: 'pointer'
-                            }}
-                          >
-                            Continuar a siguiente lección
-                          </button>
-                          <button
-                            onClick={() => {
-                              setCurrentLesson(null);
-                              setLessonStep(0);
-                              setLessonAnswers({});
-                            }}
-                            style={{
-                              background: 'rgba(255,255,255,0.1)',
-                              color: 'white',
-                              border: '1px solid rgba(255,255,255,0.3)',
-                              padding: '15px 25px',
-                              borderRadius: '25px',
-                              fontSize: '1.1em',
-                              fontWeight: '600',
-                              cursor: 'pointer'
-                            }}
-                          >
-                            Volver a módulos
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-              <h3 style={{ 
-                fontSize: '1.3em', 
-                marginBottom: '12px', 
-                fontWeight: '600',
-                color: 'white'
-              }}>
+              <div style={{ fontSize: '2.5em', marginBottom: '15px' }}>🎥</div>
+              <h3 style={{ fontSize: '1.3em', marginBottom: '12px', color: 'white' }}>
                 Video Chat
               </h3>
-              <p style={{ 
-                fontSize: '0.9em', 
-                color: 'rgba(255,255,255,0.7)', 
-                lineHeight: '1.4',
-                fontWeight: '400'
-              }}>
+              <p style={{ fontSize: '0.9em', color: 'rgba(255,255,255,0.7)' }}>
                 Conversación cara a cara con Pedro
               </p>
             </div>
             
-            {/* Chat Mode Card */}
             <div 
               onClick={startChatMode}
               style={{ 
@@ -1152,43 +641,18 @@ export default function JuanPablo() {
                 borderRadius: '16px',
                 padding: '30px 25px',
                 cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                touchAction: 'manipulation'
-              }}
-              onMouseOver={(e) => {
-                e.target.style.borderColor = 'rgba(255,255,255,0.4)';
-                e.target.style.transform = 'translateY(-4px)';
-              }}
-              onMouseOut={(e) => {
-                e.target.style.borderColor = 'rgba(255,255,255,0.2)';
-                e.target.style.transform = 'translateY(0)';
+                transition: 'all 0.3s ease'
               }}
             >
-              <div style={{ 
-                fontSize: '2.5em', 
-                marginBottom: '15px'
-              }}>
-                💬
-              </div>
-              <h3 style={{ 
-                fontSize: '1.3em', 
-                marginBottom: '12px', 
-                fontWeight: '600',
-                color: 'white'
-              }}>
+              <div style={{ fontSize: '2.5em', marginBottom: '15px' }}>💬</div>
+              <h3 style={{ fontSize: '1.3em', marginBottom: '12px', color: 'white' }}>
                 Chat Texto
               </h3>
-              <p style={{ 
-                fontSize: '0.9em', 
-                color: 'rgba(255,255,255,0.7)', 
-                lineHeight: '1.4',
-                fontWeight: '400'
-              }}>
+              <p style={{ fontSize: '0.9em', color: 'rgba(255,255,255,0.7)' }}>
                 Conversación por texto con Juan Pablo
               </p>
             </div>
 
-            {/* NEW Learning Mode Card */}
             <div 
               onClick={startLearningMode}
               style={{ 
@@ -1198,20 +662,9 @@ export default function JuanPablo() {
                 padding: '30px 25px',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
-                touchAction: 'manipulation',
-                position: 'relative',
-                overflow: 'hidden'
-              }}
-              onMouseOver={(e) => {
-                e.target.style.transform = 'translateY(-6px)';
-                e.target.style.boxShadow = '0 15px 35px rgba(102, 126, 234, 0.4)';
-              }}
-              onMouseOut={(e) => {
-                e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = 'none';
+                position: 'relative'
               }}
             >
-              {/* Premium badge */}
               <div style={{
                 position: 'absolute',
                 top: '10px',
@@ -1220,47 +673,23 @@ export default function JuanPablo() {
                 padding: '4px 8px',
                 borderRadius: '12px',
                 fontSize: '0.7em',
-                fontWeight: '600',
                 color: 'white'
               }}>
                 ✨ NUEVO
               </div>
               
-              <div style={{ 
-                fontSize: '2.5em', 
-                marginBottom: '15px'
-              }}>
-                📚
-              </div>
-              <h3 style={{ 
-                fontSize: '1.3em', 
-                marginBottom: '12px', 
-                fontWeight: '600',
-                color: 'white'
-              }}>
+              <div style={{ fontSize: '2.5em', marginBottom: '15px' }}>📚</div>
+              <h3 style={{ fontSize: '1.3em', marginBottom: '12px', color: 'white' }}>
                 Lecciones CDMX
               </h3>
-              <p style={{ 
-                fontSize: '0.9em', 
-                color: 'rgba(255,255,255,0.9)', 
-                lineHeight: '1.4',
-                fontWeight: '400'
-              }}>
+              <p style={{ fontSize: '0.9em', color: 'rgba(255,255,255,0.9)' }}>
                 Sistema de aprendizaje profesional
               </p>
             </div>
           </div>
           
-          {/* Bottom CTA */}
-          <div style={{ 
-            marginTop: '50px',
-            textAlign: 'center'
-          }}>
-            <p style={{
-              color: 'rgba(255,255,255,0.5)',
-              fontSize: '0.9em',
-              fontStyle: 'italic'
-            }}>
+          <div style={{ marginTop: '50px' }}>
+            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.9em' }}>
               Preparándote para México • Septiembre 2024
             </p>
           </div>
@@ -1284,10 +713,8 @@ export default function JuanPablo() {
       }}>
         <Head>
           <title>Juan Pablo - Conversación con Pedro</title>
-          <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
         </Head>
         
-        {/* Back Button */}
         <button
           onClick={goBack}
           style={{
@@ -1299,27 +726,13 @@ export default function JuanPablo() {
             color: 'white',
             padding: '10px 20px',
             borderRadius: '8px',
-            cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: '500',
-            transition: 'all 0.2s ease'
-          }}
-          onMouseOver={(e) => {
-            e.target.style.background = 'rgba(255,255,255,0.2)';
-          }}
-          onMouseOut={(e) => {
-            e.target.style.background = 'rgba(255,255,255,0.1)';
+            cursor: 'pointer'
           }}
         >
           ← Volver
         </button>
 
-        {/* Pedro Video Container - Zoom Call Style */}
-        <div style={{
-          width: '100%',
-          maxWidth: '800px',
-          marginBottom: '30px'
-        }}>
+        <div style={{ width: '100%', maxWidth: '800px', marginBottom: '30px' }}>
           <div 
             id="avatar-video-container"
             style={{ 
@@ -1337,41 +750,14 @@ export default function JuanPablo() {
           >
             {!avatarLoaded && (
               <div style={{ textAlign: 'center', color: 'white' }}>
-                <div style={{ 
-                  width: '60px',
-                  height: '60px',
-                  border: '3px solid rgba(255,255,255,0.3)',
-                  borderTop: '3px solid white',
-                  borderRadius: '50%',
-                  animation: 'spin 1s linear infinite',
-                  margin: '0 auto 20px'
-                }} />
-                <div style={{ fontSize: '18px', fontWeight: '500' }}>
+                <div style={{ fontSize: '18px' }}>
                   Conectando con Pedro...
                 </div>
-              </div>
-            )}
-            
-            {/* Pedro name overlay like Zoom */}
-            {avatarLoaded && (
-              <div style={{
-                position: 'absolute',
-                bottom: '15px',
-                left: '15px',
-                background: 'rgba(0,0,0,0.7)',
-                color: 'white',
-                padding: '6px 12px',
-                borderRadius: '6px',
-                fontSize: '14px',
-                fontWeight: '500'
-              }}>
-                Pedro - Profesor de Español
               </div>
             )}
           </div>
         </div>
 
-        {/* English to Spanish Translator */}
         <div style={{
           width: '100%',
           maxWidth: '800px',
@@ -1380,13 +766,7 @@ export default function JuanPablo() {
           borderRadius: '12px',
           padding: '24px'
         }}>
-          <h3 style={{
-            color: 'white',
-            margin: '0 0 20px 0',
-            fontSize: '18px',
-            fontWeight: '600',
-            textAlign: 'center'
-          }}>
+          <h3 style={{ color: 'white', margin: '0 0 20px 0', textAlign: 'center' }}>
             Traductor Inglés → Español
           </h3>
           
@@ -1396,15 +776,8 @@ export default function JuanPablo() {
             gap: '20px',
             marginBottom: '20px'
           }}>
-            {/* English Input */}
             <div>
-              <label style={{
-                color: 'rgba(255,255,255,0.8)',
-                fontSize: '14px',
-                fontWeight: '500',
-                marginBottom: '8px',
-                display: 'block'
-              }}>
+              <label style={{ color: 'rgba(255,255,255,0.8)', display: 'block', marginBottom: '8px' }}>
                 Inglés
               </label>
               <textarea
@@ -1419,29 +792,13 @@ export default function JuanPablo() {
                   borderRadius: '8px',
                   color: 'white',
                   padding: '12px',
-                  fontSize: '14px',
-                  resize: 'none',
-                  fontFamily: 'inherit',
-                  outline: 'none'
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = 'rgba(255,255,255,0.6)';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = 'rgba(255,255,255,0.3)';
+                  resize: 'none'
                 }}
               />
             </div>
 
-            {/* Spanish Output */}
             <div>
-              <label style={{
-                color: 'rgba(255,255,255,0.8)',
-                fontSize: '14px',
-                fontWeight: '500',
-                marginBottom: '8px',
-                display: 'block'
-              }}>
+              <label style={{ color: 'rgba(255,255,255,0.8)', display: 'block', marginBottom: '8px' }}>
                 Español
               </label>
               <div style={{
@@ -1452,39 +809,15 @@ export default function JuanPablo() {
                 borderRadius: '8px',
                 color: 'white',
                 padding: '12px',
-                fontSize: '14px',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                minHeight: '100px'
+                justifyContent: 'center'
               }}>
-                {isTranslating ? (
-                  <div style={{ 
-                    color: 'rgba(255,255,255,0.6)',
-                    fontStyle: 'italic'
-                  }}>
-                    Traduciendo...
-                  </div>
-                ) : translatorOutput ? (
-                  <div style={{ 
-                    width: '100%',
-                    lineHeight: '1.4'
-                  }}>
-                    {translatorOutput}
-                  </div>
-                ) : (
-                  <div style={{ 
-                    color: 'rgba(255,255,255,0.4)',
-                    fontStyle: 'italic'
-                  }}>
-                    La traducción aparecerá aquí
-                  </div>
-                )}
+                {isTranslating ? 'Traduciendo...' : translatorOutput || 'La traducción aparecerá aquí'}
               </div>
             </div>
           </div>
 
-          {/* Translate Button */}
           <button
             onClick={() => translateText(translatorInput)}
             disabled={!translatorInput.trim() || isTranslating}
@@ -1495,27 +828,17 @@ export default function JuanPablo() {
               border: 'none',
               padding: '12px 24px',
               borderRadius: '8px',
-              fontSize: '14px',
-              fontWeight: '600',
-              cursor: translatorInput.trim() && !isTranslating ? 'pointer' : 'not-allowed',
-              transition: 'all 0.2s ease'
+              cursor: translatorInput.trim() && !isTranslating ? 'pointer' : 'not-allowed'
             }}
           >
             {isTranslating ? 'Traduciendo...' : 'Traducir'}
           </button>
         </div>
-
-        <style jsx>{`
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `}</style>
       </div>
     );
   }
 
-  // Chat Mode - Dark Theme with Translation and Pronunciation Features
+  // Chat Mode
   if (currentMode === 'chat') {
     return (
       <div style={{ 
@@ -1529,7 +852,6 @@ export default function JuanPablo() {
       }}>
         <Head>
           <title>Juan Pablo - Chat Texto</title>
-          <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
         </Head>
         
         <div style={{ 
@@ -1543,7 +865,6 @@ export default function JuanPablo() {
           display: 'flex',
           flexDirection: 'column'
         }}>
-          {/* Header */}
           <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
             <button
               onClick={goBack}
@@ -1554,24 +875,16 @@ export default function JuanPablo() {
                 padding: '8px 16px',
                 borderRadius: '8px',
                 cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: '500',
                 marginRight: '15px'
               }}
             >
               ← Volver
             </button>
-            <h2 style={{ 
-              color: 'white', 
-              margin: 0, 
-              fontSize: isMobile ? '1.5em' : '1.8em',
-              fontWeight: '600'
-            }}>
+            <h2 style={{ color: 'white', margin: 0, fontSize: '1.8em' }}>
               Chat con Juan Pablo 💬
             </h2>
           </div>
           
-          {/* Messages Area */}
           <div style={{ 
             flex: 1, 
             overflowY: 'auto', 
@@ -1592,17 +905,12 @@ export default function JuanPablo() {
                 color: msg.sender === 'user' ? '#000' : 'white',
                 alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start',
                 maxWidth: '80%',
-                wordWrap: 'break-word',
-                fontSize: '15px',
-                lineHeight: '1.5',
-                border: msg.sender === 'user' ? 'none' : '1px solid rgba(255,255,255,0.2)',
-                position: 'relative'
+                border: msg.sender === 'user' ? 'none' : '1px solid rgba(255,255,255,0.2)'
               }}>
                 <div style={{ 
                   fontSize: '0.8em', 
                   fontWeight: '600', 
-                  marginBottom: '8px', 
-                  opacity: 0.8,
+                  marginBottom: '8px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between'
@@ -1610,7 +918,6 @@ export default function JuanPablo() {
                   <span>{msg.sender === 'user' ? 'Tú' : 'Juan Pablo'}</span>
                   {msg.sender === 'juan' && (
                     <div style={{ display: 'flex', gap: '8px' }}>
-                      {/* Speak Button */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -1618,32 +925,17 @@ export default function JuanPablo() {
                         }}
                         style={{
                           background: speakingMessageId === index ? 'rgba(0,255,0,0.2)' : 'rgba(255,255,255,0.1)',
-                          border: speakingMessageId === index ? '1px solid rgba(0,255,0,0.5)' : '1px solid rgba(255,255,255,0.3)',
-                          color: speakingMessageId === index ? '#00ff00' : 'rgba(255,255,255,0.8)',
+                          border: '1px solid rgba(255,255,255,0.3)',
+                          color: 'white',
                           padding: '4px 8px',
                           borderRadius: '12px',
                           fontSize: '0.9em',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '4px',
-                          transition: 'all 0.2s ease'
-                        }}
-                        onMouseOver={(e) => {
-                          if (speakingMessageId !== index) {
-                            e.target.style.background = 'rgba(255,255,255,0.2)';
-                          }
-                        }}
-                        onMouseOut={(e) => {
-                          if (speakingMessageId !== index) {
-                            e.target.style.background = 'rgba(255,255,255,0.1)';
-                          }
+                          cursor: 'pointer'
                         }}
                       >
                         {speakingMessageId === index ? '⏸️' : '🔊'} MX
                       </button>
                       
-                      {/* Translate Button */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -1651,23 +943,12 @@ export default function JuanPablo() {
                         }}
                         style={{
                           background: messageTranslations[index] ? 'rgba(0,150,255,0.2)' : 'rgba(255,255,255,0.1)',
-                          border: messageTranslations[index] ? '1px solid rgba(0,150,255,0.5)' : '1px solid rgba(255,255,255,0.3)',
-                          color: messageTranslations[index] ? '#0096ff' : 'rgba(255,255,255,0.8)',
+                          border: '1px solid rgba(255,255,255,0.3)',
+                          color: 'white',
                           padding: '4px 8px',
                           borderRadius: '12px',
                           fontSize: '0.9em',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease'
-                        }}
-                        onMouseOver={(e) => {
-                          if (!messageTranslations[index]) {
-                            e.target.style.background = 'rgba(255,255,255,0.2)';
-                          }
-                        }}
-                        onMouseOut={(e) => {
-                          if (!messageTranslations[index]) {
-                            e.target.style.background = 'rgba(255,255,255,0.1)';
-                          }
+                          cursor: 'pointer'
                         }}
                       >
                         {translatingMessageId === index ? '🔄' : '🇺🇸'} EN
@@ -1676,10 +957,8 @@ export default function JuanPablo() {
                   )}
                 </div>
                 
-                {/* Original Spanish Text */}
                 <div>{msg.text}</div>
                 
-                {/* English Translation */}
                 {messageTranslations[index] && (
                   <div style={{
                     marginTop: '12px',
@@ -1688,7 +967,6 @@ export default function JuanPablo() {
                     borderRadius: '8px',
                     fontSize: '14px',
                     fontStyle: 'italic',
-                    color: 'rgba(255,255,255,0.9)',
                     borderLeft: '3px solid #0096ff'
                   }}>
                     🇺🇸 <strong>English:</strong> {messageTranslations[index]}
@@ -1704,7 +982,6 @@ export default function JuanPablo() {
                 color: 'rgba(255,255,255,0.7)',
                 fontStyle: 'italic',
                 alignSelf: 'flex-start',
-                maxWidth: '80%',
                 border: '1px solid rgba(255,255,255,0.2)'
               }}>
                 Juan Pablo está escribiendo...
@@ -1712,7 +989,6 @@ export default function JuanPablo() {
             )}
           </div>
           
-          {/* Input Area */}
           <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end' }}>
             <textarea
               value={inputMessage}
@@ -1726,20 +1002,10 @@ export default function JuanPablo() {
                 border: '1px solid rgba(255,255,255,0.3)',
                 borderRadius: '12px',
                 resize: 'none',
-                fontSize: '15px',
                 minHeight: '60px',
-                maxHeight: '120px',
-                fontFamily: 'inherit',
-                color: 'white',
-                outline: 'none'
+                color: 'white'
               }}
               rows={2}
-              onFocus={(e) => {
-                e.target.style.borderColor = 'rgba(255,255,255,0.6)';
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = 'rgba(255,255,255,0.3)';
-              }}
             />
             <button
               onClick={startVoiceInput}
@@ -1751,12 +1017,8 @@ export default function JuanPablo() {
                 color: 'white',
                 borderRadius: '12px',
                 cursor: 'pointer',
-                fontSize: '18px',
                 width: '60px',
-                height: '60px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
+                height: '60px'
               }}
             >
               🎙️
@@ -1771,8 +1033,6 @@ export default function JuanPablo() {
                 border: 'none',
                 borderRadius: '12px',
                 cursor: inputMessage.trim() ? 'pointer' : 'not-allowed',
-                fontSize: '14px',
-                fontWeight: '600',
                 height: '60px'
               }}
             >
@@ -1784,7 +1044,7 @@ export default function JuanPablo() {
     );
   }
 
-  // Learning Mode - Interactive CDMX Learning System
+  // Learning Mode
   if (currentMode === 'learning') {
     return (
       <div style={{ 
@@ -1794,10 +1054,8 @@ export default function JuanPablo() {
       }}>
         <Head>
           <title>Juan Pablo - Lecciones CDMX</title>
-          <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
         </Head>
         
-        {/* Back Button */}
         <button
           onClick={goBack}
           style={{
@@ -1810,16 +1068,7 @@ export default function JuanPablo() {
             padding: '10px 20px',
             borderRadius: '8px',
             cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: '500',
-            transition: 'all 0.2s ease',
             zIndex: 1000
-          }}
-          onMouseOver={(e) => {
-            e.target.style.background = 'rgba(255,255,255,0.2)';
-          }}
-          onMouseOut={(e) => {
-            e.target.style.background = 'rgba(255,255,255,0.1)';
           }}
         >
           ← Volver
@@ -1828,9 +1077,8 @@ export default function JuanPablo() {
         <div style={{ padding: '80px 20px 20px 20px' }}>
           <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
             
-            {!selectedModule ? (
+            {!selectedModule && !currentLesson ? (
               <>
-                {/* Progress Header */}
                 <div style={{
                   background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                   padding: '25px',
@@ -1838,73 +1086,22 @@ export default function JuanPablo() {
                   marginBottom: '30px',
                   color: 'white'
                 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                    <div>
-                      <h2 style={{ margin: 0, fontSize: '1.8em', fontWeight: '700' }}>
-                        ¡Hola! Preparándote para CDMX 🇲🇽
-                      </h2>
-                      <p style={{ margin: '5px 0 0 0', opacity: 0.9, fontSize: '1.1em' }}>
-                        Nivel {userProgress.level} • {userProgress.totalXP} XP Total
-                      </p>
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: '2em', marginBottom: '5px' }}>🔥</div>
-                      <div style={{ fontSize: '1.2em', fontWeight: '600' }}>
-                        {userProgress.currentStreak} días
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Weekly Progress */}
-                  <div style={{ background: 'rgba(255,255,255,0.2)', borderRadius: '15px', padding: '15px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-                      <span style={{ fontWeight: '600' }}>Meta semanal</span>
-                      <span>{userProgress.weeklyXP}/{userProgress.weeklyGoal} XP</span>
-                    </div>
-                    <div style={{ 
-                      background: 'rgba(255,255,255,0.3)', 
-                      borderRadius: '10px', 
-                      height: '12px',
-                      overflow: 'hidden'
-                    }}>
-                      <div style={{
-                        background: '#00ff88',
-                        height: '100%',
-                        width: `${(userProgress.weeklyXP / userProgress.weeklyGoal) * 100}%`,
-                        borderRadius: '10px',
-                        transition: 'width 0.3s ease'
-                      }} />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Learning Modules */}
-                <div style={{ marginBottom: '30px' }}>
-                  <h3 style={{ 
-                    color: 'white', 
-                    fontSize: '1.5em', 
-                    marginBottom: '20px',
-                    fontWeight: '600'
-                  }}>
-                    📚 Módulos de Aprendizaje CDMX
-                  </h3>
-                  <p style={{ 
-                    color: 'rgba(255,255,255,0.7)', 
-                    fontSize: '1.1em',
-                    lineHeight: '1.6',
-                    marginBottom: '30px'
-                  }}>
-                    Aprende español específicamente para vivir en Ciudad de México. Cada módulo incluye situaciones reales, 
-                    vocabulario práctico y contexto cultural mexicano.
+                  <h2 style={{ margin: 0, fontSize: '1.8em' }}>
+                    ¡Hola! Preparándote para CDMX 🇲🇽
+                  </h2>
+                  <p style={{ margin: '5px 0 0 0', opacity: 0.9 }}>
+                    Nivel {userProgress.level} • {userProgress.totalXP} XP Total
                   </p>
                 </div>
 
-                {/* Interactive Module Cards */}
+                <h3 style={{ color: 'white', fontSize: '1.5em', marginBottom: '20px' }}>
+                  📚 Módulos de Aprendizaje CDMX
+                </h3>
+                
                 <div style={{ 
                   display: 'grid', 
                   gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
-                  gap: '25px',
-                  marginBottom: '40px'
+                  gap: '25px' 
                 }}>
                   {learningModules.map(module => (
                     <div 
@@ -1914,156 +1111,32 @@ export default function JuanPablo() {
                         borderRadius: '20px',
                         padding: '25px',
                         cursor: 'pointer',
-                        transition: 'all 0.3s ease',
-                        position: 'relative',
-                        overflow: 'hidden',
-                        minHeight: '200px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between'
+                        transition: 'all 0.3s ease'
                       }}
                       onClick={() => setSelectedModule(module)}
-                      onMouseOver={(e) => {
-                        e.currentTarget.style.transform = 'translateY(-8px)';
-                        e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.2)';
-                      }}
-                      onMouseOut={(e) => {
-                        e.currentTarget.style.transform = 'translateY(0)';
-                        e.currentTarget.style.boxShadow = '0 10px 30px rgba(0,0,0,0.1)';
-                      }}
                     >
-                      {/* Progress indicator */}
+                      <div style={{ fontSize: '3em', marginBottom: '15px' }}>{module.icon}</div>
+                      <h3 style={{ color: 'white', margin: '0 0 10px 0', fontSize: '1.4em' }}>
+                        {module.title}
+                      </h3>
+                      <p style={{ color: 'rgba(255,255,255,0.9)', margin: '0 0 15px 0' }}>
+                        {module.description}
+                      </p>
                       <div style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        height: '4px',
-                        background: 'rgba(255,255,255,0.3)'
+                        background: 'rgba(255,255,255,0.2)',
+                        borderRadius: '20px',
+                        padding: '8px 15px',
+                        color: 'white',
+                        textAlign: 'center'
                       }}>
-                        <div style={{
-                          background: '#00ff88',
-                          height: '100%',
-                          width: `${(module.completed / module.lessons) * 100}%`,
-                          transition: 'width 0.3s ease'
-                        }} />
-                      </div>
-
-                      <div>
-                        <div style={{ fontSize: '3em', marginBottom: '15px' }}>{module.icon}</div>
-                        <h3 style={{ 
-                          color: 'white', 
-                          margin: '0 0 10px 0', 
-                          fontSize: '1.4em', 
-                          fontWeight: '700',
-                          textShadow: '0 2px 4px rgba(0,0,0,0.3)'
-                        }}>
-                          {module.title}
-                        </h3>
-                        <p style={{ 
-                          color: 'rgba(255,255,255,0.9)', 
-                          margin: '0 0 15px 0', 
-                          lineHeight: '1.4',
-                          fontSize: '0.95em'
-                        }}>
-                          {module.description}
-                        </p>
-                      </div>
-
-                      <div>
-                        <div style={{ 
-                          display: 'flex', 
-                          justifyContent: 'space-between', 
-                          marginBottom: '10px',
-                          fontSize: '0.9em',
-                          color: 'rgba(255,255,255,0.8)'
-                        }}>
-                          <span>🎯 {module.difficulty}</span>
-                          <span>⏱️ {module.estimatedTime}</span>
-                        </div>
-                        <div style={{
-                          background: 'rgba(255,255,255,0.2)',
-                          borderRadius: '20px',
-                          padding: '8px 15px',
-                          color: 'white',
-                          fontWeight: '600',
-                          textAlign: 'center',
-                          fontSize: '0.9em'
-                        }}>
-                          {module.completed}/{module.lessons} lecciones • {Math.round((module.completed / module.lessons) * 100)}%
-                        </div>
+                        {module.completed}/{module.lessons} lecciones
                       </div>
                     </div>
                   ))}
                 </div>
-
-                {/* Quick Stats */}
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                  gap: '20px'
-                }}>
-                  <div style={{
-                    background: 'rgba(255,255,255,0.05)',
-                    borderRadius: '15px',
-                    padding: '20px',
-                    textAlign: 'center',
-                    border: '1px solid rgba(255,255,255,0.1)'
-                  }}>
-                    <div style={{ fontSize: '2em', marginBottom: '10px' }}>📈</div>
-                    <div style={{ color: 'white', fontWeight: '600', fontSize: '1.1em' }}>
-                      Progreso Global
-                    </div>
-                    <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '2em', fontWeight: '700', margin: '10px 0' }}>
-                      32%
-                    </div>
-                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9em' }}>
-                      Listo para CDMX en 8 semanas
-                    </div>
-                  </div>
-                  
-                  <div style={{
-                    background: 'rgba(255,255,255,0.05)',
-                    borderRadius: '15px',
-                    padding: '20px',
-                    textAlign: 'center',
-                    border: '1px solid rgba(255,255,255,0.1)'
-                  }}>
-                    <div style={{ fontSize: '2em', marginBottom: '10px' }}>💪</div>
-                    <div style={{ color: 'white', fontWeight: '600', fontSize: '1.1em' }}>
-                      Nivel de Español
-                    </div>
-                    <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.5em', fontWeight: '700', margin: '10px 0' }}>
-                      Intermedio
-                    </div>
-                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9em' }}>
-                      Avanzando hacia Avanzado
-                    </div>
-                  </div>
-
-                  <div style={{
-                    background: 'rgba(255,255,255,0.05)',
-                    borderRadius: '15px',
-                    padding: '20px',
-                    textAlign: 'center',
-                    border: '1px solid rgba(255,255,255,0.1)'
-                  }}>
-                    <div style={{ fontSize: '2em', marginBottom: '10px' }}>🎯</div>
-                    <div style={{ color: 'white', fontWeight: '600', fontSize: '1.1em' }}>
-                      Próximo Objetivo
-                    </div>
-                    <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.2em', fontWeight: '600', margin: '10px 0' }}>
-                      Completar Transporte
-                    </div>
-                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9em' }}>
-                      4 lecciones restantes
-                    </div>
-                  </div>
-                </div>
               </>
-            ) : (
-              /* Module Detail View */
-              <div style={{ padding: '20px 0' }}>
+            ) : selectedModule && !currentLesson ? (
+              <div>
                 <button 
                   onClick={() => setSelectedModule(null)}
                   style={{
@@ -2073,8 +1146,7 @@ export default function JuanPablo() {
                     padding: '10px 20px',
                     borderRadius: '10px',
                     cursor: 'pointer',
-                    marginBottom: '20px',
-                    fontSize: '14px'
+                    marginBottom: '20px'
                   }}
                 >
                   ← Volver a módulos
@@ -2088,25 +1160,14 @@ export default function JuanPablo() {
                   color: 'white'
                 }}>
                   <div style={{ fontSize: '3em', marginBottom: '15px' }}>{selectedModule.icon}</div>
-                  <h2 style={{ margin: '0 0 10px 0', fontSize: '2em', fontWeight: '700' }}>
+                  <h2 style={{ margin: '0 0 10px 0', fontSize: '2em' }}>
                     {selectedModule.title}
                   </h2>
-                  <p style={{ margin: '0', fontSize: '1.1em', opacity: 0.9 }}>
+                  <p style={{ margin: '0', fontSize: '1.1em' }}>
                     {selectedModule.description}
                   </p>
-                  <div style={{ 
-                    display: 'flex', 
-                    gap: '20px', 
-                    marginTop: '20px',
-                    fontSize: '0.95em'
-                  }}>
-                    <span>📚 {selectedModule.lessons} lecciones</span>
-                    <span>🎯 {selectedModule.difficulty}</span>
-                    <span>⏱️ {selectedModule.estimatedTime}</span>
-                  </div>
                 </div>
 
-                {/* Lesson List */}
                 <div style={{ display: 'grid', gap: '15px' }}>
                   {getTransportLessons().map((lesson, index) => (
                     <div key={lesson.id} style={{
@@ -2114,8 +1175,7 @@ export default function JuanPablo() {
                       border: lesson.current ? '2px solid #ffc107' : '1px solid rgba(255,255,255,0.1)',
                       borderRadius: '15px',
                       padding: '20px',
-                      cursor: 'pointer',
-                      transition: 'all 0.3s ease'
+                      cursor: 'pointer'
                     }}
                     onClick={() => setCurrentLesson(lesson)}
                     >
@@ -2135,19 +1195,10 @@ export default function JuanPablo() {
                             {lesson.completed ? '✓' : lesson.current ? '▶' : index + 1}
                           </div>
                           <div>
-                            <h4 style={{ 
-                              margin: 0, 
-                              color: 'white', 
-                              fontSize: '1.1em',
-                              fontWeight: '600'
-                            }}>
+                            <h4 style={{ margin: 0, color: 'white', fontSize: '1.1em' }}>
                               {lesson.title}
                             </h4>
-                            <p style={{ 
-                              margin: '5px 0 0 0', 
-                              color: 'rgba(255,255,255,0.7)', 
-                              fontSize: '0.9em'
-                            }}>
+                            <p style={{ margin: '5px 0 0 0', color: 'rgba(255,255,255,0.7)', fontSize: '0.9em' }}>
                               {lesson.type === 'interactive' && '🎯 Práctica interactiva'}
                               {lesson.type === 'conversation' && '💬 Conversación'}
                               {lesson.type === 'vocabulary' && '📚 Vocabulario'}
@@ -2156,11 +1207,7 @@ export default function JuanPablo() {
                           </div>
                         </div>
                         <div style={{ textAlign: 'right' }}>
-                          <div style={{ 
-                            color: '#ffc107', 
-                            fontWeight: '600',
-                            fontSize: '0.9em'
-                          }}>
+                          <div style={{ color: '#ffc107', fontWeight: '600' }}>
                             +{lesson.xpReward} XP
                           </div>
                           <button style={{
@@ -2182,10 +1229,92 @@ export default function JuanPablo() {
                   ))}
                 </div>
               </div>
-            )}
+            ) : currentLesson ? (
+              <div style={{ 
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: '#000000',
+                zIndex: 2000,
+                padding: '20px',
+                overflow: 'auto'
+              }}>
+                <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', marginBottom: '30px' }}>
+                    <button 
+                      onClick={() => {
+                        setCurrentLesson(null);
+                        setLessonStep(0);
+                        setLessonAnswers({});
+                      }}
+                      style={{
+                        background: 'rgba(255,255,255,0.1)',
+                        border: '1px solid rgba(255,255,255,0.3)',
+                        color: 'white',
+                        padding: '10px 20px',
+                        borderRadius: '10px',
+                        cursor: 'pointer',
+                        marginRight: '20px'
+                      }}
+                    >
+                      ← Volver a lecciones
+                    </button>
+                    <div>
+                      <h2 style={{ color: 'white', margin: 0, fontSize: '1.5em' }}>
+                        {currentLesson.title}
+                      </h2>
+                      <p style={{ color: 'rgba(255,255,255,0.7)', margin: '5px 0 0 0' }}>
+                        +{currentLesson.xpReward} XP
+                      </p>
+                    </div>
+                  </div>
+
+                  <div style={{
+                    background: 'rgba(255,255,255,0.05)',
+                    borderRadius: '20px',
+                    padding: '30px',
+                    marginBottom: '20px'
+                  }}>
+                    <div style={{ textAlign: 'center', color: 'white' }}>
+                      <div style={{ fontSize: '3em', marginBottom: '20px' }}>🚇</div>
+                      <h3 style={{ margin: '0 0 15px 0', fontSize: '1.8em' }}>
+                        {currentLesson.content.introduction}
+                      </h3>
+                      <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '1.1em' }}>
+                        ¡Lección interactiva disponible pronto!
+                      </p>
+                      <button
+                        onClick={() => {
+                          setCurrentLesson(null);
+                          setLessonStep(0);
+                          setLessonAnswers({});
+                        }}
+                        style={{
+                          background: '#00ff88',
+                          color: '#000',
+                          border: 'none',
+                          padding: '15px 30px',
+                          borderRadius: '25px',
+                          fontSize: '1.1em',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          marginTop: '20px'
+                        }}
+                      >
+                        Volver a lecciones
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : null}
           </div>
         </div>
       </div>
     );
   }
+
+  return null;
 }
