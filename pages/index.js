@@ -259,11 +259,9 @@ export default function JuanPablo() {
   };
 
   useEffect(() => {
-    // Only show mode selection after video plays or after timeout
     const timer = setTimeout(() => {
       setShowModeSelection(true);
-    }, 8000); // Longer timeout to let video play
-    
+    }, 3000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -461,43 +459,23 @@ export default function JuanPablo() {
       }}>
         
         {!showModeSelection && (
-          <div style={{
-            width: '100%',
-            height: '80vh',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: 'rgba(255,255,255,0.1)',
-            borderRadius: '12px',
-            border: '3px solid white'
-          }}>
-            <video 
-              ref={videoRef}
-              autoPlay 
-              muted 
-              playsInline
-              controls={false}
-              onEnded={() => {
-                setTimeout(() => setShowModeSelection(true), 1000);
-              }}
-              onError={() => {
-                console.log('Video failed to load');
-                setShowModeSelection(true);
-              }}
-              onLoadedData={() => {
-                console.log('Video loaded successfully');
-              }}
-              style={{ 
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                borderRadius: '8px'
-              }}
-            >
-              <source src="https://d1yei2z3i6k35z.cloudfront.net/3867221/67540ace8dd44_HeyGenClone.mp4" type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
-          </div>
+          <video 
+            ref={videoRef}
+            autoPlay 
+            muted 
+            playsInline
+            onLoadedData={() => setShowModeSelection(true)}
+            onError={() => setShowModeSelection(true)}
+            style={{ 
+              width: isMobile ? '100%' : 'auto',
+              height: isMobile ? 'auto' : '100%',
+              maxWidth: isMobile ? '100%' : '100%',
+              maxHeight: '100%',
+              objectFit: isMobile ? 'contain' : 'cover',
+              border: '3px solid white',
+              borderRadius: '8px'
+            }}
+          />
         )}
 
         {showModeSelection && (
