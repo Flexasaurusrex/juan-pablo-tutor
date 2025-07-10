@@ -1,4 +1,62 @@
-import { useState, useEffect, useRef } from 'react';
+// Translate Juan Pablo's message to English
+  const translateMessage = async (messageText, messageIndex) => {
+    if (messageTranslations[messageIndex]) {
+      // If already translated, hide the translation
+      setMessageTranslations(prev => ({
+        ...prev,
+        [messageIndex]: null
+      }));
+      return;
+    }
+
+    setTranslatingMessageId(messageIndex);
+    
+    try {
+      const response = await fetch('/api/translate-to-english', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ spanishText: messageText })
+      });
+      
+      const data = await response.json();
+      
+      if (data.translation) {
+        setMessageTranslations(prev => ({
+          ...prev,
+          [messageIndex]: data.translation
+        }));
+      }
+    } catch (error) {
+      console.error('Translation error:', error);
+      setMessageTranslations(prev => ({
+        ...prev,
+        [messageIndex]: 'Translation failed - try again'
+      }));
+    }
+    
+    setTranslatingMessageId(null);
+  };  // Translator function
+  const translateText = async (text) => {
+    if (!text.trim()) return;
+    
+    setIsTranslating(true);
+    try {
+      const response = await fetch('/api/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: text.trim() })
+      });
+      
+      const data = await response.json();
+      if (data.translation) {
+        setTranslatorOutput(data.translation);
+      }
+    } catch (error) {
+      console.error('Translation error:', error);
+      setTranslatorOutput('Error de traducción');
+    }
+    setIsTranslating(false);
+  };import { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 
 export default function JuanPablo() {
@@ -11,6 +69,12 @@ export default function JuanPablo() {
   const [isAvatarSpeaking, setIsAvatarSpeaking] = useState(false);
   const [isListeningToPedro, setIsListeningToPedro] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  
+  // Translation features
+  const [messageTranslations, setMessageTranslations] = useState({});
+  const [translatingMessageId, setTranslatingMessageId] = useState(null);
+  const [speakingMessageId, setSpeakingMessageId] = useState(null);
+  const [currentAudio, setCurrentAudio] = useState(null);
   
   // Translator state
   const [translatorInput, setTranslatorInput] = useState('');
@@ -33,27 +97,87 @@ export default function JuanPablo() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Translator function
-  const translateText = async (text) => {
-    if (!text.trim()) return;
-    
-    setIsTranslating(true);
-    try {
-      const response = await fetch('/api/translate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: text.trim() })
-      });
-      
-      const data = await response.json();
-      if (data.translation) {
-        setTranslatorOutput(data.translation);
-      }
-    } catch (error) {
-      console.error('Translation error:', error);
-      setTranslatorOutput('Error de traducción');
+  // Speak Juan Pablo's message with Mexican Spanish pronunciation
+  const speakMessage = async (messageText, messageIndex) => {
+    // Stop any currently playing audio
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+      setCurrentAudio(null);
+      setSpeakingMessageId(null);
     }
-    setIsTranslating(false);
+
+    // If clicking the same message that's already speaking, just stop
+    if (speakingMessageId === messageIndex) {
+      return;
+    }
+
+    setSpeakingMessageId(messageIndex);
+
+    try {
+      // Clean the text for better TTS (remove emojis, extra formatting)
+      const cleanText = messageText
+        .replace(/[🎯📚🔄✏️🌮🚇👋💼🆘💰🏢🇲🇽😊👍💪🎙️✅❌📝📡🚀⚠️🔍🤖🌟]/g, '') // Remove emojis
+        .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold markdown
+        .replace(/•/g, '') // Remove bullet points
+        .trim();
+
+      // Use high-quality Mexican Spanish TTS
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+        
+        // Configure for Mexican Spanish
+        utterance.lang = 'es-MX'; // Mexican Spanish
+        utterance.rate = 0.85; // Slightly slower for learning
+        utterance.pitch = 1.0;
+        utterance.volume = 0.9;
+
+        // Try to find a Mexican Spanish voice
+        const voices = speechSynthesis.getVoices();
+        const mexicanVoice = voices.find(voice => 
+          voice.lang.includes('es-MX') || 
+          voice.lang.includes('es-US') ||
+          (voice.lang.includes('es') && voice.name.toLowerCase().includes('mexican'))
+        );
+        
+        if (mexicanVoice) {
+          utterance.voice = mexicanVoice;
+          console.log('🎙️ Using voice:', mexicanVoice.name, mexicanVoice.lang);
+        } else {
+          // Fallback to any Spanish voice
+          const spanishVoice = voices.find(voice => voice.lang.startsWith('es'));
+          if (spanishVoice) {
+            utterance.voice = spanishVoice;
+            console.log('🎙️ Using fallback Spanish voice:', spanishVoice.name);
+          }
+        }
+
+        utterance.onend = () => {
+          setSpeakingMessageId(null);
+          setCurrentAudio(null);
+        };
+
+        utterance.onerror = (error) => {
+          console.error('Speech synthesis error:', error);
+          setSpeakingMessageId(null);
+          setCurrentAudio(null);
+        };
+
+        // Store reference for stopping
+        setCurrentAudio(utterance);
+        
+        speechSynthesis.speak(utterance);
+        console.log('🔊 Speaking Mexican Spanish:', cleanText.substring(0, 50) + '...');
+        
+      } else {
+        console.error('Speech synthesis not supported');
+        setSpeakingMessageId(null);
+      }
+
+    } catch (error) {
+      console.error('Error speaking message:', error);
+      setSpeakingMessageId(null);
+    }
   };
 
   const startVideoMode = () => {
@@ -219,11 +343,14 @@ export default function JuanPablo() {
       const data = await response.json();
       console.log('📝 API Response data:', data);
       
-      if (data.response) {
-        setMessages(prev => [...prev, { text: data.response, sender: 'juan' }]);
+      // Handle both 'reply' and 'response' fields for compatibility
+      const juanPabloResponse = data.reply || data.response;
+      
+      if (juanPabloResponse) {
+        setMessages(prev => [...prev, { text: juanPabloResponse, sender: 'juan' }]);
         console.log('✅ Added Juan Pablo response to messages');
       } else {
-        console.error('❌ No response field in API data:', data);
+        console.error('❌ No reply/response field in API data:', data);
         setMessages(prev => [...prev, { 
           text: "¡Hola! 👋 Parece que tuve un problema técnico. ¿Puedes intentar de nuevo? Estoy aquí para ayudarte a practicar español. 🇲🇽", 
           sender: 'juan' 
@@ -883,17 +1010,105 @@ export default function JuanPablo() {
                 wordWrap: 'break-word',
                 fontSize: '15px',
                 lineHeight: '1.5',
-                border: msg.sender === 'user' ? 'none' : '1px solid rgba(255,255,255,0.2)'
+                border: msg.sender === 'user' ? 'none' : '1px solid rgba(255,255,255,0.2)',
+                position: 'relative'
               }}>
                 <div style={{ 
                   fontSize: '0.8em', 
                   fontWeight: '600', 
                   marginBottom: '8px', 
-                  opacity: 0.8 
+                  opacity: 0.8,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
                 }}>
-                  {msg.sender === 'user' ? 'Tú' : 'Juan Pablo'}
+                  <span>{msg.sender === 'user' ? 'Tú' : 'Juan Pablo'}</span>
+                  {msg.sender === 'juan' && (
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      {/* Speak Button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          speakMessage(msg.text, index);
+                        }}
+                        style={{
+                          background: speakingMessageId === index ? 'rgba(0,255,0,0.2)' : 'rgba(255,255,255,0.1)',
+                          border: speakingMessageId === index ? '1px solid rgba(0,255,0,0.5)' : '1px solid rgba(255,255,255,0.3)',
+                          color: speakingMessageId === index ? '#00ff00' : 'rgba(255,255,255,0.8)',
+                          padding: '4px 8px',
+                          borderRadius: '12px',
+                          fontSize: '0.9em',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          transition: 'all 0.2s ease'
+                        }}
+                        onMouseOver={(e) => {
+                          if (speakingMessageId !== index) {
+                            e.target.style.background = 'rgba(255,255,255,0.2)';
+                          }
+                        }}
+                        onMouseOut={(e) => {
+                          if (speakingMessageId !== index) {
+                            e.target.style.background = 'rgba(255,255,255,0.1)';
+                          }
+                        }}
+                      >
+                        {speakingMessageId === index ? '⏸️' : '🔊'} MX
+                      </button>
+                      
+                      {/* Translate Button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          translateMessage(msg.text, index);
+                        }}
+                        style={{
+                          background: messageTranslations[index] ? 'rgba(0,150,255,0.2)' : 'rgba(255,255,255,0.1)',
+                          border: messageTranslations[index] ? '1px solid rgba(0,150,255,0.5)' : '1px solid rgba(255,255,255,0.3)',
+                          color: messageTranslations[index] ? '#0096ff' : 'rgba(255,255,255,0.8)',
+                          padding: '4px 8px',
+                          borderRadius: '12px',
+                          fontSize: '0.9em',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease'
+                        }}
+                        onMouseOver={(e) => {
+                          if (!messageTranslations[index]) {
+                            e.target.style.background = 'rgba(255,255,255,0.2)';
+                          }
+                        }}
+                        onMouseOut={(e) => {
+                          if (!messageTranslations[index]) {
+                            e.target.style.background = 'rgba(255,255,255,0.1)';
+                          }
+                        }}
+                      >
+                        {translatingMessageId === index ? '🔄' : '🇺🇸'} EN
+                      </button>
+                    </div>
+                  )}
                 </div>
-                {msg.text}
+                
+                {/* Original Spanish Text */}
+                <div>{msg.text}</div>
+                
+                {/* English Translation */}
+                {messageTranslations[index] && (
+                  <div style={{
+                    marginTop: '12px',
+                    padding: '12px',
+                    background: 'rgba(0,0,0,0.3)',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    fontStyle: 'italic',
+                    color: 'rgba(255,255,255,0.9)',
+                    borderLeft: '3px solid #0096ff'
+                  }}>
+                    🇺🇸 <strong>English:</strong> {messageTranslations[index]}
+                  </div>
+                )}
               </div>
             ))}
             {isLoading && (
