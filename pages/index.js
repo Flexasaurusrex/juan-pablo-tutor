@@ -176,7 +176,7 @@ export default function JuanPablo() {
             hint: 'Verbo que significa "to arrive" o "to get to"'
           },
           {
-            type: 'realworld',
+            type: 'conversation',
             scenario: 'Estás perdido en CDMX y necesitas llegar a Roma Norte',
             question: '¿Qué preguntas a un local?',
             options: [
@@ -201,14 +201,11 @@ export default function JuanPablo() {
         introduction: "Domina el vocabulario del transporte en Ciudad de México",
         steps: [
           {
-            type: 'matching',
-            question: 'Conecta el transporte con su descripción:',
-            pairs: [
-              { spanish: 'Metro', english: 'Subway/Underground train system' },
-              { spanish: 'Metrobús', english: 'Bus Rapid Transit (BRT)' },
-              { spanish: 'Pesero/Micro', english: 'Shared minibus' },
-              { spanish: 'Uber/DiDi', english: 'Ride-sharing apps' }
-            ]
+            type: 'vocabulary',
+            question: '¿Cómo se llama el sistema de transporte subterráneo en CDMX?',
+            options: ['Metro', 'Subte', 'Tren', 'Underground'],
+            correct: 0,
+            explanation: 'Correcto! El Metro es el sistema de transporte subterráneo de CDMX.'
           },
           {
             type: 'vocabulary',
@@ -232,25 +229,18 @@ export default function JuanPablo() {
         introduction: "Practica la pronunciación de estaciones importantes del Metro",
         steps: [
           {
-            type: 'pronunciation',
-            word: 'Insurgentes',
-            phonetic: 'in-sur-HEN-tes',
-            audio: 'Estación Insurgentes',
-            tip: 'La "g" suena como "h" suave en español mexicano'
+            type: 'vocabulary',
+            question: '¿Cómo se pronuncia "Insurgentes"?',
+            options: ['in-sur-HEN-tes', 'IN-sur-gen-tes', 'in-SUR-gen-TES'],
+            correct: 0,
+            explanation: 'Correcto! La "g" suena como "h" suave en español mexicano'
           },
           {
-            type: 'pronunciation',
-            word: 'Chapultepec',
-            phonetic: 'cha-pul-TE-pec',
-            audio: 'Estación Chapultepec',
-            tip: 'Palabra náhuatl - muy importante en CDMX'
-          },
-          {
-            type: 'pronunciation',
-            word: 'Zócalo',
-            phonetic: 'SO-ca-lo',
-            audio: 'Estación Zócalo',
-            tip: 'El centro histórico de la ciudad'
+            type: 'vocabulary',
+            question: '¿Cuál es la estación del centro histórico?',
+            options: ['Zócalo', 'Centro', 'Histórico'],
+            correct: 0,
+            explanation: 'Zócalo es la estación que te lleva al centro histórico de CDMX'
           }
         ]
       }
