@@ -558,21 +558,33 @@ export default function JuanPablo() {
 
   useEffect(() => {
     const video = videoRef.current;
-    if (video) {
-      const handleCanPlay = () => setShowModeSelection(true);
-      const handleError = () => setShowModeSelection(true);
+    if (video && !showModeSelection) {
+      const handleCanPlay = () => {
+        console.log('Video can play');
+        setShowModeSelection(true);
+      };
+      const handleError = () => {
+        console.log('Video error, showing mode selection');
+        setShowModeSelection(true);
+      };
+      const handleEnded = () => {
+        console.log('Video ended, showing mode selection');
+        setShowModeSelection(true);
+      };
       
       video.addEventListener('canplay', handleCanPlay);
       video.addEventListener('error', handleError);
+      video.addEventListener('ended', handleEnded);
       
       return () => {
         video.removeEventListener('canplay', handleCanPlay);
         video.removeEventListener('error', handleError);
+        video.removeEventListener('ended', handleEnded);
       };
     }
-  }, []);
+  }, [showModeSelection]);
 
-  // Intro video
+  // Simple video intro (marketing sizzle reel)
   if (!showModeSelection) {
     return (
       <div style={{ 
@@ -596,8 +608,6 @@ export default function JuanPablo() {
           autoPlay 
           muted 
           playsInline
-          onLoadedData={() => setShowModeSelection(true)}
-          onError={() => setShowModeSelection(true)}
           style={{ 
             width: isMobile ? '100%' : 'auto',
             height: isMobile ? 'auto' : '100%',
@@ -606,6 +616,7 @@ export default function JuanPablo() {
           }}
         >
           <source src="/intro-video.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
         </video>
       </div>
     );
