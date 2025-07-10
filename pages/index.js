@@ -59,7 +59,7 @@ export default function JuanPablo() {
   const startVideoMode = () => {
     setCurrentMode('video');
     setMessages([
-      { text: "¡Hola! Habla conmigo directamente para practicar conversación. Haz clic en 'Escuchar' para ver mis respuestas como texto.", sender: 'juan' }
+      { text: "¡Hola! Habla conmigo directamente para practicar conversación.", sender: 'juan' }
     ]);
     setTimeout(loadHeyGenEmbed, 1000);
   };
@@ -75,7 +75,8 @@ export default function JuanPablo() {
     setCurrentMode(null);
     setShowModeSelection(false);
     setMessages([]);
-    stopListeningToPedro();
+    setTranslatorInput('');
+    setTranslatorOutput('');
   };
 
   const handleVideoEnd = () => {
@@ -178,209 +179,6 @@ export default function JuanPablo() {
     }, 500);
   };
 
-  useEffect(() => {
-    // Initialize speech recognition for user input
-    if (typeof window !== 'undefined' && 'webkitSpeechRecognition' in window) {
-      // User voice input (converts to text for sending)
-      recognitionRef.current = new webkitSpeechRecognition();
-      recognitionRef.current.continuous = false;
-      recognitionRef.current.interimResults = false;
-      recognitionRef.current.lang = 'es-MX';
-
-      recognitionRef.current.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        setInputMessage(transcript);
-        console.log('🎙️ User said:', transcript);
-      };
-
-      recognitionRef.current.onerror = (event) => {
-        console.error('Speech recognition error:', event.error);
-        setIsLoading(false);
-      };
-
-      recognitionRef.current.onend = () => {
-        setIsLoading(false);
-      };
-
-      // Pedro speech listener (captures his voice as text)
-      pedroListenerRef.current = new webkitSpeechRecognition();
-      pedroListenerRef.current.continuous = true;
-      pedroListenerRef.current.interimResults = true;
-      pedroListenerRef.current.lang = 'es-MX'; // Mexican Spanish
-      
-      let sentenceTimer;
-      let currentSentence = '';
-      let isProcessing = false;
-      
-      pedroListenerRef.current.onstart = () => {
-        console.log('🎙️ Pedro listener started successfully');
-        console.log('🔊 Listening for complete sentences from Pedro...');
-      };
-      
-      pedroListenerRef.current.onresult = (event) => {
-        console.log('🎙️ Pedro speech detected! Event:', event);
-        
-        // Build complete transcript from all results
-        let fullTranscript = '';
-        for (let i = 0; i < event.results.length; i++) {
-          fullTranscript += event.results[i][0].transcript + ' ';
-        }
-        
-        const cleanTranscript = fullTranscript.trim();
-        console.log('📝 Full transcript so far:', cleanTranscript);
-        
-        // Update current sentence
-        currentSentence = cleanTranscript;
-        
-        // Clear existing timer
-        if (sentenceTimer) clearTimeout(sentenceTimer);
-        
-        // Wait for sentence to complete (4 seconds of silence)
-        sentenceTimer = setTimeout(() => {
-          if (!isProcessing && currentSentence.trim().length > 3) {
-            isProcessing = true;
-            console.log('✅ Adding complete Pedro sentence:', currentSentence);
-            
-            const newMessage = { 
-              text: currentSentence.trim(), 
-              sender: 'juan',
-              timestamp: new Date().toLocaleTimeString()
-            };
-            
-            setMessages(prev => {
-              const updated = [...prev, newMessage];
-              console.log('📝 Updated messages with complete sentence');
-              return updated;
-            });
-            
-            // Reset for next sentence
-            currentSentence = '';
-            
-            // Reset processing flag
-            setTimeout(() => {
-              isProcessing = false;
-              console.log('🔄 Ready for next sentence');
-            }, 1000);
-          }
-        }, 4000); // Wait 4 seconds for complete sentence
-      };
-      
-      pedroListenerRef.current.onerror = (event) => {
-        console.error('❌ Pedro listener error:', event.error);
-        console.error('❌ Full error event:', event);
-        
-        setIsListeningToPedro(false);
-        
-        // Show specific error messages to user
-        let errorMessage = "❌ Error de transcripción: ";
-        switch(event.error) {
-          case 'not-allowed':
-            errorMessage += "Permisos de micrófono denegados. Por favor, permite el acceso al micrófono.";
-            break;
-          case 'no-speech':
-            errorMessage += "No se detectó habla. El micrófono puede no estar captando el audio de Pedro. Usa el botón 'Añadir Manualmente' como alternativa.";
-            break;
-          case 'audio-capture':
-            errorMessage += "Error de captura de audio. Verifica tu micrófono o usa la opción manual.";
-            break;
-          case 'network':
-            errorMessage += "Error de red. Verifica tu conexión a internet.";
-            break;
-          default:
-            errorMessage += event.error + ". Usa la opción 'Añadir Manualmente' si Pedro está hablando.";
-        }
-        
-        setMessages(prev => [...prev, { 
-          text: errorMessage, 
-          sender: 'system',
-          timestamp: new Date().toLocaleTimeString()
-        }]);
-        
-        // Don't auto-restart after no-speech error
-        if (event.error !== 'not-allowed' && event.error !== 'no-speech') {
-          setTimeout(() => {
-            if (currentMode === 'video') {
-              console.log('🔄 Attempting to restart Pedro listener...');
-              try {
-                startListeningToPedro();
-              } catch (e) {
-                console.error('Failed to restart Pedro listener:', e);
-              }
-            }
-          }, 3000);
-        }
-      };
-      
-      pedroListenerRef.current.onend = () => {
-        console.log('🔄 Pedro listener ended, restarting...');
-        if (isListeningToPedro) {
-          setTimeout(() => {
-            try {
-              pedroListenerRef.current.start();
-              console.log('🔄 Restarted Pedro listener');
-            } catch (e) {
-              console.error('Failed to restart Pedro listener:', e);
-              setIsListeningToPedro(false);
-            }
-          }, 500);
-        }
-      };
-    }
-
-    return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
-      }
-      if (pedroListenerRef.current) {
-        pedroListenerRef.current.stop();
-      }
-    };
-  }, []);
-
-  const startListeningToPedro = () => {
-    if (!pedroListenerRef.current) {
-      console.error('❌ Pedro listener not initialized');
-      return;
-    }
-    
-    if (isListeningToPedro) {
-      console.log('⚠️ Already listening to Pedro');
-      return;
-    }
-    
-    try {
-      setIsListeningToPedro(true);
-      pedroListenerRef.current.start();
-      console.log('👂 Started listening to Pedro...');
-      
-      // Add visual feedback
-      setMessages(prev => [...prev, { 
-        text: "🎙️ Escuchando a Pedro... (Habla con él para ver la transcripción)", 
-        sender: 'system',
-        timestamp: new Date().toLocaleTimeString()
-      }]);
-      
-    } catch (e) {
-      console.error('❌ Failed to start Pedro listener:', e);
-      setIsListeningToPedro(false);
-      
-      // Show error to user
-      setMessages(prev => [...prev, { 
-        text: "❌ Error: No se pudo activar la escucha. Verifica los permisos del micrófono.", 
-        sender: 'system',
-        timestamp: new Date().toLocaleTimeString()
-      }]);
-    }
-  };
-
-  const stopListeningToPedro = () => {
-    if (pedroListenerRef.current && isListeningToPedro) {
-      pedroListenerRef.current.stop();
-      setIsListeningToPedro(false);
-      console.log('🛑 Stopped listening to Pedro');
-    }
-  };
-
   const startVoiceInput = () => {
     if (recognitionRef.current) {
       setIsLoading(true);
@@ -423,6 +221,38 @@ export default function JuanPablo() {
     }
   };
 
+  useEffect(() => {
+    // Initialize speech recognition for user input
+    if (typeof window !== 'undefined' && 'webkitSpeechRecognition' in window) {
+      // User voice input (converts to text for sending)
+      recognitionRef.current = new webkitSpeechRecognition();
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = false;
+      recognitionRef.current.lang = 'es-MX';
+
+      recognitionRef.current.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        setInputMessage(transcript);
+        console.log('🎙️ User said:', transcript);
+      };
+
+      recognitionRef.current.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        setIsLoading(false);
+      };
+
+      recognitionRef.current.onend = () => {
+        setIsLoading(false);
+      };
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, []);
+
   // Intro Screen with Sizzle Reel
   if (!currentMode && !showModeSelection) {
     return (
@@ -434,7 +264,9 @@ export default function JuanPablo() {
         height: '100vh',
         background: '#000',
         overflow: 'hidden',
-        zIndex: 9999
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
       }}>
         <Head>
           <title>Juan Pablo - Spanish Learning AI</title>
@@ -455,12 +287,12 @@ export default function JuanPablo() {
             setTimeout(() => setShowModeSelection(true), 2000);
           }}
           style={{ 
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: isMobile ? 'contain' : 'cover'
+            width: isMobile ? '100%' : 'auto', 
+            height: isMobile ? 'auto' : '100%',
+            maxWidth: '100%',
+            maxHeight: '100%',
+            objectFit: isMobile ? 'contain' : 'cover',
+            objectPosition: 'center'
           }}
         >
           <source src="/intro-sizzle.mp4" type="video/mp4" />
@@ -492,13 +324,13 @@ export default function JuanPablo() {
     );
   }
 
-  // Mode Selection Screen  
+  // Mode Selection Screen - Dark Theme
   if (!currentMode) {
     return (
       <div style={{ 
         minHeight: '100vh', 
         width: '100vw',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
+        background: '#000000',
         position: 'fixed',
         top: 0,
         left: 0,
@@ -508,7 +340,8 @@ export default function JuanPablo() {
         padding: '20px',
         boxSizing: 'border-box',
         zIndex: 1000,
-        overflow: 'auto'
+        overflow: 'auto',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
       }}>
         <Head>
           <title>Juan Pablo - Choose Your Learning Style</title>
@@ -516,31 +349,29 @@ export default function JuanPablo() {
         </Head>
         
         <div style={{ 
-          maxWidth: '1200px', 
+          maxWidth: '1000px', 
           width: '100%', 
           textAlign: 'center'
         }}>
           {/* Hero Section */}
           <div style={{ marginBottom: '60px' }}>
             <h1 style={{ 
-              fontSize: isMobile ? '3em' : '4.5em', 
+              fontSize: isMobile ? '2.5em' : '3.5em', 
               marginBottom: '20px', 
               color: 'white', 
-              fontWeight: '900',
+              fontWeight: '700',
               lineHeight: '1.1',
-              textShadow: '0 4px 20px rgba(0,0,0,0.3)',
               letterSpacing: '-0.02em'
             }}>
               ¡Hola! Soy Juan Pablo 🇲🇽
             </h1>
             <p style={{ 
-              fontSize: isMobile ? '1.2em' : '1.5em', 
-              color: 'rgba(255,255,255,0.9)', 
+              fontSize: isMobile ? '1.1em' : '1.3em', 
+              color: 'rgba(255,255,255,0.8)', 
               fontWeight: '400',
               lineHeight: '1.6',
               maxWidth: '600px',
-              margin: '0 auto',
-              textShadow: '0 2px 10px rgba(0,0,0,0.2)'
+              margin: '0 auto'
             }}>
               Tu compañero de español para prepararte para Ciudad de México
             </p>
@@ -550,237 +381,115 @@ export default function JuanPablo() {
           <div style={{ 
             display: 'grid',
             gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-            gap: isMobile ? '30px' : '40px',
-            maxWidth: '900px',
+            gap: '30px',
+            maxWidth: '800px',
             margin: '0 auto'
           }}>
             {/* Video Mode Card */}
             <div 
               onClick={startVideoMode}
               style={{ 
-                background: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)', 
-                borderRadius: '24px',
-                padding: isMobile ? '40px 30px' : '50px 40px',
+                background: '#1a1a1a',
+                border: '2px solid rgba(255,255,255,0.2)',
+                borderRadius: '16px',
+                padding: '40px 30px',
                 cursor: 'pointer',
-                transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-                boxShadow: '0 20px 40px rgba(255, 107, 107, 0.3)',
-                position: 'relative',
-                overflow: 'hidden',
-                border: 'none',
+                transition: 'all 0.3s ease',
                 touchAction: 'manipulation'
               }}
               onMouseOver={(e) => {
-                e.target.style.transform = 'translateY(-8px) scale(1.02)';
-                e.target.style.boxShadow = '0 30px 60px rgba(255, 107, 107, 0.4)';
+                e.target.style.borderColor = 'rgba(255,255,255,0.4)';
+                e.target.style.transform = 'translateY(-4px)';
               }}
               onMouseOut={(e) => {
-                e.target.style.transform = 'translateY(0) scale(1)';
-                e.target.style.boxShadow = '0 20px 40px rgba(255, 107, 107, 0.3)';
-              }}
-              onTouchStart={(e) => {
-                e.target.style.transform = 'translateY(-4px) scale(1.01)';
-              }}
-              onTouchEnd={(e) => {
-                e.target.style.transform = 'translateY(0) scale(1)';
+                e.target.style.borderColor = 'rgba(255,255,255,0.2)';
+                e.target.style.transform = 'translateY(0)';
               }}
             >
-              {/* Animated background effect */}
-              <div style={{
-                position: 'absolute',
-                top: '-50%',
-                left: '-50%',
-                width: '200%',
-                height: '200%',
-                background: 'linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent)',
-                transform: 'rotate(45deg)',
-                animation: 'shimmer 3s infinite',
-                pointerEvents: 'none'
-              }} />
-              
-              <div style={{ position: 'relative', zIndex: 1 }}>
-                <div style={{ 
-                  fontSize: isMobile ? '3.5em' : '4em', 
-                  marginBottom: '20px',
-                  filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))'
-                }}>
-                  🎥
-                </div>
-                <h3 style={{ 
-                  fontSize: isMobile ? '1.6em' : '2em', 
-                  marginBottom: '15px', 
-                  fontWeight: '700',
-                  color: 'white',
-                  textShadow: '0 2px 4px rgba(0,0,0,0.2)'
-                }}>
-                  Video Conversación
-                </h3>
-                <p style={{ 
-                  fontSize: isMobile ? '1em' : '1.1em', 
-                  opacity: 0.95, 
-                  lineHeight: '1.5',
-                  color: 'white',
-                  fontWeight: '400'
-                }}>
-                  Habla directamente con Pedro para practicar pronunciación y conversación natural
-                </p>
-                
-                {/* Feature badges */}
-                <div style={{ 
-                  display: 'flex', 
-                  justifyContent: 'center', 
-                  gap: '10px', 
-                  marginTop: '20px',
-                  flexWrap: 'wrap'
-                }}>
-                  <span style={{
-                    background: 'rgba(255,255,255,0.2)',
-                    padding: '6px 12px',
-                    borderRadius: '20px',
-                    fontSize: '0.8em',
-                    fontWeight: '600',
-                    color: 'white'
-                  }}>
-                    Pronunciación
-                  </span>
-                  <span style={{
-                    background: 'rgba(255,255,255,0.2)',
-                    padding: '6px 12px',
-                    borderRadius: '20px',
-                    fontSize: '0.8em',
-                    fontWeight: '600',
-                    color: 'white'
-                  }}>
-                    Tiempo Real
-                  </span>
-                </div>
+              <div style={{ 
+                fontSize: '3em', 
+                marginBottom: '20px'
+              }}>
+                🎥
               </div>
+              <h3 style={{ 
+                fontSize: '1.5em', 
+                marginBottom: '15px', 
+                fontWeight: '600',
+                color: 'white'
+              }}>
+                Video Conversación
+              </h3>
+              <p style={{ 
+                fontSize: '1em', 
+                color: 'rgba(255,255,255,0.7)', 
+                lineHeight: '1.5',
+                fontWeight: '400'
+              }}>
+                Habla directamente con Pedro para practicar pronunciación y conversación natural
+              </p>
             </div>
             
             {/* Chat Mode Card */}
             <div 
               onClick={startChatMode}
               style={{ 
-                background: 'linear-gradient(135deg, #74b9ff 0%, #0984e3 100%)', 
-                borderRadius: '24px',
-                padding: isMobile ? '40px 30px' : '50px 40px',
+                background: '#1a1a1a',
+                border: '2px solid rgba(255,255,255,0.2)',
+                borderRadius: '16px',
+                padding: '40px 30px',
                 cursor: 'pointer',
-                transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-                boxShadow: '0 20px 40px rgba(116, 185, 255, 0.3)',
-                position: 'relative',
-                overflow: 'hidden',
-                border: 'none',
+                transition: 'all 0.3s ease',
                 touchAction: 'manipulation'
               }}
               onMouseOver={(e) => {
-                e.target.style.transform = 'translateY(-8px) scale(1.02)';
-                e.target.style.boxShadow = '0 30px 60px rgba(116, 185, 255, 0.4)';
+                e.target.style.borderColor = 'rgba(255,255,255,0.4)';
+                e.target.style.transform = 'translateY(-4px)';
               }}
               onMouseOut={(e) => {
-                e.target.style.transform = 'translateY(0) scale(1)';
-                e.target.style.boxShadow = '0 20px 40px rgba(116, 185, 255, 0.3)';
-              }}
-              onTouchStart={(e) => {
-                e.target.style.transform = 'translateY(-4px) scale(1.01)';
-              }}
-              onTouchEnd={(e) => {
-                e.target.style.transform = 'translateY(0) scale(1)';
+                e.target.style.borderColor = 'rgba(255,255,255,0.2)';
+                e.target.style.transform = 'translateY(0)';
               }}
             >
-              {/* Animated background effect */}
-              <div style={{
-                position: 'absolute',
-                top: '-50%',
-                left: '-50%',
-                width: '200%',
-                height: '200%',
-                background: 'linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent)',
-                transform: 'rotate(45deg)',
-                animation: 'shimmer 3s infinite 1.5s',
-                pointerEvents: 'none'
-              }} />
-              
-              <div style={{ position: 'relative', zIndex: 1 }}>
-                <div style={{ 
-                  fontSize: isMobile ? '3.5em' : '4em', 
-                  marginBottom: '20px',
-                  filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))'
-                }}>
-                  💬
-                </div>
-                <h3 style={{ 
-                  fontSize: isMobile ? '1.6em' : '2em', 
-                  marginBottom: '15px', 
-                  fontWeight: '700',
-                  color: 'white',
-                  textShadow: '0 2px 4px rgba(0,0,0,0.2)'
-                }}>
-                  Chat Texto
-                </h3>
-                <p style={{ 
-                  fontSize: isMobile ? '1em' : '1.1em', 
-                  opacity: 0.95, 
-                  lineHeight: '1.5',
-                  color: 'white',
-                  fontWeight: '400'
-                }}>
-                  Practica gramática, vocabulario y escritura con correcciones detalladas
-                </p>
-                
-                {/* Feature badges */}
-                <div style={{ 
-                  display: 'flex', 
-                  justifyContent: 'center', 
-                  gap: '10px', 
-                  marginTop: '20px',
-                  flexWrap: 'wrap'
-                }}>
-                  <span style={{
-                    background: 'rgba(255,255,255,0.2)',
-                    padding: '6px 12px',
-                    borderRadius: '20px',
-                    fontSize: '0.8em',
-                    fontWeight: '600',
-                    color: 'white'
-                  }}>
-                    Gramática
-                  </span>
-                  <span style={{
-                    background: 'rgba(255,255,255,0.2)',
-                    padding: '6px 12px',
-                    borderRadius: '20px',
-                    fontSize: '0.8em',
-                    fontWeight: '600',
-                    color: 'white'
-                  }}>
-                    Correcciones
-                  </span>
-                </div>
+              <div style={{ 
+                fontSize: '3em', 
+                marginBottom: '20px'
+              }}>
+                💬
               </div>
+              <h3 style={{ 
+                fontSize: '1.5em', 
+                marginBottom: '15px', 
+                fontWeight: '600',
+                color: 'white'
+              }}>
+                Chat Texto
+              </h3>
+              <p style={{ 
+                fontSize: '1em', 
+                color: 'rgba(255,255,255,0.7)', 
+                lineHeight: '1.5',
+                fontWeight: '400'
+              }}>
+                Practica gramática, vocabulario y escritura con correcciones detalladas
+              </p>
             </div>
           </div>
           
           {/* Bottom CTA */}
           <div style={{ 
             marginTop: '50px',
-            padding: '20px',
             textAlign: 'center'
           }}>
             <p style={{
-              color: 'rgba(255,255,255,0.8)',
-              fontSize: isMobile ? '0.9em' : '1em',
+              color: 'rgba(255,255,255,0.5)',
+              fontSize: '0.9em',
               fontStyle: 'italic'
             }}>
               Preparándote para México • Septiembre 2024
             </p>
           </div>
         </div>
-        
-        <style jsx>{`
-          @keyframes shimmer {
-            0% { transform: translateX(-100%) rotate(45deg); }
-            100% { transform: translateX(100%) rotate(45deg); }
-          }
-        `}</style>
       </div>
     );
   }
@@ -908,7 +617,7 @@ export default function JuanPablo() {
           
           <div style={{
             display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
+            gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
             gap: '20px',
             marginBottom: '20px'
           }}>
@@ -1031,16 +740,17 @@ export default function JuanPablo() {
     );
   }
 
-  // Chat Mode
+  // Chat Mode - Dark Theme
   if (currentMode === 'chat') {
     return (
       <div style={{ 
         minHeight: '100vh', 
-        background: 'linear-gradient(135deg, #74b9ff 0%, #0984e3 100%)', 
-        padding: typeof window !== 'undefined' && window.innerWidth <= 768 ? '10px' : '20px',
+        background: '#000000',
         display: 'flex',
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        padding: '20px',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
       }}>
         <Head>
           <title>Juan Pablo - Chat Texto</title>
@@ -1048,44 +758,53 @@ export default function JuanPablo() {
         </Head>
         
         <div style={{ 
-          background: 'white', 
-          borderRadius: '20px', 
-          padding: typeof window !== 'undefined' && window.innerWidth <= 768 ? '15px' : '30px',
+          background: '#1a1a1a',
+          border: '2px solid rgba(255,255,255,0.2)',
+          borderRadius: '16px', 
+          padding: '30px',
           width: '100%',
           maxWidth: '800px',
-          height: typeof window !== 'undefined' && window.innerWidth <= 768 ? '90vh' : '80vh',
+          height: '80vh',
           display: 'flex',
           flexDirection: 'column'
         }}>
+          {/* Header */}
           <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
             <button
               onClick={goBack}
               style={{
-                background: 'rgba(116,185,255,0.2)',
-                border: 'none',
-                color: '#0984e3',
+                background: 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.3)',
+                color: 'white',
                 padding: '8px 16px',
-                borderRadius: '20px',
+                borderRadius: '8px',
                 cursor: 'pointer',
                 fontSize: '14px',
-                fontWeight: 'bold',
+                fontWeight: '500',
                 marginRight: '15px'
               }}
             >
               ← Volver
             </button>
-            <h2 style={{ color: '#333', margin: 0, fontSize: typeof window !== 'undefined' && window.innerWidth <= 768 ? '1.5em' : '2em' }}>
+            <h2 style={{ 
+              color: 'white', 
+              margin: 0, 
+              fontSize: isMobile ? '1.5em' : '1.8em',
+              fontWeight: '600'
+            }}>
               Chat con Juan Pablo 💬
             </h2>
           </div>
           
+          {/* Messages Area */}
           <div style={{ 
             flex: 1, 
             overflowY: 'auto', 
             marginBottom: '20px',
-            padding: '15px',
-            background: '#f8f9fa',
-            borderRadius: '15px',
+            padding: '20px',
+            background: '#000000',
+            border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: '12px',
             display: 'flex',
             flexDirection: 'column',
             gap: '15px'
@@ -1093,16 +812,22 @@ export default function JuanPablo() {
             {messages.map((msg, index) => (
               <div key={index} style={{ 
                 padding: '15px 20px',
-                borderRadius: '15px',
-                background: msg.sender === 'user' ? '#74b9ff' : '#e9ecef',
-                color: msg.sender === 'user' ? 'white' : '#333',
+                borderRadius: '12px',
+                background: msg.sender === 'user' ? '#ffffff' : 'rgba(255,255,255,0.1)',
+                color: msg.sender === 'user' ? '#000' : 'white',
                 alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start',
-                maxWidth: '85%',
+                maxWidth: '80%',
                 wordWrap: 'break-word',
-                fontSize: typeof window !== 'undefined' && window.innerWidth <= 768 ? '14px' : '16px',
-                lineHeight: '1.5'
+                fontSize: '15px',
+                lineHeight: '1.5',
+                border: msg.sender === 'user' ? 'none' : '1px solid rgba(255,255,255,0.2)'
               }}>
-                <div style={{ fontSize: '0.8em', fontWeight: 'bold', marginBottom: '8px', opacity: 0.8 }}>
+                <div style={{ 
+                  fontSize: '0.8em', 
+                  fontWeight: '600', 
+                  marginBottom: '8px', 
+                  opacity: 0.8 
+                }}>
                   {msg.sender === 'user' ? 'Tú' : 'Juan Pablo'}
                 </div>
                 {msg.text}
@@ -1111,19 +836,21 @@ export default function JuanPablo() {
             {isLoading && (
               <div style={{ 
                 padding: '15px 20px',
-                borderRadius: '15px',
-                background: '#e9ecef',
-                color: '#666',
+                borderRadius: '12px',
+                background: 'rgba(255,255,255,0.1)',
+                color: 'rgba(255,255,255,0.7)',
                 fontStyle: 'italic',
                 alignSelf: 'flex-start',
-                maxWidth: '85%'
+                maxWidth: '80%',
+                border: '1px solid rgba(255,255,255,0.2)'
               }}>
                 Juan Pablo está escribiendo...
               </div>
             )}
           </div>
           
-          <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
+          {/* Input Area */}
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end' }}>
             <textarea
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
@@ -1132,29 +859,41 @@ export default function JuanPablo() {
               style={{
                 flex: 1,
                 padding: '15px',
-                border: '2px solid #e9ecef',
-                borderRadius: '15px',
+                background: '#000',
+                border: '1px solid rgba(255,255,255,0.3)',
+                borderRadius: '12px',
                 resize: 'none',
-                fontSize: typeof window !== 'undefined' && window.innerWidth <= 768 ? '14px' : '16px',
-                minHeight: typeof window !== 'undefined' && window.innerWidth <= 768 ? '50px' : '60px',
+                fontSize: '15px',
+                minHeight: '60px',
                 maxHeight: '120px',
-                fontFamily: 'inherit'
+                fontFamily: 'inherit',
+                color: 'white',
+                outline: 'none'
               }}
-              rows={typeof window !== 'undefined' && window.innerWidth <= 768 ? 2 : 3}
+              rows={2}
+              onFocus={(e) => {
+                e.target.style.borderColor = 'rgba(255,255,255,0.6)';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = 'rgba(255,255,255,0.3)';
+              }}
             />
             <button
               onClick={startVoiceInput}
               disabled={isLoading}
               style={{
-                padding: typeof window !== 'undefined' && window.innerWidth <= 768 ? '12px' : '15px',
-                background: '#74b9ff',
+                padding: '15px',
+                background: 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.3)',
                 color: 'white',
-                border: 'none',
-                borderRadius: '15px',
+                borderRadius: '12px',
                 cursor: 'pointer',
-                fontSize: typeof window !== 'undefined' && window.innerWidth <= 768 ? '16px' : '18px',
-                minWidth: typeof window !== 'undefined' && window.innerWidth <= 768 ? '50px' : '60px',
-                height: typeof window !== 'undefined' && window.innerWidth <= 768 ? '50px' : '60px'
+                fontSize: '18px',
+                width: '60px',
+                height: '60px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
               }}
             >
               🎙️
@@ -1163,15 +902,15 @@ export default function JuanPablo() {
               onClick={sendMessage}
               disabled={isLoading || !inputMessage.trim()}
               style={{
-                padding: typeof window !== 'undefined' && window.innerWidth <= 768 ? '12px 20px' : '15px 25px',
-                background: inputMessage.trim() ? '#0984e3' : '#ccc',
-                color: 'white',
+                padding: '15px 25px',
+                background: inputMessage.trim() ? '#ffffff' : 'rgba(255,255,255,0.3)',
+                color: inputMessage.trim() ? '#000' : 'rgba(255,255,255,0.5)',
                 border: 'none',
-                borderRadius: '15px',
+                borderRadius: '12px',
                 cursor: inputMessage.trim() ? 'pointer' : 'not-allowed',
-                fontSize: typeof window !== 'undefined' && window.innerWidth <= 768 ? '14px' : '16px',
-                fontWeight: 'bold',
-                height: typeof window !== 'undefined' && window.innerWidth <= 768 ? '50px' : '60px'
+                fontSize: '14px',
+                fontWeight: '600',
+                height: '60px'
               }}
             >
               Enviar
