@@ -12,6 +12,11 @@ export default function JuanPablo() {
   const [isListeningToPedro, setIsListeningToPedro] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   
+  // Translator state
+  const [translatorInput, setTranslatorInput] = useState('');
+  const [translatorOutput, setTranslatorOutput] = useState('');
+  const [isTranslating, setIsTranslating] = useState(false);
+  
   const recognitionRef = useRef(null);
   const pedroListenerRef = useRef(null);
   const videoRef = useRef(null);
@@ -27,6 +32,29 @@ export default function JuanPablo() {
     
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  // Translator function
+  const translateText = async (text) => {
+    if (!text.trim()) return;
+    
+    setIsTranslating(true);
+    try {
+      const response = await fetch('/api/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: text.trim() })
+      });
+      
+      const data = await response.json();
+      if (data.translation) {
+        setTranslatorOutput(data.translation);
+      }
+    } catch (error) {
+      console.error('Translation error:', error);
+      setTranslatorOutput('Error de traducción');
+    }
+    setIsTranslating(false);
+  };
 
   const startVideoMode = () => {
     setCurrentMode('video');
@@ -759,32 +787,6 @@ export default function JuanPablo() {
 
   // Video Mode
   if (currentMode === 'video') {
-    const [translatorInput, setTranslatorInput] = useState('');
-    const [translatorOutput, setTranslatorOutput] = useState('');
-    const [isTranslating, setIsTranslating] = useState(false);
-
-    const translateText = async (text) => {
-      if (!text.trim()) return;
-      
-      setIsTranslating(true);
-      try {
-        const response = await fetch('/api/translate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: text.trim() })
-        });
-        
-        const data = await response.json();
-        if (data.translation) {
-          setTranslatorOutput(data.translation);
-        }
-      } catch (error) {
-        console.error('Translation error:', error);
-        setTranslatorOutput('Error de traducción');
-      }
-      setIsTranslating(false);
-    };
-
     return (
       <div style={{ 
         minHeight: '100vh', 
