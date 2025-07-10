@@ -26,7 +26,7 @@ export default function JuanPablo() {
   // Game state
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
-  const [gameMode, setGameMode] = useState(null); // 'multiple', 'fillblank'
+  const [gameMode, setGameMode] = useState(null); // 'multiple', 'picture'
   const [userAnswer, setUserAnswer] = useState('');
   const [showResult, setShowResult] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
@@ -111,66 +111,86 @@ export default function JuanPablo() {
     }
   ];
 
-  const fillBlankQuestions = [
+  const pictureQuestions = [
     {
-      question: "Para comprar en el Metro: 'Quisiera una _____ del Metro, por favor'",
-      questionEN: "To buy Metro tickets: 'I would like a Metro _____, please'",
-      answer: "tarjeta",
-      answerEN: "card",
-      hint: "Es lo que necesitas para viajar en transporte público",
-      hintEN: "It's what you need to travel on public transport",
-      explanation: "¡Perfecto! Una 'tarjeta' del Metro te permite viajar por toda CDMX",
-      explanationEN: "Perfect! A Metro 'tarjeta' lets you travel all over CDMX"
+      picture: "🌮",
+      question: "¿Cómo se llama esta comida mexicana?",
+      questionEN: "What is this Mexican food called?",
+      options: ["Taco", "Pizza", "Hamburguesa", "Sándwich"],
+      optionsEN: ["Taco", "Pizza", "Hamburger", "Sandwich"],
+      correct: 0,
+      explanation: "¡Correcto! Es un taco - la comida más famosa de México",
+      explanationEN: "Correct! It's a taco - Mexico's most famous food"
     },
     {
-      question: "En un restaurante: '¿Me puede traer la _____, por favor?'",
-      questionEN: "In a restaurant: 'Can you bring me the _____, please?'",
-      answer: "cuenta",
-      answerEN: "check/bill",
-      hint: "Lo que pides cuando terminas de comer",
-      hintEN: "What you ask for when you finish eating",
-      explanation: "¡Exacto! 'La cuenta' es como pides el check en México",
-      explanationEN: "Exactly! 'La cuenta' is how you ask for the check in Mexico"
+      picture: "🚇",
+      question: "¿Cómo se llama este transporte en CDMX?",
+      questionEN: "What is this transportation called in CDMX?",
+      options: ["Metro", "Avión", "Barco", "Bicicleta"],
+      optionsEN: ["Metro", "Airplane", "Boat", "Bicycle"],
+      correct: 0,
+      explanation: "¡Perfecto! El Metro es el transporte más rápido en Ciudad de México",
+      explanationEN: "Perfect! The Metro is the fastest transportation in Mexico City"
     },
     {
-      question: "Saludando a un colega: '¡Hola! ¿Cómo _____?'",
-      questionEN: "Greeting a colleague: 'Hello! How _____ you?'",
-      answer: "estás",
-      answerEN: "are",
-      hint: "Pregunta común para saludar",
-      hintEN: "Common question when greeting",
-      explanation: "¡Bien! '¿Cómo estás?' es el saludo perfecto para colegas",
-      explanationEN: "Good! '¿Cómo estás?' is the perfect greeting for colleagues"
+      picture: "☕",
+      question: "¿Qué bebida es esta?",
+      questionEN: "What drink is this?",
+      options: ["Café", "Agua", "Jugo", "Cerveza"],
+      optionsEN: ["Coffee", "Water", "Juice", "Beer"],
+      correct: 0,
+      explanation: "¡Bien! El café es muy popular en México",
+      explanationEN: "Good! Coffee is very popular in Mexico"
     },
     {
-      question: "En el trabajo: 'Tengo una _____ a las 3pm'",
-      questionEN: "At work: 'I have a _____ at 3pm'",
-      answer: "junta",
-      answerEN: "meeting",
-      hint: "En México no decimos 'reunión'",
-      hintEN: "In Mexico we don't say 'reunión'",
-      explanation: "¡Perfecto! En México decimos 'junta' en lugar de 'reunión'",
-      explanationEN: "Perfect! In Mexico we say 'junta' instead of 'reunión'"
+      picture: "🏠",
+      question: "¿Cómo se dice 'house' en español?",
+      questionEN: "How do you say 'house' in Spanish?",
+      options: ["Casa", "Carro", "Cama", "Calle"],
+      optionsEN: ["House", "Car", "Bed", "Street"],
+      correct: 0,
+      explanation: "¡Excelente! Casa significa 'house' en español",
+      explanationEN: "Excellent! Casa means 'house' in Spanish"
     },
     {
-      question: "Comprando comida: '¿Cuánto _____ los tacos?'",
-      questionEN: "Buying food: 'How much _____ the tacos?'",
-      answer: "cuestan",
-      answerEN: "cost",
-      hint: "Preguntando el precio",
-      hintEN: "Asking the price",
-      explanation: "¡Excelente! '¿Cuánto cuestan?' es como preguntas precios",
-      explanationEN: "Excellent! '¿Cuánto cuestan?' is how you ask prices"
+      picture: "💧",
+      question: "¿Qué es esto que necesitas para vivir?",
+      questionEN: "What is this that you need to live?",
+      options: ["Agua", "Fuego", "Tierra", "Aire"],
+      optionsEN: ["Water", "Fire", "Earth", "Air"],
+      correct: 0,
+      explanation: "¡Correcto! Agua es 'water' - muy importante para la vida",
+      explanationEN: "Correct! Agua is 'water' - very important for life"
     },
     {
-      question: "Pidiendo ayuda: 'Disculpe, ¿me puede _____?'",
-      questionEN: "Asking for help: 'Excuse me, can you _____ me?'",
-      answer: "ayudar",
-      answerEN: "help",
-      hint: "Cuando necesitas asistencia",
-      hintEN: "When you need assistance",
-      explanation: "¡Perfecto! 'Ayudar' significa to help en español",
-      explanationEN: "Perfect! 'Ayudar' means to help in Spanish"
+      picture: "🌯",
+      question: "¿Cómo se llama esta comida?",
+      questionEN: "What is this food called?",
+      options: ["Burrito", "Taco", "Quesadilla", "Enchilada"],
+      optionsEN: ["Burrito", "Taco", "Quesadilla", "Enchilada"],
+      correct: 0,
+      explanation: "¡Bien! Un burrito es tortilla enrollada con ingredientes adentro",
+      explanationEN: "Good! A burrito is a rolled tortilla with ingredients inside"
+    },
+    {
+      picture: "🚌",
+      question: "¿Cómo se dice 'bus' en español?",
+      questionEN: "How do you say 'bus' in Spanish?",
+      options: ["Autobús", "Carro", "Metro", "Taxi"],
+      optionsEN: ["Bus", "Car", "Metro", "Taxi"],
+      correct: 0,
+      explanation: "¡Perfecto! Autobús es la palabra para 'bus' en español",
+      explanationEN: "Perfect! Autobús is the word for 'bus' in Spanish"
+    },
+    {
+      picture: "🥑",
+      question: "¿Qué fruta mexicana es esta?",
+      questionEN: "What Mexican fruit is this?",
+      options: ["Aguacate", "Manzana", "Naranja", "Plátano"],
+      optionsEN: ["Avocado", "Apple", "Orange", "Banana"],
+      correct: 0,
+      explanation: "¡Excelente! El aguacate es súper popular en México",
+      explanationEN: "Excellent! Avocado is super popular in Mexico"
     }
   ];
 
@@ -279,12 +299,12 @@ export default function JuanPablo() {
     setCompletedQuestions([...completedQuestions, currentQuestion]);
   };
 
-  const handleFillBlank = () => {
-    if (showResult || !userAnswer.trim()) return;
+  const handlePictureMatch = (selectedIndex) => {
+    if (showResult) return; // Prevent multiple clicks
     
     setTimerRunning(false);
-    const question = fillBlankQuestions[currentQuestion];
-    const correct = userAnswer.toLowerCase().trim() === question.answer.toLowerCase();
+    const question = pictureQuestions[currentQuestion];
+    const correct = selectedIndex === question.correct;
     const timeBonus = questionTimer > 20 ? 8 : questionTimer > 10 ? 5 : 2;
     
     setIsCorrect(correct);
@@ -292,7 +312,7 @@ export default function JuanPablo() {
     
     if (correct) {
       const comboBonus = combo >= 3 ? 15 : combo >= 2 ? 8 : 0;
-      const basePoints = 15;
+      const basePoints = 12; // Slightly more than multiple choice since it's visual learning
       const streakBonus = streak * 3;
       const totalPoints = basePoints + streakBonus + timeBonus + comboBonus;
       
@@ -324,7 +344,7 @@ export default function JuanPablo() {
     
     if (gameMode === 'multiple' && currentQuestion < multipleChoiceQuestions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
-    } else if (gameMode === 'fillblank' && currentQuestion < fillBlankQuestions.length - 1) {
+    } else if (gameMode === 'picture' && currentQuestion < pictureQuestions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     } else {
       // Game complete
@@ -341,9 +361,14 @@ export default function JuanPablo() {
     setCurrentQuestion(0);
     setScore(0);
     setStreak(0);
+    setCombo(0);
     setCompletedQuestions([]);
     setShowResult(false);
     setUserAnswer('');
+    setShowQuestionTranslation(false);
+    setQuestionTimer(30);
+    setTimerRunning(false);
+    setShowConfetti(false);
   };
 
   // Proper mobile detection
@@ -508,13 +533,19 @@ export default function JuanPablo() {
     setTranslatorOutput('');
     setMessageTranslations({});
     setSpeakingMessageId(null);
+    // Reset all game state
     setGameMode(null);
     setCurrentQuestion(0);
     setScore(0);
     setStreak(0);
+    setCombo(0);
     setCompletedQuestions([]);
     setShowResult(false);
     setUserAnswer('');
+    setShowQuestionTranslation(false);
+    setQuestionTimer(30);
+    setTimerRunning(false);
+    setShowConfetti(false);
     if (currentAudio) {
       currentAudio.pause();
       setCurrentAudio(null);
@@ -1366,7 +1397,7 @@ export default function JuanPablo() {
                 </div>
 
                 <div
-                  onClick={() => startGame('fillblank')}
+                  onClick={() => startGame('picture')}
                   style={{
                     background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                     padding: '30px',
@@ -1378,10 +1409,10 @@ export default function JuanPablo() {
                   onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
                   onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
                 >
-                  <h3 style={{ fontSize: '1.5rem', marginBottom: '10px' }}>✏️ Llenar Espacios</h3>
-                  <p style={{ color: 'rgba(255,255,255,0.9)' }}>Situaciones reales en México</p>
+                  <h3 style={{ fontSize: '1.5rem', marginBottom: '10px' }}>🖼️ Fotos y Palabras</h3>
+                  <p style={{ color: 'rgba(255,255,255,0.9)' }}>Aprende vocabulario con imágenes</p>
                   <div style={{ marginTop: '15px', fontSize: '0.9rem', opacity: 0.8 }}>
-                    +15 puntos base • Bonus por combos
+                    +12 puntos base • ¡Perfecto para principiantes!
                   </div>
                 </div>
               </div>
@@ -1547,7 +1578,7 @@ export default function JuanPablo() {
             </div>
           )}
 
-          {gameMode === 'fillblank' && currentQuestion < fillBlankQuestions.length && (
+          {gameMode === 'picture' && currentQuestion < pictureQuestions.length && (
             <div style={{ 
               background: 'rgba(255,255,255,0.05)', 
               padding: '30px', 
@@ -1557,7 +1588,7 @@ export default function JuanPablo() {
             }}>
               <div style={{ marginBottom: '20px', textAlign: 'center' }}>
                 <div style={{ color: '#666', marginBottom: '10px' }}>
-                  Pregunta {currentQuestion + 1} de {fillBlankQuestions.length}
+                  Pregunta {currentQuestion + 1} de {pictureQuestions.length}
                 </div>
                 <div style={{ 
                   background: 'rgba(16, 185, 129, 0.2)', 
@@ -1568,15 +1599,30 @@ export default function JuanPablo() {
                   <div style={{ 
                     background: '#10b981', 
                     height: '100%', 
-                    width: `${((currentQuestion + 1) / fillBlankQuestions.length) * 100}%`,
+                    width: `${((currentQuestion + 1) / pictureQuestions.length) * 100}%`,
                     transition: 'width 0.3s ease'
                   }} />
                 </div>
               </div>
 
+              {/* Big Picture Display */}
+              <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+                <div style={{ 
+                  fontSize: '8rem', 
+                  marginBottom: '20px',
+                  background: 'rgba(16, 185, 129, 0.1)',
+                  borderRadius: '20px',
+                  padding: '40px',
+                  display: 'inline-block',
+                  border: '2px solid rgba(16, 185, 129, 0.3)'
+                }}>
+                  {pictureQuestions[currentQuestion].picture}
+                </div>
+              </div>
+
               <div style={{ marginBottom: '20px', textAlign: 'center' }}>
                 <h3 style={{ fontSize: '1.5rem', marginBottom: '15px' }}>
-                  {fillBlankQuestions[currentQuestion].question}
+                  {pictureQuestions[currentQuestion].question}
                 </h3>
 
                 <button
@@ -1605,62 +1651,52 @@ export default function JuanPablo() {
                     fontStyle: 'italic',
                     marginBottom: '20px'
                   }}>
-                    🇺🇸 {fillBlankQuestions[currentQuestion].questionEN}
-                  </div>
-                )}
-              </div>
-
-              <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-                <div style={{ color: '#4ade80', marginBottom: '5px' }}>
-                  💡 {fillBlankQuestions[currentQuestion].hint}
-                </div>
-                {showQuestionTranslation && (
-                  <div style={{ color: '#6ee7b7', fontSize: '0.9rem', fontStyle: 'italic' }}>
-                    🇺🇸 {fillBlankQuestions[currentQuestion].hintEN}
+                    🇺🇸 {pictureQuestions[currentQuestion].questionEN}
                   </div>
                 )}
               </div>
 
               {!showResult ? (
-                <div style={{ textAlign: 'center' }}>
-                  <input
-                    type="text"
-                    value={userAnswer}
-                    onChange={(e) => setUserAnswer(e.target.value)}
-                    placeholder="Escribe tu respuesta..."
-                    disabled={!timerRunning && questionTimer === 0}
-                    style={{
-                      padding: '15px 20px',
-                      fontSize: '1.2rem',
-                      borderRadius: '10px',
-                      border: '2px solid rgba(255,255,255,0.2)',
-                      background: 'rgba(255,255,255,0.1)',
-                      color: 'white',
-                      textAlign: 'center',
-                      marginBottom: '20px',
-                      width: '100%',
-                      maxWidth: '300px',
-                      opacity: (!timerRunning && questionTimer === 0) ? 0.5 : 1
-                    }}
-                    onKeyPress={(e) => e.key === 'Enter' && userAnswer.trim() && (timerRunning || questionTimer > 0) && handleFillBlank()}
-                  />
-                  <br />
-                  <button
-                    onClick={handleFillBlank}
-                    disabled={!userAnswer.trim() || (!timerRunning && questionTimer === 0)}
-                    style={{
-                      background: userAnswer.trim() && (timerRunning || questionTimer > 0) ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : '#666',
-                      color: 'white',
-                      border: 'none',
-                      padding: '12px 30px',
-                      borderRadius: '25px',
-                      cursor: userAnswer.trim() && (timerRunning || questionTimer > 0) ? 'pointer' : 'not-allowed',
-                      fontSize: '1.1rem',
-                      fontWeight: 'bold'
-                    }}
-                  >
-                    Verificar ✓
-                  </button>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' }}>
+                  {pictureQuestions[currentQuestion].options.map((option, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handlePictureMatch(index)}
+                      disabled={!timerRunning && questionTimer === 0}
+                      style={{
+                        background: 'rgba(255,255,255,0.1)',
+                        border: '2px solid rgba(255,255,255,0.2)',
+                        color: 'white',
+                        padding: '20px 15px',
+                        borderRadius: '15px',
+                        cursor: timerRunning || questionTimer > 0 ? 'pointer' : 'not-allowed',
+                        fontSize: '1.2rem',
+                        fontWeight: 'bold',
+                        transition: 'all 0.3s ease',
+                        opacity: (!timerRunning && questionTimer === 0) ? 0.5 : 1,
+                        textAlign: 'center'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (timerRunning || questionTimer > 0) {
+                          e.target.style.background = 'rgba(16, 185, 129, 0.3)';
+                          e.target.style.borderColor = '#10b981';
+                          e.target.style.transform = 'translateY(-3px) scale(1.02)';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.background = 'rgba(255,255,255,0.1)';
+                        e.target.style.borderColor = 'rgba(255,255,255,0.2)';
+                        e.target.style.transform = 'translateY(0) scale(1)';
+                      }}
+                    >
+                      <div style={{ fontSize: '1.1rem', marginBottom: '5px' }}>{option}</div>
+                      {showQuestionTranslation && (
+                        <div style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.7)' }}>
+                          {pictureQuestions[currentQuestion].optionsEN[index]}
+                        </div>
+                      )}
+                    </button>
+                  ))}
                 </div>
               ) : (
                 <div style={{ textAlign: 'center' }}>
@@ -1676,18 +1712,13 @@ export default function JuanPablo() {
                     color: isCorrect ? '#4ade80' : '#f87171',
                     marginBottom: '15px'
                   }}>
-                    {isCorrect ? '¡Perfecto!' : `La respuesta era: "${fillBlankQuestions[currentQuestion].answer}"`}
+                    {isCorrect ? '¡Perfecto!' : '¡Casi! Sigue practicando'}
                   </h4>
-                  {!isCorrect && (
-                    <div style={{ color: '#93c5fd', marginBottom: '10px', fontSize: '1rem' }}>
-                      🇺🇸 Correct answer: "{fillBlankQuestions[currentQuestion].answerEN}"
-                    </div>
-                  )}
                   <p style={{ color: '#ccc', marginBottom: '10px', fontSize: '1.1rem' }}>
-                    {fillBlankQuestions[currentQuestion].explanation}
+                    {pictureQuestions[currentQuestion].explanation}
                   </p>
                   <p style={{ color: '#6ee7b7', marginBottom: '20px', fontSize: '1rem', fontStyle: 'italic' }}>
-                    🇺🇸 {fillBlankQuestions[currentQuestion].explanationEN}
+                    🇺🇸 {pictureQuestions[currentQuestion].explanationEN}
                   </p>
                   {isCorrect && (
                     <div style={{ 
@@ -1699,7 +1730,7 @@ export default function JuanPablo() {
                       marginBottom: '20px',
                       fontWeight: 'bold'
                     }}>
-                      +{15 + (streak * 3) + (questionTimer > 20 ? 8 : questionTimer > 10 ? 5 : 2) + (combo >= 3 ? 15 : combo >= 2 ? 8 : 0)} puntos
+                      +{12 + (streak * 3) + (questionTimer > 20 ? 8 : questionTimer > 10 ? 5 : 2) + (combo >= 3 ? 15 : combo >= 2 ? 8 : 0)} puntos
                       {combo >= 2 && <span> 🔥 ¡COMBO!</span>}
                     </div>
                   )}
