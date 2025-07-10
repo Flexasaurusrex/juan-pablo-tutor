@@ -70,13 +70,13 @@ export default function JuanPablo() {
   const [isListeningToPedro, setIsListeningToPedro] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   
-  // Translation features
+  // Translation features - FIXED: Added all missing state variables
   const [messageTranslations, setMessageTranslations] = useState({});
   const [translatingMessageId, setTranslatingMessageId] = useState(null);
   const [speakingMessageId, setSpeakingMessageId] = useState(null);
   const [currentAudio, setCurrentAudio] = useState(null);
   
-  // Translator state
+  // Translator state for video mode
   const [translatorInput, setTranslatorInput] = useState('');
   const [translatorOutput, setTranslatorOutput] = useState('');
   const [isTranslating, setIsTranslating] = useState(false);
