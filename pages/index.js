@@ -1,4 +1,12 @@
-import { useState, useEffect, useRef } from 'react';
+const startChatMode = () => {
+    setCurrentMode('chat');
+    setMessages([
+      { 
+        text: "¡Hola! 👋🇲🇽 Soy Juan Pablo, tu profesor de español mexicano. Estoy súper emocionado de ayudarte a prepararte para tu mudanza a Ciudad de México en septiembre.\n\n🎯 Puedo ayudarte con:\n• Correcciones de gramática y pronunciación\n• Frases útiles para la vida diaria en CDMX\n• Modismos y cultura mexicana\n• Situaciones reales (transporte, comida, trabajo)\n\n¿En qué te gustaría empezar a practicar hoy? Puedes escribir en inglés o español - ¡yo te ayudo! 😊", 
+        sender: 'juan' 
+      }
+    ]);
+  };import { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 
 export default function JuanPablo() {
@@ -192,14 +200,9 @@ export default function JuanPablo() {
     setTimeout(loadHeyGenEmbed, 1000);
   };
 
-  const startChatMode = () => {
-    setCurrentMode('chat');
-    setMessages([
-      { 
-        text: "¡Hola! 👋🇲🇽 Soy Juan Pablo, tu profesor de español mexicano. Estoy súper emocionado de ayudarte a prepararte para tu mudanza a Ciudad de México en septiembre.\n\n🎯 Puedo ayudarte con:\n• Correcciones de gramática y pronunciación\n• Frases útiles para la vida diaria en CDMX\n• Modismos y cultura mexicana\n• Situaciones reales (transporte, comida, trabajo)\n\n¿En qué te gustaría empezar a practicar hoy? Puedes escribir en inglés o español - ¡yo te ayudo! 😊", 
-        sender: 'juan' 
-      }
-    ]);
+  const startLearningMode = () => {
+    setCurrentMode('learning');
+    setMessages([]);
   };
 
   const goBack = () => {
@@ -544,9 +547,9 @@ export default function JuanPablo() {
           {/* Mode Cards */}
           <div style={{ 
             display: 'grid',
-            gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-            gap: '30px',
-            maxWidth: '800px',
+            gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr',
+            gap: '25px',
+            maxWidth: '1000px',
             margin: '0 auto'
           }}>
             {/* Video Mode Card */}
@@ -556,7 +559,7 @@ export default function JuanPablo() {
                 background: '#1a1a1a',
                 border: '2px solid rgba(255,255,255,0.2)',
                 borderRadius: '16px',
-                padding: '40px 30px',
+                padding: '30px 25px',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
                 touchAction: 'manipulation'
@@ -571,26 +574,26 @@ export default function JuanPablo() {
               }}
             >
               <div style={{ 
-                fontSize: '3em', 
-                marginBottom: '20px'
+                fontSize: '2.5em', 
+                marginBottom: '15px'
               }}>
                 🎥
               </div>
               <h3 style={{ 
-                fontSize: '1.5em', 
-                marginBottom: '15px', 
+                fontSize: '1.3em', 
+                marginBottom: '12px', 
                 fontWeight: '600',
                 color: 'white'
               }}>
-                Video Conversación
+                Video Chat
               </h3>
               <p style={{ 
-                fontSize: '1em', 
+                fontSize: '0.9em', 
                 color: 'rgba(255,255,255,0.7)', 
-                lineHeight: '1.5',
+                lineHeight: '1.4',
                 fontWeight: '400'
               }}>
-                Habla directamente con Pedro para practicar pronunciación y conversación natural
+                Conversación cara a cara con Pedro
               </p>
             </div>
             
@@ -601,7 +604,7 @@ export default function JuanPablo() {
                 background: '#1a1a1a',
                 border: '2px solid rgba(255,255,255,0.2)',
                 borderRadius: '16px',
-                padding: '40px 30px',
+                padding: '30px 25px',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
                 touchAction: 'manipulation'
@@ -616,26 +619,88 @@ export default function JuanPablo() {
               }}
             >
               <div style={{ 
-                fontSize: '3em', 
-                marginBottom: '20px'
+                fontSize: '2.5em', 
+                marginBottom: '15px'
               }}>
                 💬
               </div>
               <h3 style={{ 
-                fontSize: '1.5em', 
-                marginBottom: '15px', 
+                fontSize: '1.3em', 
+                marginBottom: '12px', 
                 fontWeight: '600',
                 color: 'white'
               }}>
                 Chat Texto
               </h3>
               <p style={{ 
-                fontSize: '1em', 
+                fontSize: '0.9em', 
                 color: 'rgba(255,255,255,0.7)', 
-                lineHeight: '1.5',
+                lineHeight: '1.4',
                 fontWeight: '400'
               }}>
-                Practica gramática, vocabulario y escritura con correcciones detalladas
+                Conversación por texto con Juan Pablo
+              </p>
+            </div>
+
+            {/* NEW Learning Mode Card */}
+            <div 
+              onClick={startLearningMode}
+              style={{ 
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                border: '2px solid rgba(255,255,255,0.3)',
+                borderRadius: '16px',
+                padding: '30px 25px',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                touchAction: 'manipulation',
+                position: 'relative',
+                overflow: 'hidden'
+              }}
+              onMouseOver={(e) => {
+                e.target.style.transform = 'translateY(-6px)';
+                e.target.style.boxShadow = '0 15px 35px rgba(102, 126, 234, 0.4)';
+              }}
+              onMouseOut={(e) => {
+                e.target.style.transform = 'translateY(0)';
+                e.target.style.boxShadow = 'none';
+              }}
+            >
+              {/* Premium badge */}
+              <div style={{
+                position: 'absolute',
+                top: '10px',
+                right: '10px',
+                background: 'rgba(255,255,255,0.2)',
+                padding: '4px 8px',
+                borderRadius: '12px',
+                fontSize: '0.7em',
+                fontWeight: '600',
+                color: 'white'
+              }}>
+                ✨ NUEVO
+              </div>
+              
+              <div style={{ 
+                fontSize: '2.5em', 
+                marginBottom: '15px'
+              }}>
+                📚
+              </div>
+              <h3 style={{ 
+                fontSize: '1.3em', 
+                marginBottom: '12px', 
+                fontWeight: '600',
+                color: 'white'
+              }}>
+                Lecciones CDMX
+              </h3>
+              <p style={{ 
+                fontSize: '0.9em', 
+                color: 'rgba(255,255,255,0.9)', 
+                lineHeight: '1.4',
+                fontWeight: '400'
+              }}>
+                Sistema de aprendizaje profesional
               </p>
             </div>
           </div>
@@ -1173,5 +1238,159 @@ export default function JuanPablo() {
     );
   }
 
-  return null;
+  // Learning Mode - Professional CDMX Learning System
+  if (currentMode === 'learning') {
+    return (
+      <div style={{ 
+        minHeight: '100vh', 
+        background: '#000000',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      }}>
+        <Head>
+          <title>Juan Pablo - Lecciones CDMX</title>
+          <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+        </Head>
+        
+        {/* Back Button */}
+        <button
+          onClick={goBack}
+          style={{
+            position: 'absolute',
+            top: '20px',
+            left: '20px',
+            background: 'rgba(255,255,255,0.1)',
+            border: '1px solid rgba(255,255,255,0.3)',
+            color: 'white',
+            padding: '10px 20px',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: '500',
+            transition: 'all 0.2s ease',
+            zIndex: 1000
+          }}
+          onMouseOver={(e) => {
+            e.target.style.background = 'rgba(255,255,255,0.2)';
+          }}
+          onMouseOut={(e) => {
+            e.target.style.background = 'rgba(255,255,255,0.1)';
+          }}
+        >
+          ← Volver
+        </button>
+
+        {/* Import the learning system component here */}
+        <div style={{ padding: '80px 20px 20px 20px' }}>
+          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+            
+            {/* Progress Header */}
+            <div style={{
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              padding: '25px',
+              borderRadius: '20px',
+              marginBottom: '30px',
+              color: 'white'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <div>
+                  <h2 style={{ margin: 0, fontSize: '1.8em', fontWeight: '700' }}>
+                    ¡Hola! Preparándote para CDMX 🇲🇽
+                  </h2>
+                  <p style={{ margin: '5px 0 0 0', opacity: 0.9, fontSize: '1.1em' }}>
+                    Nivel Intermedio • 2340 XP Total
+                  </p>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '2em', marginBottom: '5px' }}>🔥</div>
+                  <div style={{ fontSize: '1.2em', fontWeight: '600' }}>
+                    7 días
+                  </div>
+                </div>
+              </div>
+              
+              {/* Weekly Progress */}
+              <div style={{ background: 'rgba(255,255,255,0.2)', borderRadius: '15px', padding: '15px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                  <span style={{ fontWeight: '600' }}>Meta semanal</span>
+                  <span>89/150 XP</span>
+                </div>
+                <div style={{ 
+                  background: 'rgba(255,255,255,0.3)', 
+                  borderRadius: '10px', 
+                  height: '12px',
+                  overflow: 'hidden'
+                }}>
+                  <div style={{
+                    background: '#00ff88',
+                    height: '100%',
+                    width: '59%',
+                    borderRadius: '10px',
+                    transition: 'width 0.3s ease'
+                  }} />
+                </div>
+              </div>
+            </div>
+
+            {/* Learning Modules Preview */}
+            <div style={{ marginBottom: '30px' }}>
+              <h3 style={{ 
+                color: 'white', 
+                fontSize: '1.5em', 
+                marginBottom: '20px',
+                fontWeight: '600'
+              }}>
+                📚 Módulos de Aprendizaje CDMX
+              </h3>
+              <p style={{ 
+                color: 'rgba(255,255,255,0.7)', 
+                fontSize: '1.1em',
+                lineHeight: '1.6',
+                marginBottom: '30px'
+              }}>
+                Aprende español específicamente para vivir en Ciudad de México. Cada módulo incluye situaciones reales, 
+                vocabulario práctico y contexto cultural mexicano.
+              </p>
+              
+              {/* Coming Soon Message */}
+              <div style={{
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                borderRadius: '20px',
+                padding: '40px',
+                textAlign: 'center',
+                color: 'white'
+              }}>
+                <div style={{ fontSize: '4em', marginBottom: '20px' }}>🚀</div>
+                <h3 style={{ margin: '0 0 15px 0', fontSize: '2em', fontWeight: '700' }}>
+                  ¡Próximamente!
+                </h3>
+                <p style={{ margin: '0', fontSize: '1.2em', opacity: 0.9, lineHeight: '1.6' }}>
+                  Estamos creando el sistema de lecciones más avanzado para prepararte para Ciudad de México. 
+                  Incluirá módulos interactivos sobre transporte, comida, barrios, trabajo y más.
+                </p>
+                <div style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+                  gap: '20px',
+                  marginTop: '30px'
+                }}>
+                  <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '15px', padding: '20px' }}>
+                    <div style={{ fontSize: '2em', marginBottom: '10px' }}>🚇</div>
+                    <div style={{ fontWeight: '600' }}>Transporte CDMX</div>
+                  </div>
+                  <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '15px', padding: '20px' }}>
+                    <div style={{ fontSize: '2em', marginBottom: '10px' }}>🌮</div>
+                    <div style={{ fontWeight: '600' }}>Comida Mexicana</div>
+                  </div>
+                  <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '15px', padding: '20px' }}>
+                    <div style={{ fontSize: '2em', marginBottom: '10px' }}>🏢</div>
+                    <div style={{ fontWeight: '600' }}>Barrios CDMX</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 }
