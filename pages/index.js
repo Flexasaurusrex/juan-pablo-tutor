@@ -250,16 +250,16 @@ export default function JuanPablo() {
             errorMessage += "Permisos de micrófono denegados. Por favor, permite el acceso al micrófono.";
             break;
           case 'no-speech':
-            errorMessage += "No se detectó habla. Asegúrate de que Pedro esté hablando.";
+            errorMessage += "No se detectó habla. El micrófono puede no estar captando el audio de Pedro. Usa el botón 'Añadir Manualmente' como alternativa.";
             break;
           case 'audio-capture':
-            errorMessage += "Error de captura de audio. Verifica tu micrófono.";
+            errorMessage += "Error de captura de audio. Verifica tu micrófono o usa la opción manual.";
             break;
           case 'network':
             errorMessage += "Error de red. Verifica tu conexión a internet.";
             break;
           default:
-            errorMessage += event.error;
+            errorMessage += event.error + ". Usa la opción 'Añadir Manualmente' si Pedro está hablando.";
         }
         
         setMessages(prev => [...prev, { 
@@ -268,8 +268,8 @@ export default function JuanPablo() {
           timestamp: new Date().toLocaleTimeString()
         }]);
         
-        // Auto-restart after certain errors
-        if (event.error !== 'not-allowed') {
+        // Don't auto-restart after no-speech error
+        if (event.error !== 'not-allowed' && event.error !== 'no-speech') {
           setTimeout(() => {
             if (currentMode === 'video') {
               console.log('🔄 Attempting to restart Pedro listener...');
@@ -279,7 +279,7 @@ export default function JuanPablo() {
                 console.error('Failed to restart Pedro listener:', e);
               }
             }
-          }, 2000);
+          }, 3000);
         }
       };
       
@@ -477,7 +477,7 @@ export default function JuanPablo() {
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
-        padding: '15px',
+        padding: '20px',
         boxSizing: 'border-box',
         zIndex: 1000,
         overflow: 'auto'
@@ -488,95 +488,271 @@ export default function JuanPablo() {
         </Head>
         
         <div style={{ 
-          background: 'white', 
-          borderRadius: '15px', 
-          padding: '30px 20px', 
-          maxWidth: '400px', 
+          maxWidth: '1200px', 
           width: '100%', 
-          textAlign: 'center', 
-          boxShadow: '0 20px 40px rgba(0,0,0,0.1)', 
-          position: 'relative',
-          zIndex: 1001,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          maxHeight: '90vh',
-          overflow: 'auto'
+          textAlign: 'center'
         }}>
-          <h1 style={{ 
-            fontSize: '2.2em', 
-            marginBottom: '10px', 
-            color: '#333', 
-            fontWeight: 'bold',
-            lineHeight: '1.2'
-          }}>
-            ¡Hola! Soy Juan Pablo 🇲🇽
-          </h1>
-          <p style={{ 
-            fontSize: '1em', 
-            color: '#666', 
-            marginBottom: '25px', 
-            lineHeight: '1.4'
-          }}>
-            Tu compañero de español para prepararte para Ciudad de México
-          </p>
+          {/* Hero Section */}
+          <div style={{ marginBottom: '60px' }}>
+            <h1 style={{ 
+              fontSize: isMobile ? '3em' : '4.5em', 
+              marginBottom: '20px', 
+              color: 'white', 
+              fontWeight: '900',
+              lineHeight: '1.1',
+              textShadow: '0 4px 20px rgba(0,0,0,0.3)',
+              letterSpacing: '-0.02em'
+            }}>
+              ¡Hola! Soy Juan Pablo 🇲🇽
+            </h1>
+            <p style={{ 
+              fontSize: isMobile ? '1.2em' : '1.5em', 
+              color: 'rgba(255,255,255,0.9)', 
+              fontWeight: '400',
+              lineHeight: '1.6',
+              maxWidth: '600px',
+              margin: '0 auto',
+              textShadow: '0 2px 10px rgba(0,0,0,0.2)'
+            }}>
+              Tu compañero de español para prepararte para Ciudad de México
+            </p>
+          </div>
           
+          {/* Mode Cards */}
           <div style={{ 
-            display: 'flex', 
-            flexDirection: 'column',
-            gap: '20px', 
-            width: '100%',
-            alignItems: 'center'
+            display: 'grid',
+            gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+            gap: isMobile ? '30px' : '40px',
+            maxWidth: '900px',
+            margin: '0 auto'
           }}>
+            {/* Video Mode Card */}
             <div 
               onClick={startVideoMode}
               style={{ 
-                background: 'linear-gradient(135deg, #ff6b6b, #ee5a24)', 
-                color: 'white', 
-                padding: '25px 20px',
-                borderRadius: '12px', 
-                cursor: 'pointer', 
-                transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                background: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)', 
+                borderRadius: '24px',
+                padding: isMobile ? '40px 30px' : '50px 40px',
+                cursor: 'pointer',
+                transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                boxShadow: '0 20px 40px rgba(255, 107, 107, 0.3)',
+                position: 'relative',
+                overflow: 'hidden',
                 border: 'none',
-                width: '100%',
-                textAlign: 'center',
                 touchAction: 'manipulation'
               }}
-              onTouchStart={(e) => e.target.style.transform = 'translateY(-3px)'}
-              onTouchEnd={(e) => e.target.style.transform = 'translateY(0)'}
+              onMouseOver={(e) => {
+                e.target.style.transform = 'translateY(-8px) scale(1.02)';
+                e.target.style.boxShadow = '0 30px 60px rgba(255, 107, 107, 0.4)';
+              }}
+              onMouseOut={(e) => {
+                e.target.style.transform = 'translateY(0) scale(1)';
+                e.target.style.boxShadow = '0 20px 40px rgba(255, 107, 107, 0.3)';
+              }}
+              onTouchStart={(e) => {
+                e.target.style.transform = 'translateY(-4px) scale(1.01)';
+              }}
+              onTouchEnd={(e) => {
+                e.target.style.transform = 'translateY(0) scale(1)';
+              }}
             >
-              <div style={{ fontSize: '2.5em', marginBottom: '10px' }}>🎥</div>
-              <h3 style={{ fontSize: '1.3em', marginBottom: '8px', fontWeight: 'bold' }}>Video Conversación</h3>
-              <p style={{ fontSize: '0.85em', opacity: 0.9, lineHeight: '1.3' }}>
-                Habla directamente con Pedro para practicar pronunciación
-              </p>
+              {/* Animated background effect */}
+              <div style={{
+                position: 'absolute',
+                top: '-50%',
+                left: '-50%',
+                width: '200%',
+                height: '200%',
+                background: 'linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent)',
+                transform: 'rotate(45deg)',
+                animation: 'shimmer 3s infinite',
+                pointerEvents: 'none'
+              }} />
+              
+              <div style={{ position: 'relative', zIndex: 1 }}>
+                <div style={{ 
+                  fontSize: isMobile ? '3.5em' : '4em', 
+                  marginBottom: '20px',
+                  filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))'
+                }}>
+                  🎥
+                </div>
+                <h3 style={{ 
+                  fontSize: isMobile ? '1.6em' : '2em', 
+                  marginBottom: '15px', 
+                  fontWeight: '700',
+                  color: 'white',
+                  textShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                }}>
+                  Video Conversación
+                </h3>
+                <p style={{ 
+                  fontSize: isMobile ? '1em' : '1.1em', 
+                  opacity: 0.95, 
+                  lineHeight: '1.5',
+                  color: 'white',
+                  fontWeight: '400'
+                }}>
+                  Habla directamente con Pedro para practicar pronunciación y conversación natural
+                </p>
+                
+                {/* Feature badges */}
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'center', 
+                  gap: '10px', 
+                  marginTop: '20px',
+                  flexWrap: 'wrap'
+                }}>
+                  <span style={{
+                    background: 'rgba(255,255,255,0.2)',
+                    padding: '6px 12px',
+                    borderRadius: '20px',
+                    fontSize: '0.8em',
+                    fontWeight: '600',
+                    color: 'white'
+                  }}>
+                    Pronunciación
+                  </span>
+                  <span style={{
+                    background: 'rgba(255,255,255,0.2)',
+                    padding: '6px 12px',
+                    borderRadius: '20px',
+                    fontSize: '0.8em',
+                    fontWeight: '600',
+                    color: 'white'
+                  }}>
+                    Tiempo Real
+                  </span>
+                </div>
+              </div>
             </div>
             
+            {/* Chat Mode Card */}
             <div 
               onClick={startChatMode}
               style={{ 
-                background: 'linear-gradient(135deg, #74b9ff, #0984e3)', 
-                color: 'white', 
-                padding: '25px 20px',
-                borderRadius: '12px', 
-                cursor: 'pointer', 
-                transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                background: 'linear-gradient(135deg, #74b9ff 0%, #0984e3 100%)', 
+                borderRadius: '24px',
+                padding: isMobile ? '40px 30px' : '50px 40px',
+                cursor: 'pointer',
+                transition: 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                boxShadow: '0 20px 40px rgba(116, 185, 255, 0.3)',
+                position: 'relative',
+                overflow: 'hidden',
                 border: 'none',
-                width: '100%',
-                textAlign: 'center',
                 touchAction: 'manipulation'
               }}
-              onTouchStart={(e) => e.target.style.transform = 'translateY(-3px)'}
-              onTouchEnd={(e) => e.target.style.transform = 'translateY(0)'}
+              onMouseOver={(e) => {
+                e.target.style.transform = 'translateY(-8px) scale(1.02)';
+                e.target.style.boxShadow = '0 30px 60px rgba(116, 185, 255, 0.4)';
+              }}
+              onMouseOut={(e) => {
+                e.target.style.transform = 'translateY(0) scale(1)';
+                e.target.style.boxShadow = '0 20px 40px rgba(116, 185, 255, 0.3)';
+              }}
+              onTouchStart={(e) => {
+                e.target.style.transform = 'translateY(-4px) scale(1.01)';
+              }}
+              onTouchEnd={(e) => {
+                e.target.style.transform = 'translateY(0) scale(1)';
+              }}
             >
-              <div style={{ fontSize: '2.5em', marginBottom: '10px' }}>💬</div>
-              <h3 style={{ fontSize: '1.3em', marginBottom: '8px', fontWeight: 'bold' }}>Chat Texto</h3>
-              <p style={{ fontSize: '0.85em', opacity: 0.9, lineHeight: '1.3' }}>
-                Practica gramática, vocabulario y escritura con correcciones
-              </p>
+              {/* Animated background effect */}
+              <div style={{
+                position: 'absolute',
+                top: '-50%',
+                left: '-50%',
+                width: '200%',
+                height: '200%',
+                background: 'linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent)',
+                transform: 'rotate(45deg)',
+                animation: 'shimmer 3s infinite 1.5s',
+                pointerEvents: 'none'
+              }} />
+              
+              <div style={{ position: 'relative', zIndex: 1 }}>
+                <div style={{ 
+                  fontSize: isMobile ? '3.5em' : '4em', 
+                  marginBottom: '20px',
+                  filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))'
+                }}>
+                  💬
+                </div>
+                <h3 style={{ 
+                  fontSize: isMobile ? '1.6em' : '2em', 
+                  marginBottom: '15px', 
+                  fontWeight: '700',
+                  color: 'white',
+                  textShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                }}>
+                  Chat Texto
+                </h3>
+                <p style={{ 
+                  fontSize: isMobile ? '1em' : '1.1em', 
+                  opacity: 0.95, 
+                  lineHeight: '1.5',
+                  color: 'white',
+                  fontWeight: '400'
+                }}>
+                  Practica gramática, vocabulario y escritura con correcciones detalladas
+                </p>
+                
+                {/* Feature badges */}
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'center', 
+                  gap: '10px', 
+                  marginTop: '20px',
+                  flexWrap: 'wrap'
+                }}>
+                  <span style={{
+                    background: 'rgba(255,255,255,0.2)',
+                    padding: '6px 12px',
+                    borderRadius: '20px',
+                    fontSize: '0.8em',
+                    fontWeight: '600',
+                    color: 'white'
+                  }}>
+                    Gramática
+                  </span>
+                  <span style={{
+                    background: 'rgba(255,255,255,0.2)',
+                    padding: '6px 12px',
+                    borderRadius: '20px',
+                    fontSize: '0.8em',
+                    fontWeight: '600',
+                    color: 'white'
+                  }}>
+                    Correcciones
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
+          
+          {/* Bottom CTA */}
+          <div style={{ 
+            marginTop: '50px',
+            padding: '20px',
+            textAlign: 'center'
+          }}>
+            <p style={{
+              color: 'rgba(255,255,255,0.8)',
+              fontSize: isMobile ? '0.9em' : '1em',
+              fontStyle: 'italic'
+            }}>
+              Preparándote para México • Septiembre 2024
+            </p>
+          </div>
         </div>
+        
+        <style jsx>{`
+          @keyframes shimmer {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+          }
+        `}</style>
       </div>
     );
   }
@@ -662,7 +838,7 @@ export default function JuanPablo() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <button
                 onClick={startListeningToPedro}
-                disabled={!avatarLoaded || isListeningToPedro}
+                disabled={!avatarLoaded}
                 style={{ 
                   padding: '12px 24px', 
                   background: isListeningToPedro ? '#4CAF50' : (avatarLoaded ? '#007bff' : '#ccc'), 
@@ -676,6 +852,33 @@ export default function JuanPablo() {
                 }}
               >
                 {isListeningToPedro ? '👂 Escuchando a Pedro...' : '👂 Escuchar a Pedro'}
+              </button>
+              
+              <button
+                onClick={() => {
+                  const userText = prompt("¿Qué dijo Pedro? (Escribe manualmente):");
+                  if (userText && userText.trim()) {
+                    setMessages(prev => [...prev, { 
+                      text: userText.trim(), 
+                      sender: 'juan',
+                      timestamp: new Date().toLocaleTimeString(),
+                      source: 'manual'
+                    }]);
+                  }
+                }}
+                disabled={!avatarLoaded}
+                style={{ 
+                  padding: '10px 20px', 
+                  background: avatarLoaded ? '#28a745' : '#ccc', 
+                  color: 'white', 
+                  border: 'none', 
+                  borderRadius: '20px', 
+                  cursor: avatarLoaded ? 'pointer' : 'not-allowed',
+                  fontSize: '14px',
+                  fontWeight: 'bold'
+                }}
+              >
+                ✍️ Añadir Manualmente
               </button>
             </div>
             
