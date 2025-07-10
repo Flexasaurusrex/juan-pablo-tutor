@@ -2,17 +2,28 @@ import { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 
 export default function JuanPablo() {
-  const [currentMode, setCurrentMode] = useState(null);
+  const [currentMode, setCurrentMode] = useState(null); // null, 'video', 'chat', 'game'
   const [showModeSelection, setShowModeSelection] = useState(false);
   const [messages, setMessages] = useState([]);
-  const [userInput, setUserInput] = useState('');
+  const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [avatarLoaded, setAvatarLoaded] = useState(false);
+  const [isAvatarSpeaking, setIsAvatarSpeaking] = useState(false);
+  const [isListeningToPedro, setIsListeningToPedro] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  // Translation features
   const [messageTranslations, setMessageTranslations] = useState({});
   const [translatingMessageId, setTranslatingMessageId] = useState(null);
   const [speakingMessageId, setSpeakingMessageId] = useState(null);
   const [currentAudio, setCurrentAudio] = useState(null);
-
-  // Learning Game States
+  
+  // Translator state for video mode
+  const [translatorInput, setTranslatorInput] = useState('');
+  const [translatorOutput, setTranslatorOutput] = useState('');
+  const [isTranslating, setIsTranslating] = useState(false);
+  
+  // Game state
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
   const [gameMode, setGameMode] = useState(null); // 'multiple', 'fillblank'
@@ -21,6 +32,10 @@ export default function JuanPablo() {
   const [isCorrect, setIsCorrect] = useState(false);
   const [streak, setStreak] = useState(0);
   const [completedQuestions, setCompletedQuestions] = useState([]);
+  
+  const recognitionRef = useRef(null);
+  const pedroListenerRef = useRef(null);
+  const videoRef = useRef(null);
 
   // CDMX Learning Questions
   const multipleChoiceQuestions = [
@@ -88,106 +103,6 @@ export default function JuanPablo() {
       explanation: "¡Excelente! '¿Cuánto cuestan?' es como preguntas precios"
     }
   ];
-
-  // Translation functions
-  const translateText = async (text) => {
-    try {
-      const response = await fetch('/api/translate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text })
-      });
-      const data = await response.json();
-      return data.translation || text;
-    } catch (error) {
-      console.error('Translation error:', error);
-      return text;
-    }
-  };
-
-  const translateMessage = async (messageText, messageIndex) => {
-    if (messageTranslations[messageIndex]) {
-      setMessageTranslations(prev => ({
-        ...prev,
-        [messageIndex]: null
-      }));
-      return;
-    }
-
-    setTranslatingMessageId(messageIndex);
-
-    try {
-      const response = await fetch('/api/translate-to-english', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ spanishText: messageText })
-      });
-
-      const data = await response.json();
-
-      if (data.translation) {
-        setMessageTranslations(prev => ({
-          ...prev,
-          [messageIndex]: data.translation
-        }));
-      }
-    } catch (error) {
-      console.error('Translation error:', error);
-      setMessageTranslations(prev => ({
-        ...prev,
-        [messageIndex]: 'Translation failed - try again'
-      }));
-    }
-
-    setTranslatingMessageId(null);
-  };
-
-  const speakMessage = (text, messageIndex) => {
-    if (speakingMessageId === messageIndex && currentAudio) {
-      currentAudio.cancel();
-      setCurrentAudio(null);
-      setSpeakingMessageId(null);
-      return;
-    }
-
-    if (currentAudio) {
-      currentAudio.cancel();
-    }
-
-    const cleanText = text.replace(/[🎯🔥💪✨🚀🇲🇽📚🏆🎉👋😊💡🎊]/g, '').trim();
-    
-    const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.lang = 'es-MX';
-    utterance.rate = 0.85;
-    utterance.pitch = 1;
-
-    const voices = speechSynthesis.getVoices();
-    const mexicanVoice = voices.find(voice => 
-      voice.lang.includes('es-MX') || 
-      (voice.lang.includes('es') && voice.name.toLowerCase().includes('mexican'))
-    );
-    
-    if (mexicanVoice) {
-      utterance.voice = mexicanVoice;
-    } else {
-      const spanishVoice = voices.find(voice => voice.lang.includes('es'));
-      if (spanishVoice) utterance.voice = spanishVoice;
-    }
-
-    utterance.onend = () => {
-      setSpeakingMessageId(null);
-      setCurrentAudio(null);
-    };
-
-    utterance.onerror = () => {
-      setSpeakingMessageId(null);
-      setCurrentAudio(null);
-    };
-
-    setSpeakingMessageId(messageIndex);
-    setCurrentAudio(utterance);
-    speechSynthesis.speak(utterance);
-  };
 
   // Game functions
   const startGame = (mode) => {
@@ -258,29 +173,278 @@ export default function JuanPablo() {
     setUserAnswer('');
   };
 
-  // Chat functions
+  // Proper mobile detection
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Translator function for video mode
+  const translateText = async (text) => {
+    if (!text.trim()) return;
+    
+    setIsTranslating(true);
+    try {
+      const response = await fetch('/api/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: text.trim() })
+      });
+      
+      const data = await response.json();
+      if (data.translation) {
+        setTranslatorOutput(data.translation);
+      }
+    } catch (error) {
+      console.error('Translation error:', error);
+      setTranslatorOutput('Error de traducción');
+    }
+    setIsTranslating(false);
+  };
+
+  // Translate Juan Pablo's message to English
+  const translateMessage = async (messageText, messageIndex) => {
+    if (messageTranslations[messageIndex]) {
+      setMessageTranslations(prev => ({
+        ...prev,
+        [messageIndex]: null
+      }));
+      return;
+    }
+
+    setTranslatingMessageId(messageIndex);
+    
+    try {
+      const response = await fetch('/api/translate-to-english', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ spanishText: messageText })
+      });
+      
+      const data = await response.json();
+      
+      if (data.translation) {
+        setMessageTranslations(prev => ({
+          ...prev,
+          [messageIndex]: data.translation
+        }));
+      }
+    } catch (error) {
+      console.error('Translation error:', error);
+      setMessageTranslations(prev => ({
+        ...prev,
+        [messageIndex]: 'Translation failed - try again'
+      }));
+    }
+    
+    setTranslatingMessageId(null);
+  };
+
+  // Speak Juan Pablo's message with Mexican Spanish pronunciation
+  const speakMessage = async (messageText, messageIndex) => {
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+      setCurrentAudio(null);
+      setSpeakingMessageId(null);
+    }
+
+    if (speakingMessageId === messageIndex) {
+      return;
+    }
+
+    setSpeakingMessageId(messageIndex);
+
+    try {
+      const cleanText = messageText
+        .replace(/[🎯📚🔄✏️🌮🚇👋💼🆘💰🏢🇲🇽😊👍💪🎙️✅❌📝📡🚀⚠️🔍🤖🌟]/g, '')
+        .replace(/\*\*(.*?)\*\*/g, '$1')
+        .replace(/•/g, '')
+        .trim();
+
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+        
+        utterance.lang = 'es-MX';
+        utterance.rate = 0.85;
+        utterance.pitch = 1.0;
+        utterance.volume = 0.9;
+
+        const voices = speechSynthesis.getVoices();
+        const mexicanVoice = voices.find(voice => 
+          voice.lang.includes('es-MX') || 
+          voice.lang.includes('es-US') ||
+          (voice.lang.includes('es') && voice.name.toLowerCase().includes('mexican'))
+        );
+        
+        if (mexicanVoice) {
+          utterance.voice = mexicanVoice;
+        }
+
+        utterance.onend = () => {
+          setSpeakingMessageId(null);
+          setCurrentAudio(null);
+        };
+
+        utterance.onerror = () => {
+          setSpeakingMessageId(null);
+          setCurrentAudio(null);
+        };
+
+        setCurrentAudio(utterance);
+        speechSynthesis.speak(utterance);
+      }
+    } catch (error) {
+      setSpeakingMessageId(null);
+    }
+  };
+
+  const startVideoMode = () => {
+    setCurrentMode('video');
+    setMessages([
+      { text: "¡Hola! Habla conmigo directamente para practicar conversación.", sender: 'juan' }
+    ]);
+    setTimeout(loadHeyGenEmbed, 1000);
+  };
+
   const startChatMode = () => {
     setCurrentMode('chat');
     setMessages([
-      {
-        text: "¡Hola! 👋🇲🇽 Soy Juan Pablo, tu profesor de español mexicano. Estoy súper emocionado de ayudarte a prepararte para tu mudanza a Ciudad de México en septiembre.\n\n🎯 Puedo ayudarte con:\n• Correcciones de gramática y pronunciación\n• Frases útiles para la vida diaria en CDMX\n• Modismos y cultura mexicana\n• Situaciones reales (transporte, comida, trabajo)\n\n¿En qué te gustaría empezar a practicar hoy? Puedes escribir en inglés o español - ¡yo te ayudo! 😊",
-        sender: 'juan-pablo',
-        timestamp: new Date().toLocaleTimeString()
+      { 
+        text: "¡Hola! 👋🇲🇽 Soy Juan Pablo, tu profesor de español mexicano. Estoy súper emocionado de ayudarte a prepararte para tu mudanza a Ciudad de México en septiembre.\n\n🎯 Puedo ayudarte con:\n• Correcciones de gramática y pronunciación\n• Frases útiles para la vida diaria en CDMX\n• Modismos y cultura mexicana\n• Situaciones reales (transporte, comida, trabajo)\n\n¿En qué te gustaría empezar a practicar hoy? Puedes escribir en inglés o español - ¡yo te ayudo! 😊", 
+        sender: 'juan' 
       }
     ]);
   };
 
+  const startGameMode = () => {
+    setCurrentMode('game');
+  };
+
+  const goBack = () => {
+    setCurrentMode(null);
+    setShowModeSelection(false);
+    setMessages([]);
+    setTranslatorInput('');
+    setTranslatorOutput('');
+    setMessageTranslations({});
+    setSpeakingMessageId(null);
+    setGameMode(null);
+    setCurrentQuestion(0);
+    setScore(0);
+    setStreak(0);
+    setCompletedQuestions([]);
+    setShowResult(false);
+    setUserAnswer('');
+    if (currentAudio) {
+      currentAudio.pause();
+      setCurrentAudio(null);
+    }
+  };
+
+  const handleVideoEnd = () => {
+    setShowModeSelection(true);
+  };
+
+  const skipIntro = () => {
+    if (videoRef.current) {
+      videoRef.current.pause();
+    }
+    setShowModeSelection(true);
+  };
+
+  const loadHeyGenEmbed = () => {
+    setTimeout(() => {
+      const container = document.getElementById('avatar-video-container');
+      if (!container) return;
+
+      const existingEmbed = document.getElementById('heygen-streaming-embed');
+      if (existingEmbed) {
+        existingEmbed.remove();
+      }
+
+      const host = "https://labs.heygen.com";
+      const shareParams = "eyJxdWFsaXR5IjoiaGlnaCIsImF2YXRhck5hbWUiOiJQZWRyb19Qcm9mZXNzaW9uYWxMb29rMl9wdWJsaWMiLCJwcmV2aWV3SW1nIjoiaHR0cHM6Ly9maWxlczIuaGV5Z2VuLmFpL2F2YXRhci92My9mOWM5NGFlN2JkMTU0NWU4YjY1MzFhOTFiYTk3NmFkOV81NTkxMC9wcmV2aWV3X3RhbGtfMS53ZWJwIiwibmVlZFJlbW92ZUJhY2tncm91bmQiOnRydWUsImtub3dsZWRnZUJhc2VJZCI6ImE0MjZkNGFjYWUzMTQ0MTI4NWZkMGViZjk3YTU2ZjA3IiwidXNlcm5hbWUiOiI4NjE0MmI4MzMyM2Q0YmY0YmFlMmM5OTFmYWFmZmE5YyJ9";
+      const url = host + "/guest/streaming-embed?share=" + shareParams + "&inIFrame=1";
+      
+      const wrapDiv = document.createElement("div");
+      wrapDiv.id = "heygen-streaming-embed";
+      
+      const containerDiv = document.createElement("div");
+      containerDiv.id = "heygen-streaming-container";
+      
+      const stylesheet = document.createElement("style");
+      stylesheet.innerHTML = `
+        #heygen-streaming-embed {
+          z-index: 1000;
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          border-radius: 15px;
+          overflow: hidden;
+          transition: all linear 0.1s;
+          opacity: 0;
+          visibility: hidden;
+        }
+        #heygen-streaming-embed.show {
+          opacity: 1;
+          visibility: visible;
+        }
+        #heygen-streaming-container {
+          width: 100%;
+          height: 100%;
+        }
+        #heygen-streaming-container iframe {
+          width: 100%;
+          height: 100%;
+          border: 0;
+          border-radius: 15px;
+        }
+      `;
+      
+      const iframe = document.createElement("iframe");
+      iframe.allowFullscreen = false;
+      iframe.title = "Juan Pablo - Pedro";
+      iframe.role = "dialog";
+      iframe.allow = "microphone";
+      iframe.src = url;
+      
+      window.addEventListener("message", (e) => {
+        if (e.origin === host && e.data && e.data.type && "streaming-embed" === e.data.type) {
+          if ("init" === e.data.action) {
+            wrapDiv.classList.toggle("show", true);
+            setAvatarLoaded(true);
+          }
+        }
+      });
+      
+      containerDiv.appendChild(iframe);
+      wrapDiv.appendChild(stylesheet);
+      wrapDiv.appendChild(containerDiv);
+      container.appendChild(wrapDiv);
+    }, 500);
+  };
+
+  const startVoiceInput = () => {
+    if (recognitionRef.current) {
+      setIsLoading(true);
+      recognitionRef.current.start();
+    }
+  };
+
   const sendMessage = async () => {
-    if (!userInput.trim()) return;
+    if (!inputMessage.trim()) return;
 
-    const newMessage = {
-      text: userInput,
-      sender: 'user',
-      timestamp: new Date().toLocaleTimeString()
-    };
-
-    setMessages(prev => [...prev, newMessage]);
-    setUserInput('');
+    const userMessage = { text: inputMessage, sender: 'user' };
+    setMessages(prev => [...prev, userMessage]);
     setIsLoading(true);
 
     try {
@@ -288,503 +452,609 @@ export default function JuanPablo() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          message: userInput,
-          conversationHistory: messages.slice(-6)
+          message: inputMessage,
+          conversationHistory: messages
         })
       });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
       const data = await response.json();
-
-      if (data.response || data.reply) {
-        const reply = data.response || data.reply;
-        setMessages(prev => [...prev, {
-          text: reply,
-          sender: 'juan-pablo',
-          timestamp: new Date().toLocaleTimeString()
-        }]);
-      } else {
-        setMessages(prev => [...prev, {
-          text: "¡Órale! 🇲🇽 Se me trabó la conexión. ¿Puedes repetir tu pregunta? Mientras tanto, ¿sabías que en CDMX decimos 'junta' en lugar de 'reunión'? 😊",
-          sender: 'juan-pablo',
-          timestamp: new Date().toLocaleTimeString()
-        }]);
+      const juanPabloResponse = data.reply || data.response;
+      
+      if (juanPabloResponse) {
+        setMessages(prev => [...prev, { text: juanPabloResponse, sender: 'juan' }]);
       }
     } catch (error) {
-      console.error('Chat error:', error);
-      setMessages(prev => [...prev, {
-        text: "Lo siento, tuve un problema técnico. ¿Puedes repetir tu pregunta? 🤔",
-        sender: 'juan-pablo',
-        timestamp: new Date().toLocaleTimeString()
+      setMessages(prev => [...prev, { 
+        text: "Lo siento, hubo un error de conexión. 😅 ¿Puedes intentar escribir tu mensaje otra vez?", 
+        sender: 'juan' 
       }]);
     }
 
+    setInputMessage('');
     setIsLoading(false);
   };
 
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
+
   useEffect(() => {
-    const timer = setTimeout(() => setShowModeSelection(true), 4000);
-    return () => clearTimeout(timer);
+    if (typeof window !== 'undefined' && 'webkitSpeechRecognition' in window) {
+      recognitionRef.current = new webkitSpeechRecognition();
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = false;
+      recognitionRef.current.lang = 'es-MX';
+
+      recognitionRef.current.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        setInputMessage(transcript);
+      };
+
+      recognitionRef.current.onerror = () => {
+        setIsLoading(false);
+      };
+
+      recognitionRef.current.onend = () => {
+        setIsLoading(false);
+      };
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
   }, []);
 
-  if (currentMode === null) {
+  // Intro Screen - KEEPING EXACTLY AS IS
+  if (!currentMode && !showModeSelection) {
     return (
-      <div style={{ backgroundColor: 'black', minHeight: '100vh', color: 'white' }}>
+      <div style={{ 
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        background: '#000',
+        overflow: 'hidden',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
         <Head>
-          <title>Juan Pablo - Tu Profesor de Español CDMX</title>
+          <title>Juan Pablo - Spanish Learning AI</title>
+          <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
         </Head>
-
-        {!showModeSelection ? (
-          <div style={{ 
-            position: 'fixed', 
-            top: 0, 
-            left: 0, 
-            width: '100%', 
-            height: '100%', 
-            display: 'flex', 
-            justifyContent: 'center', 
-            alignItems: 'center',
-            zIndex: 1000,
-            backgroundColor: 'black'
-          }}>
-            <video 
-              autoPlay 
-              muted 
-              playsInline
-              style={{ 
-                width: '100%', 
-                height: '100%', 
-                objectFit: 'cover'
-              }}
-              onEnded={() => setShowModeSelection(true)}
-            >
-              <source src="https://res.cloudinary.com/ddrnwtfmh/video/upload/v1735802835/juan_pablo_sizzle_reel_final_l5rhkb.mp4" type="video/mp4" />
-            </video>
-          </div>
-        ) : (
-          <div style={{ 
-            minHeight: '100vh', 
-            display: 'flex', 
-            flexDirection: 'column', 
-            justifyContent: 'center', 
-            alignItems: 'center', 
-            padding: '20px',
-            background: 'black'
-          }}>
-            <h1 style={{ 
-              fontSize: '2.5rem', 
-              marginBottom: '3rem', 
-              textAlign: 'center',
-              color: 'white',
-              fontWeight: 'bold'
-            }}>
-              Elige tu modo de aprendizaje
-            </h1>
-            
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
-              gap: '2rem', 
-              maxWidth: '1000px', 
-              width: '100%' 
-            }}>
-              <div
-                onClick={() => setCurrentMode('video')}
-                style={{
-                  background: 'transparent',
-                  border: '2px solid white',
-                  borderRadius: '12px',
-                  padding: '2rem',
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  color: 'white'
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-                  e.target.style.transform = 'translateY(-5px)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.backgroundColor = 'transparent';
-                  e.target.style.transform = 'translateY(0)';
-                }}
-              >
-                <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>🎥 Video Chat</h2>
-                <p style={{ color: '#ccc' }}>Conversación cara a cara con Pedro</p>
-              </div>
-
-              <div
-                onClick={startChatMode}
-                style={{
-                  background: 'transparent',
-                  border: '2px solid white',
-                  borderRadius: '12px',
-                  padding: '2rem',
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  color: 'white'
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-                  e.target.style.transform = 'translateY(-5px)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.backgroundColor = 'transparent';
-                  e.target.style.transform = 'translateY(0)';
-                }}
-              >
-                <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>💬 Chat Texto</h2>
-                <p style={{ color: '#ccc' }}>Conversación escrita con Juan Pablo</p>
-              </div>
-
-              <div
-                onClick={() => setCurrentMode('game')}
-                style={{
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  border: '2px solid white',
-                  borderRadius: '12px',
-                  padding: '2rem',
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  color: 'white',
-                  position: 'relative'
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.transform = 'translateY(-5px) scale(1.02)';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.transform = 'translateY(0) scale(1)';
-                }}
-              >
-                <div style={{
-                  position: 'absolute',
-                  top: '10px',
-                  right: '10px',
-                  background: '#ff6b6b',
-                  color: 'white',
-                  padding: '4px 8px',
-                  borderRadius: '12px',
-                  fontSize: '0.7rem',
-                  fontWeight: 'bold'
-                }}>
-                  ✨ NUEVO
-                </div>
-                <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>🎮 Juegos CDMX</h2>
-                <p style={{ color: 'rgba(255,255,255,0.9)' }}>Práctica interactiva para México</p>
-              </div>
-            </div>
-          </div>
-        )}
+        
+        <video 
+          ref={videoRef}
+          autoPlay 
+          muted 
+          playsInline
+          onEnded={handleVideoEnd}
+          style={{ 
+            width: isMobile ? '100%' : 'auto', 
+            height: isMobile ? 'auto' : '100%',
+            maxWidth: '100%',
+            maxHeight: '100%',
+            objectFit: isMobile ? 'contain' : 'cover',
+            objectPosition: 'center'
+          }}
+        >
+          <source src="/intro-sizzle.mp4" type="video/mp4" />
+        </video>
+        
+        <button
+          onClick={skipIntro}
+          style={{
+            position: 'absolute',
+            top: isMobile ? '15px' : '20px',
+            right: isMobile ? '15px' : '20px',
+            background: 'rgba(255,255,255,0.2)',
+            border: 'none',
+            color: 'white',
+            padding: isMobile ? '8px 16px' : '10px 20px',
+            borderRadius: '25px',
+            cursor: 'pointer',
+            fontSize: isMobile ? '12px' : '14px',
+            fontWeight: 'bold',
+            backdropFilter: 'blur(10px)',
+            zIndex: 10000
+          }}
+        >
+          Saltar Intro →
+        </button>
       </div>
     );
   }
 
+  // Mode Selection Screen - UPDATED TO INCLUDE GAME
+  if (!currentMode) {
+    return (
+      <div style={{ 
+        minHeight: '100vh', 
+        width: '100vw',
+        background: '#000000',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        padding: '20px',
+        boxSizing: 'border-box',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      }}>
+        <Head>
+          <title>Juan Pablo - Choose Your Learning Style</title>
+        </Head>
+        
+        <div style={{ maxWidth: '1000px', width: '100%', textAlign: 'center' }}>
+          <div style={{ marginBottom: '60px' }}>
+            <h1 style={{ 
+              fontSize: isMobile ? '2.5em' : '3.5em', 
+              marginBottom: '20px', 
+              color: 'white', 
+              fontWeight: '700'
+            }}>
+              ¡Hola! Soy Juan Pablo 🇲🇽
+            </h1>
+            <p style={{ 
+              fontSize: isMobile ? '1.1em' : '1.3em', 
+              color: 'rgba(255,255,255,0.8)', 
+              maxWidth: '600px',
+              margin: '0 auto'
+            }}>
+              Tu compañero de español para prepararte para Ciudad de México
+            </p>
+          </div>
+          
+          <div style={{ 
+            display: 'grid',
+            gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr',
+            gap: '25px',
+            maxWidth: '1000px',
+            margin: '0 auto'
+          }}>
+            <div 
+              onClick={startVideoMode}
+              style={{ 
+                background: '#1a1a1a',
+                border: '2px solid rgba(255,255,255,0.2)',
+                borderRadius: '16px',
+                padding: '30px 25px',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+              }}
+            >
+              <div style={{ fontSize: '2.5em', marginBottom: '15px' }}>🎥</div>
+              <h3 style={{ fontSize: '1.3em', marginBottom: '12px', color: 'white' }}>
+                Video Chat
+              </h3>
+              <p style={{ fontSize: '0.9em', color: 'rgba(255,255,255,0.7)' }}>
+                Conversación cara a cara con Pedro
+              </p>
+            </div>
+            
+            <div 
+              onClick={startChatMode}
+              style={{ 
+                background: '#1a1a1a',
+                border: '2px solid rgba(255,255,255,0.2)',
+                borderRadius: '16px',
+                padding: '30px 25px',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+              }}
+            >
+              <div style={{ fontSize: '2.5em', marginBottom: '15px' }}>💬</div>
+              <h3 style={{ fontSize: '1.3em', marginBottom: '12px', color: 'white' }}>
+                Chat Texto
+              </h3>
+              <p style={{ fontSize: '0.9em', color: 'rgba(255,255,255,0.7)' }}>
+                Conversación por texto con Juan Pablo
+              </p>
+            </div>
+
+            <div 
+              onClick={startGameMode}
+              style={{ 
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                border: '2px solid rgba(255,255,255,0.3)',
+                borderRadius: '16px',
+                padding: '30px 25px',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                position: 'relative'
+              }}
+            >
+              <div style={{
+                position: 'absolute',
+                top: '10px',
+                right: '10px',
+                background: 'rgba(255,255,255,0.2)',
+                padding: '4px 8px',
+                borderRadius: '12px',
+                fontSize: '0.7em',
+                color: 'white'
+              }}>
+                ✨ NUEVO
+              </div>
+              
+              <div style={{ fontSize: '2.5em', marginBottom: '15px' }}>🎮</div>
+              <h3 style={{ fontSize: '1.3em', marginBottom: '12px', color: 'white' }}>
+                Juegos CDMX
+              </h3>
+              <p style={{ fontSize: '0.9em', color: 'rgba(255,255,255,0.9)' }}>
+                Práctica interactiva para México
+              </p>
+            </div>
+          </div>
+          
+          <div style={{ marginTop: '50px' }}>
+            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.9em' }}>
+              Preparándote para México • Septiembre 2024
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Video Mode - KEEPING EXACTLY AS IS
   if (currentMode === 'video') {
     return (
-      <div style={{ backgroundColor: 'black', minHeight: '100vh', color: 'white', position: 'relative' }}>
+      <div style={{ 
+        minHeight: '100vh', 
+        background: '#000000',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      }}>
         <Head>
-          <title>Video Chat - Juan Pablo</title>
+          <title>Juan Pablo - Conversación con Pedro</title>
         </Head>
         
         <button
-          onClick={() => setCurrentMode(null)}
+          onClick={goBack}
           style={{
             position: 'absolute',
             top: '20px',
             left: '20px',
-            background: 'rgba(255, 255, 255, 0.2)',
+            background: 'rgba(255,255,255,0.1)',
+            border: '1px solid rgba(255,255,255,0.3)',
             color: 'white',
-            border: '1px solid rgba(255, 255, 255, 0.3)',
-            padding: '8px 16px',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            zIndex: 1000
+            padding: '10px 20px',
+            borderRadius: '8px',
+            cursor: 'pointer'
           }}
         >
           ← Volver
         </button>
 
-        <div style={{ 
-          display: 'flex', 
-          flexDirection: 'column', 
-          alignItems: 'center', 
-          justifyContent: 'center', 
-          minHeight: '100vh',
-          padding: '20px',
-          gap: '20px'
+        <div style={{ width: '100%', maxWidth: '800px', marginBottom: '30px' }}>
+          <div 
+            id="avatar-video-container"
+            style={{ 
+              width: '100%',
+              height: '500px',
+              background: '#1a1a1a',
+              border: '2px solid #ffffff',
+              borderRadius: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              position: 'relative',
+              overflow: 'hidden'
+            }}
+          >
+            {!avatarLoaded && (
+              <div style={{ textAlign: 'center', color: 'white' }}>
+                <div style={{ fontSize: '18px' }}>
+                  Conectando con Pedro...
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div style={{
+          width: '100%',
+          maxWidth: '800px',
+          background: '#1a1a1a',
+          border: '1px solid rgba(255,255,255,0.2)',
+          borderRadius: '12px',
+          padding: '24px'
         }}>
+          <h3 style={{ color: 'white', margin: '0 0 20px 0', textAlign: 'center' }}>
+            Traductor Inglés → Español
+          </h3>
+          
           <div style={{
-            width: '100%',
-            maxWidth: '800px',
-            height: typeof window !== 'undefined' && window.innerWidth <= 768 ? '60vh' : '70vh',
-            backgroundColor: 'black',
-            borderRadius: '8px',
-            border: '3px solid white',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            position: 'relative',
-            overflow: 'hidden'
+            display: 'grid',
+            gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+            gap: '20px',
+            marginBottom: '20px'
           }}>
-            <iframe
-              id="heygen-video"
-              allow="camera; microphone"
-              style={{
-                width: typeof window !== 'undefined' && window.innerWidth <= 768 ? '100%' : 'auto',
-                height: typeof window !== 'undefined' && window.innerWidth <= 768 ? 'auto' : '100%',
-                maxWidth: '100%',
-                border: 'none',
-                objectFit: typeof window !== 'undefined' && window.innerWidth <= 768 ? 'contain' : 'cover',
+            <div>
+              <label style={{ color: 'rgba(255,255,255,0.8)', display: 'block', marginBottom: '8px' }}>
+                Inglés
+              </label>
+              <textarea
+                value={translatorInput}
+                onChange={(e) => setTranslatorInput(e.target.value)}
+                placeholder="What do you want to say?"
+                style={{
+                  width: '100%',
+                  height: '100px',
+                  background: '#000',
+                  border: '1px solid rgba(255,255,255,0.3)',
+                  borderRadius: '8px',
+                  color: 'white',
+                  padding: '12px',
+                  resize: 'none'
+                }}
+              />
+            </div>
+
+            <div>
+              <label style={{ color: 'rgba(255,255,255,0.8)', display: 'block', marginBottom: '8px' }}>
+                Español
+              </label>
+              <div style={{
+                width: '100%',
+                height: '100px',
+                background: '#000',
+                border: '1px solid rgba(255,255,255,0.3)',
+                borderRadius: '8px',
+                color: 'white',
+                padding: '12px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
-              }}
-              src="https://app.heygen.com/embeds/7a5bde48925c4e5d93bfdc6ac97b9bdc"
-            />
-          </div>
-
-          <div style={{
-            width: '100%',
-            maxWidth: '800px',
-            display: 'flex',
-            flexDirection: typeof window !== 'undefined' && window.innerWidth <= 768 ? 'column' : 'row',
-            gap: '10px',
-            alignItems: 'stretch'
-          }}>
-            <input
-              type="text"
-              placeholder="Escribe en inglés..."
-              style={{
-                flex: 1,
-                padding: '12px',
-                borderRadius: '6px',
-                border: '1px solid #333',
-                backgroundColor: '#222',
-                color: 'white',
-                fontSize: '16px'
-              }}
-              onKeyPress={async (e) => {
-                if (e.key === 'Enter' && e.target.value) {
-                  const translated = await translateText(e.target.value);
-                  const outputElement = document.getElementById('spanish-output');
-                  if (outputElement) {
-                    outputElement.textContent = translated;
-                  }
-                  e.target.value = '';
-                }
-              }}
-            />
-            <div
-              id="spanish-output"
-              style={{
-                flex: 1,
-                padding: '12px',
-                borderRadius: '6px',
-                border: '1px solid #333',
-                backgroundColor: '#111',
-                color: '#4ade80',
-                fontSize: '16px',
-                minHeight: '44px',
-                display: 'flex',
-                alignItems: 'center'
-              }}
-            >
-              Traducción en español aparecerá aquí...
+              }}>
+                {isTranslating ? 'Traduciendo...' : translatorOutput || 'La traducción aparecerá aquí'}
+              </div>
             </div>
           </div>
+
+          <button
+            onClick={() => translateText(translatorInput)}
+            disabled={!translatorInput.trim() || isTranslating}
+            style={{
+              width: '100%',
+              background: translatorInput.trim() && !isTranslating ? '#ffffff' : 'rgba(255,255,255,0.2)',
+              color: translatorInput.trim() && !isTranslating ? '#000' : 'rgba(255,255,255,0.5)',
+              border: 'none',
+              padding: '12px 24px',
+              borderRadius: '8px',
+              cursor: translatorInput.trim() && !isTranslating ? 'pointer' : 'not-allowed'
+            }}
+          >
+            {isTranslating ? 'Traduciendo...' : 'Traducir'}
+          </button>
         </div>
       </div>
     );
   }
 
+  // Chat Mode - KEEPING EXACTLY AS IS
   if (currentMode === 'chat') {
     return (
-      <div style={{ backgroundColor: 'black', minHeight: '100vh', color: 'white' }}>
+      <div style={{ 
+        minHeight: '100vh', 
+        background: '#000000',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: '20px',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      }}>
         <Head>
-          <title>Chat - Juan Pablo</title>
+          <title>Juan Pablo - Chat Texto</title>
         </Head>
         
-        <button
-          onClick={() => setCurrentMode(null)}
-          style={{
-            position: 'absolute',
-            top: '20px',
-            left: '20px',
-            background: 'rgba(255, 255, 255, 0.2)',
-            color: 'white',
-            border: '1px solid rgba(255, 255, 255, 0.3)',
-            padding: '8px 16px',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            zIndex: 1000
-          }}
-        >
-          ← Volver
-        </button>
-
         <div style={{ 
-          maxWidth: '800px', 
-          margin: '0 auto', 
-          padding: '80px 20px 20px', 
-          height: '100vh', 
-          display: 'flex', 
-          flexDirection: 'column' 
+          background: '#1a1a1a',
+          border: '2px solid rgba(255,255,255,0.2)',
+          borderRadius: '16px', 
+          padding: '30px',
+          width: '100%',
+          maxWidth: '800px',
+          height: '80vh',
+          display: 'flex',
+          flexDirection: 'column'
         }}>
-          <div style={{
-            flex: 1,
-            background: 'transparent',
-            border: '2px solid white',
-            borderRadius: '12px',
-            padding: '20px',
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+            <button
+              onClick={goBack}
+              style={{
+                background: 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.3)',
+                color: 'white',
+                padding: '8px 16px',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                marginRight: '15px'
+              }}
+            >
+              ← Volver
+            </button>
+            <h2 style={{ color: 'white', margin: 0, fontSize: '1.8em' }}>
+              Chat con Juan Pablo 💬
+            </h2>
+          </div>
+          
+          <div style={{ 
+            flex: 1, 
+            overflowY: 'auto', 
             marginBottom: '20px',
-            overflow: 'hidden',
+            padding: '20px',
+            background: '#000000',
+            border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: '12px',
             display: 'flex',
-            flexDirection: 'column'
+            flexDirection: 'column',
+            gap: '15px'
           }}>
-            <div style={{ 
-              flex: 1, 
-              overflowY: 'auto', 
-              marginBottom: '20px',
-              border: '1px solid #333',
-              borderRadius: '8px',
-              padding: '15px',
-              backgroundColor: 'black'
-            }}>
-              {messages.map((message, index) => (
-                <div key={index} style={{ 
-                  marginBottom: '15px',
+            {messages.map((msg, index) => (
+              <div key={index} style={{ 
+                padding: '15px 20px',
+                borderRadius: '12px',
+                background: msg.sender === 'user' ? '#ffffff' : 'rgba(255,255,255,0.1)',
+                color: msg.sender === 'user' ? '#000' : 'white',
+                alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start',
+                maxWidth: '80%',
+                border: msg.sender === 'user' ? 'none' : '1px solid rgba(255,255,255,0.2)'
+              }}>
+                <div style={{ 
+                  fontSize: '0.8em', 
+                  fontWeight: '600', 
+                  marginBottom: '8px',
                   display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: message.sender === 'user' ? 'flex-end' : 'flex-start'
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
                 }}>
-                  <div style={{
-                    maxWidth: '80%',
-                    padding: '12px 16px',
-                    borderRadius: '12px',
-                    backgroundColor: message.sender === 'user' ? 'white' : 'transparent',
-                    color: message.sender === 'user' ? 'black' : 'white',
-                    border: message.sender === 'juan-pablo' ? '1px solid #333' : 'none'
-                  }}>
-                    {message.text}
-                  </div>
-                  
-                  {message.sender === 'juan-pablo' && (
-                    <div style={{ 
-                      display: 'flex', 
-                      gap: '8px', 
-                      marginTop: '8px',
-                      alignItems: 'center'
-                    }}>
+                  <span>{msg.sender === 'user' ? 'Tú' : 'Juan Pablo'}</span>
+                  {msg.sender === 'juan' && (
+                    <div style={{ display: 'flex', gap: '8px' }}>
                       <button
-                        onClick={() => speakMessage(message.text, index)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          speakMessage(msg.text, index);
+                        }}
                         style={{
-                          background: speakingMessageId === index ? '#4ade80' : 'transparent',
-                          border: '1px solid #666',
-                          color: speakingMessageId === index ? 'black' : 'white',
+                          background: speakingMessageId === index ? 'rgba(0,255,0,0.2)' : 'rgba(255,255,255,0.1)',
+                          border: '1px solid rgba(255,255,255,0.3)',
+                          color: 'white',
                           padding: '4px 8px',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          fontSize: '0.8rem'
+                          borderRadius: '12px',
+                          fontSize: '0.9em',
+                          cursor: 'pointer'
                         }}
                       >
-                        🔊 MX
+                        {speakingMessageId === index ? '⏸️' : '🔊'} MX
                       </button>
                       
                       <button
-                        onClick={() => translateMessage(message.text, index)}
-                        disabled={translatingMessageId === index}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          translateMessage(msg.text, index);
+                        }}
                         style={{
-                          background: messageTranslations[index] ? '#3b82f6' : 'transparent',
-                          border: '1px solid #666',
-                          color: messageTranslations[index] ? 'white' : 'white',
+                          background: messageTranslations[index] ? 'rgba(0,150,255,0.2)' : 'rgba(255,255,255,0.1)',
+                          border: '1px solid rgba(255,255,255,0.3)',
+                          color: 'white',
                           padding: '4px 8px',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          fontSize: '0.8rem'
+                          borderRadius: '12px',
+                          fontSize: '0.9em',
+                          cursor: 'pointer'
                         }}
                       >
-                        {translatingMessageId === index ? '🔄' : '🇺🇸 EN'}
+                        {translatingMessageId === index ? '🔄' : '🇺🇸'} EN
                       </button>
                     </div>
                   )}
-                  
-                  {messageTranslations[index] && (
-                    <div style={{
-                      maxWidth: '80%',
-                      padding: '8px 12px',
-                      marginTop: '5px',
-                      borderRadius: '8px',
-                      backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                      border: '1px solid rgba(59, 130, 246, 0.3)',
-                      color: '#93c5fd',
-                      fontSize: '0.9rem',
-                      fontStyle: 'italic'
-                    }}>
-                      {messageTranslations[index]}
-                    </div>
-                  )}
                 </div>
-              ))}
-              
-              {isLoading && (
-                <div style={{ 
-                  display: 'flex', 
-                  justifyContent: 'flex-start', 
-                  marginBottom: '15px' 
-                }}>
+                
+                <div>{msg.text}</div>
+                
+                {messageTranslations[index] && (
                   <div style={{
-                    padding: '12px 16px',
-                    borderRadius: '12px',
-                    backgroundColor: 'transparent',
-                    border: '1px solid #333',
-                    color: 'white'
+                    marginTop: '12px',
+                    padding: '12px',
+                    background: 'rgba(0,0,0,0.3)',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    fontStyle: 'italic',
+                    borderLeft: '3px solid #0096ff'
                   }}>
-                    Juan Pablo está escribiendo...
+                    🇺🇸 <strong>English:</strong> {messageTranslations[index]}
                   </div>
-                </div>
-              )}
-            </div>
-            
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <input
-                type="text"
-                value={userInput}
-                onChange={(e) => setUserInput(e.target.value)}
-                placeholder="Escribe en inglés o español..."
-                style={{
-                  flex: 1,
-                  padding: '12px',
-                  borderRadius: '6px',
-                  border: '1px solid #333',
-                  backgroundColor: '#222',
-                  color: 'white',
-                  fontSize: '16px'
-                }}
-                onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-              />
-              <button
-                onClick={sendMessage}
-                disabled={!userInput.trim() || isLoading}
-                style={{
-                  padding: '12px 24px',
-                  borderRadius: '6px',
-                  border: 'none',
-                  backgroundColor: userInput.trim() && !isLoading ? '#4ade80' : '#333',
-                  color: userInput.trim() && !isLoading ? 'black' : '#666',
-                  cursor: userInput.trim() && !isLoading ? 'pointer' : 'not-allowed',
-                  fontWeight: 'bold'
-                }}
-              >
-                Enviar
-              </button>
-            </div>
+                )}
+              </div>
+            ))}
+            {isLoading && (
+              <div style={{ 
+                padding: '15px 20px',
+                borderRadius: '12px',
+                background: 'rgba(255,255,255,0.1)',
+                color: 'rgba(255,255,255,0.7)',
+                fontStyle: 'italic',
+                alignSelf: 'flex-start',
+                border: '1px solid rgba(255,255,255,0.2)'
+              }}>
+                Juan Pablo está escribiendo...
+              </div>
+            )}
+          </div>
+          
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end' }}>
+            <textarea
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Escribe tu mensaje en español o inglés..."
+              style={{
+                flex: 1,
+                padding: '15px',
+                background: '#000',
+                border: '1px solid rgba(255,255,255,0.3)',
+                borderRadius: '12px',
+                resize: 'none',
+                minHeight: '60px',
+                color: 'white'
+              }}
+              rows={2}
+            />
+            <button
+              onClick={startVoiceInput}
+              disabled={isLoading}
+              style={{
+                padding: '15px',
+                background: 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.3)',
+                color: 'white',
+                borderRadius: '12px',
+                cursor: 'pointer',
+                width: '60px',
+                height: '60px'
+              }}
+            >
+              🎙️
+            </button>
+            <button
+              onClick={sendMessage}
+              disabled={isLoading || !inputMessage.trim()}
+              style={{
+                padding: '15px 25px',
+                background: inputMessage.trim() ? '#ffffff' : 'rgba(255,255,255,0.3)',
+                color: inputMessage.trim() ? '#000' : 'rgba(255,255,255,0.5)',
+                border: 'none',
+                borderRadius: '12px',
+                cursor: inputMessage.trim() ? 'pointer' : 'not-allowed',
+                height: '60px'
+              }}
+            >
+              Enviar
+            </button>
           </div>
         </div>
       </div>
     );
   }
 
+  // Game Mode - NEW SIMPLE GAME
   if (currentMode === 'game') {
     return (
       <div style={{ backgroundColor: 'black', minHeight: '100vh', color: 'white', padding: '20px' }}>
@@ -793,7 +1063,7 @@ export default function JuanPablo() {
         </Head>
         
         <button
-          onClick={() => setCurrentMode(null)}
+          onClick={goBack}
           style={{
             background: 'rgba(255, 255, 255, 0.2)',
             color: 'white',
@@ -953,8 +1223,7 @@ export default function JuanPablo() {
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ 
                     fontSize: '3rem', 
-                    marginBottom: '20px',
-                    animation: 'bounce 0.6s ease-in-out'
+                    marginBottom: '20px'
                   }}>
                     {isCorrect ? '🎉' : '😅'}
                   </div>
@@ -1078,8 +1347,7 @@ export default function JuanPablo() {
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ 
                     fontSize: '3rem', 
-                    marginBottom: '20px',
-                    animation: 'bounce 0.6s ease-in-out'
+                    marginBottom: '20px'
                   }}>
                     {isCorrect ? '🎉' : '😅'}
                   </div>
@@ -1166,14 +1434,6 @@ export default function JuanPablo() {
             </div>
           )}
         </div>
-
-        <style jsx>{`
-          @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-10px); }
-            60% { transform: translateY(-5px); }
-          }
-        `}</style>
       </div>
     );
   }
