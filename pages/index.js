@@ -193,57 +193,63 @@ export default function JuanPablo() {
         console.log('🎙️ Pedro speech detected! Event:', event);
         console.log('📊 Number of results:', event.results.length);
         
-        // Get the latest result
+        // Get ONLY the latest result to avoid cumulative buildup
         const lastResult = event.results[event.results.length - 1];
         const transcript = lastResult[0].transcript;
         const confidence = lastResult[0].confidence;
         const isFinal = lastResult.isFinal;
         
-        console.log('📝 Transcript:', transcript);
+        console.log('📝 New transcript piece:', transcript);
         console.log('📊 Confidence:', confidence);
         console.log('✅ Is Final:', isFinal);
         
-        // Update current transcript
-        currentTranscript = transcript;
-        
-        // Add transcript immediately if it's substantial
-        if ((isFinal || confidence > 0.7) && !isProcessing && currentTranscript.trim().length > 2) {
-          isProcessing = true;
-          console.log('✅ Adding Pedro response to chat:', currentTranscript);
+        // Only process final results or high-confidence interim results
+        if (isFinal || (confidence && confidence > 0.8)) {
+          const cleanTranscript = transcript.trim();
+          console.log('🧹 Clean transcript:', cleanTranscript);
           
-          setMessages(prev => [...prev, { 
-            text: currentTranscript.trim(), 
-            sender: 'juan',
-            timestamp: new Date().toLocaleTimeString(),
-            confidence: confidence ? Math.round(confidence * 100) + '%' : 'N/A'
-          }]);
-          
-          currentTranscript = '';
-          
-          // Reset processing flag
-          setTimeout(() => {
-            isProcessing = false;
-          }, 1500);
+          if (!isProcessing && cleanTranscript.length > 2) {
+            isProcessing = true;
+            console.log('✅ Adding Pedro response to chat:', cleanTranscript);
+            
+            // Create message object
+            const newMessage = { 
+              text: cleanTranscript, 
+              sender: 'juan',
+              timestamp: new Date().toLocaleTimeString(),
+              confidence: confidence ? Math.round(confidence * 100) + '%' : 'N/A'
+            };
+            
+            console.log('📨 New message object:', newMessage);
+            
+            setMessages(prev => {
+              const updated = [...prev, newMessage];
+              console.log('📝 Updated messages array:', updated);
+              return updated;
+            });
+            
+            // Reset processing flag
+            setTimeout(() => {
+              isProcessing = false;
+              console.log('🔄 Reset processing flag');
+            }, 2000);
+          } else {
+            console.log('⚠️ Skipped - either processing or transcript too short:', {
+              isProcessing,
+              transcriptLength: cleanTranscript.length,
+              transcript: cleanTranscript
+            });
+          }
+        } else {
+          console.log('⚠️ Skipped - not final and low confidence:', {
+            isFinal,
+            confidence,
+            transcript
+          });
         }
         
-        // Clear existing timer
+        // Clear any existing timer since we got a new result
         if (silenceTimer) clearTimeout(silenceTimer);
-        
-        // Backup timer for non-final results
-        if (!isFinal && currentTranscript.trim().length > 2) {
-          silenceTimer = setTimeout(() => {
-            if (!isProcessing && currentTranscript.trim()) {
-              console.log('⏰ Adding Pedro response after silence:', currentTranscript);
-              setMessages(prev => [...prev, { 
-                text: currentTranscript.trim(), 
-                sender: 'juan',
-                timestamp: new Date().toLocaleTimeString(),
-                source: 'timeout'
-              }]);
-              currentTranscript = '';
-            }
-          }, 3000);
-        }
       };
       
       pedroListenerRef.current.onerror = (event) => {
@@ -732,17 +738,20 @@ export default function JuanPablo() {
                 marginBottom: '15px',
                 padding: '10px 15px',
                 borderRadius: '10px',
-                background: msg.sender === 'user' ? '#007bff' : '#e9ecef',
+                background: msg.sender === 'user' ? '#007bff' : msg.sender === 'system' ? '#ffc107' : '#e9ecef',
                 color: msg.sender === 'user' ? 'white' : '#333',
                 alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start',
                 maxWidth: '80%',
                 wordWrap: 'break-word'
               }}>
                 <div style={{ fontSize: '0.9em', fontWeight: 'bold', marginBottom: '5px' }}>
-                  {msg.sender === 'user' ? 'Tú' : 'Pedro'}
+                  {msg.sender === 'user' ? 'Tú' : msg.sender === 'system' ? 'Sistema' : 'Pedro'}
                   {msg.timestamp && <span style={{ fontSize: '0.8em', opacity: 0.7, marginLeft: '10px' }}>{msg.timestamp}</span>}
+                  {msg.confidence && <span style={{ fontSize: '0.7em', opacity: 0.6, marginLeft: '5px' }}>({msg.confidence})</span>}
                 </div>
-                {msg.text}
+                <div style={{ fontSize: '1em', lineHeight: '1.4' }}>
+                  {msg.text || '[Texto vacío]'}
+                </div>
               </div>
             ))}
             {isLoading && (
