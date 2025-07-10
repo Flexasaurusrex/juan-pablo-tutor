@@ -1,4 +1,27 @@
-// Translate Juan Pablo's message to English
+// Translator function for video mode
+  const translateText = async (text) => {
+    if (!text.trim()) return;
+    
+    setIsTranslating(true);
+    try {
+      const response = await fetch('/api/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: text.trim() })
+      });
+      
+      const data = await response.json();
+      if (data.translation) {
+        setTranslatorOutput(data.translation);
+      }
+    } catch (error) {
+      console.error('Translation error:', error);
+      setTranslatorOutput('Error de traducción');
+    }
+    setIsTranslating(false);
+  };
+
+  // Translate Juan Pablo's message to English
   const translateMessage = async (messageText, messageIndex) => {
     if (messageTranslations[messageIndex]) {
       // If already translated, hide the translation
