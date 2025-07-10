@@ -259,29 +259,10 @@ export default function JuanPablo() {
   };
 
   useEffect(() => {
+    // Only show mode selection after video plays or after timeout
     const timer = setTimeout(() => {
       setShowModeSelection(true);
-    }, 3000);
-    
-    // Also show mode selection if video fails to load
-    const videoElement = videoRef.current;
-    if (videoElement) {
-      const handleVideoLoad = () => {
-        setTimeout(() => setShowModeSelection(true), 2000);
-      };
-      const handleVideoError = () => {
-        setShowModeSelection(true);
-      };
-      
-      videoElement.addEventListener('loadeddata', handleVideoLoad);
-      videoElement.addEventListener('error', handleVideoError);
-      
-      return () => {
-        videoElement.removeEventListener('loadeddata', handleVideoLoad);
-        videoElement.removeEventListener('error', handleVideoError);
-        clearTimeout(timer);
-      };
-    }
+    }, 8000); // Longer timeout to let video play
     
     return () => clearTimeout(timer);
   }, []);
@@ -480,24 +461,43 @@ export default function JuanPablo() {
       }}>
         
         {!showModeSelection && (
-          <video 
-            ref={videoRef}
-            autoPlay 
-            muted 
-            playsInline
-            src="https://d1yei2z3i6k35z.cloudfront.net/3867221/67540ace8dd44_HeyGenClone.mp4"
-            onLoadedData={() => setShowModeSelection(true)}
-            onError={() => setShowModeSelection(true)}
-            style={{ 
-              width: isMobile ? '100%' : 'auto',
-              height: isMobile ? 'auto' : '100%',
-              maxWidth: isMobile ? '100%' : '100%',
-              maxHeight: '100%',
-              objectFit: isMobile ? 'contain' : 'cover',
-              border: '3px solid white',
-              borderRadius: '8px'
-            }}
-          />
+          <div style={{
+            width: '100%',
+            height: '80vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'rgba(255,255,255,0.1)',
+            borderRadius: '12px',
+            border: '3px solid white'
+          }}>
+            <video 
+              ref={videoRef}
+              autoPlay 
+              muted 
+              playsInline
+              controls={false}
+              onEnded={() => {
+                setTimeout(() => setShowModeSelection(true), 1000);
+              }}
+              onError={() => {
+                console.log('Video failed to load');
+                setShowModeSelection(true);
+              }}
+              onLoadedData={() => {
+                console.log('Video loaded successfully');
+              }}
+              style={{ 
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                borderRadius: '8px'
+              }}
+            >
+              <source src="https://d1yei2z3i6k35z.cloudfront.net/3867221/67540ace8dd44_HeyGenClone.mp4" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          </div>
         )}
 
         {showModeSelection && (
