@@ -10,7 +10,7 @@ const startChatMode = () => {
 import Head from 'next/head';
 
 export default function JuanPablo() {
-  const [currentMode, setCurrentMode] = useState(null); // null, 'video', 'chat'
+  const [currentMode, setCurrentMode] = useState(null); // null, 'video', 'chat', 'learning'
   const [showModeSelection, setShowModeSelection] = useState(false);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
@@ -31,9 +31,95 @@ export default function JuanPablo() {
   const [translatorOutput, setTranslatorOutput] = useState('');
   const [isTranslating, setIsTranslating] = useState(false);
   
+  // Learning system state
+  const [selectedModule, setSelectedModule] = useState(null);
+  const [currentLesson, setCurrentLesson] = useState(null);
+  const [userProgress, setUserProgress] = useState({
+    completedLessons: [],
+    currentStreak: 7,
+    totalXP: 2340,
+    level: 'Intermedio',
+    weeklyGoal: 150,
+    weeklyXP: 89
+  });
+  
   const recognitionRef = useRef(null);
   const pedroListenerRef = useRef(null);
   const videoRef = useRef(null);
+
+  // CDMX Learning Modules Data
+  const learningModules = [
+    {
+      id: 'transport',
+      title: 'Transporte CDMX',
+      icon: '🚇',
+      description: 'Metro, Metrobús, taxis y Uber',
+      lessons: 12,
+      completed: 8,
+      difficulty: 'Principiante',
+      estimatedTime: '2 semanas',
+      color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+    },
+    {
+      id: 'food',
+      title: 'Comida Mexicana',
+      icon: '🌮',
+      description: 'Restaurantes, mercados y street food',
+      lessons: 15,
+      completed: 5,
+      difficulty: 'Intermedio',
+      estimatedTime: '3 semanas',
+      color: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+    },
+    {
+      id: 'neighborhoods',
+      title: 'Barrios CDMX',
+      icon: '🏢',
+      description: 'Roma Norte, Condesa, Polanco',
+      lessons: 10,
+      completed: 2,
+      difficulty: 'Intermedio',
+      estimatedTime: '2 semanas',
+      color: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
+    }
+  ];
+
+  // Sample lessons for transport module
+  const transportLessons = [
+    {
+      id: 1,
+      title: 'Comprando tu primera tarjeta del Metro',
+      type: 'interactive',
+      scenario: 'metro_station',
+      xpReward: 25,
+      completed: true
+    },
+    {
+      id: 2,
+      title: 'Direcciones: ¿Cómo llego a...?',
+      type: 'conversation',
+      scenario: 'asking_directions',
+      xpReward: 30,
+      completed: true
+    },
+    {
+      id: 3,
+      title: 'Vocabulario: Medios de transporte',
+      type: 'vocabulary',
+      scenario: 'transport_vocab',
+      xpReward: 20,
+      completed: true
+    },
+    {
+      id: 4,
+      title: 'Pronunciación: Estaciones del Metro',
+      type: 'pronunciation',
+      scenario: 'metro_stations',
+      xpReward: 35,
+      completed: false,
+      current: true
+    }
+  ];
 
   // Proper mobile detection
   useEffect(() => {
@@ -1238,7 +1324,7 @@ export default function JuanPablo() {
     );
   }
 
-  // Learning Mode - Professional CDMX Learning System
+  // Learning Mode - Interactive CDMX Learning System
   if (currentMode === 'learning') {
     return (
       <div style={{ 
@@ -1279,115 +1365,371 @@ export default function JuanPablo() {
           ← Volver
         </button>
 
-        {/* Import the learning system component here */}
         <div style={{ padding: '80px 20px 20px 20px' }}>
           <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
             
-            {/* Progress Header */}
-            <div style={{
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              padding: '25px',
-              borderRadius: '20px',
-              marginBottom: '30px',
-              color: 'white'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <div>
-                  <h2 style={{ margin: 0, fontSize: '1.8em', fontWeight: '700' }}>
-                    ¡Hola! Preparándote para CDMX 🇲🇽
-                  </h2>
-                  <p style={{ margin: '5px 0 0 0', opacity: 0.9, fontSize: '1.1em' }}>
-                    Nivel Intermedio • 2340 XP Total
+            {!selectedModule ? (
+              <>
+                {/* Progress Header */}
+                <div style={{
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  padding: '25px',
+                  borderRadius: '20px',
+                  marginBottom: '30px',
+                  color: 'white'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                    <div>
+                      <h2 style={{ margin: 0, fontSize: '1.8em', fontWeight: '700' }}>
+                        ¡Hola! Preparándote para CDMX 🇲🇽
+                      </h2>
+                      <p style={{ margin: '5px 0 0 0', opacity: 0.9, fontSize: '1.1em' }}>
+                        Nivel {userProgress.level} • {userProgress.totalXP} XP Total
+                      </p>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: '2em', marginBottom: '5px' }}>🔥</div>
+                      <div style={{ fontSize: '1.2em', fontWeight: '600' }}>
+                        {userProgress.currentStreak} días
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Weekly Progress */}
+                  <div style={{ background: 'rgba(255,255,255,0.2)', borderRadius: '15px', padding: '15px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                      <span style={{ fontWeight: '600' }}>Meta semanal</span>
+                      <span>{userProgress.weeklyXP}/{userProgress.weeklyGoal} XP</span>
+                    </div>
+                    <div style={{ 
+                      background: 'rgba(255,255,255,0.3)', 
+                      borderRadius: '10px', 
+                      height: '12px',
+                      overflow: 'hidden'
+                    }}>
+                      <div style={{
+                        background: '#00ff88',
+                        height: '100%',
+                        width: `${(userProgress.weeklyXP / userProgress.weeklyGoal) * 100}%`,
+                        borderRadius: '10px',
+                        transition: 'width 0.3s ease'
+                      }} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Learning Modules */}
+                <div style={{ marginBottom: '30px' }}>
+                  <h3 style={{ 
+                    color: 'white', 
+                    fontSize: '1.5em', 
+                    marginBottom: '20px',
+                    fontWeight: '600'
+                  }}>
+                    📚 Módulos de Aprendizaje CDMX
+                  </h3>
+                  <p style={{ 
+                    color: 'rgba(255,255,255,0.7)', 
+                    fontSize: '1.1em',
+                    lineHeight: '1.6',
+                    marginBottom: '30px'
+                  }}>
+                    Aprende español específicamente para vivir en Ciudad de México. Cada módulo incluye situaciones reales, 
+                    vocabulario práctico y contexto cultural mexicano.
                   </p>
                 </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: '2em', marginBottom: '5px' }}>🔥</div>
-                  <div style={{ fontSize: '1.2em', fontWeight: '600' }}>
-                    7 días
-                  </div>
-                </div>
-              </div>
-              
-              {/* Weekly Progress */}
-              <div style={{ background: 'rgba(255,255,255,0.2)', borderRadius: '15px', padding: '15px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-                  <span style={{ fontWeight: '600' }}>Meta semanal</span>
-                  <span>89/150 XP</span>
-                </div>
-                <div style={{ 
-                  background: 'rgba(255,255,255,0.3)', 
-                  borderRadius: '10px', 
-                  height: '12px',
-                  overflow: 'hidden'
-                }}>
-                  <div style={{
-                    background: '#00ff88',
-                    height: '100%',
-                    width: '59%',
-                    borderRadius: '10px',
-                    transition: 'width 0.3s ease'
-                  }} />
-                </div>
-              </div>
-            </div>
 
-            {/* Learning Modules Preview */}
-            <div style={{ marginBottom: '30px' }}>
-              <h3 style={{ 
-                color: 'white', 
-                fontSize: '1.5em', 
-                marginBottom: '20px',
-                fontWeight: '600'
-              }}>
-                📚 Módulos de Aprendizaje CDMX
-              </h3>
-              <p style={{ 
-                color: 'rgba(255,255,255,0.7)', 
-                fontSize: '1.1em',
-                lineHeight: '1.6',
-                marginBottom: '30px'
-              }}>
-                Aprende español específicamente para vivir en Ciudad de México. Cada módulo incluye situaciones reales, 
-                vocabulario práctico y contexto cultural mexicano.
-              </p>
-              
-              {/* Coming Soon Message */}
-              <div style={{
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                borderRadius: '20px',
-                padding: '40px',
-                textAlign: 'center',
-                color: 'white'
-              }}>
-                <div style={{ fontSize: '4em', marginBottom: '20px' }}>🚀</div>
-                <h3 style={{ margin: '0 0 15px 0', fontSize: '2em', fontWeight: '700' }}>
-                  ¡Próximamente!
-                </h3>
-                <p style={{ margin: '0', fontSize: '1.2em', opacity: 0.9, lineHeight: '1.6' }}>
-                  Estamos creando el sistema de lecciones más avanzado para prepararte para Ciudad de México. 
-                  Incluirá módulos interactivos sobre transporte, comida, barrios, trabajo y más.
-                </p>
+                {/* Interactive Module Cards */}
                 <div style={{ 
                   display: 'grid', 
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-                  gap: '20px',
-                  marginTop: '30px'
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+                  gap: '25px',
+                  marginBottom: '40px'
                 }}>
-                  <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '15px', padding: '20px' }}>
-                    <div style={{ fontSize: '2em', marginBottom: '10px' }}>🚇</div>
-                    <div style={{ fontWeight: '600' }}>Transporte CDMX</div>
+                  {learningModules.map(module => (
+                    <div 
+                      key={module.id}
+                      style={{
+                        background: module.color,
+                        borderRadius: '20px',
+                        padding: '25px',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        minHeight: '200px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between'
+                      }}
+                      onClick={() => setSelectedModule(module)}
+                      onMouseOver={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-8px)';
+                        e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.2)';
+                      }}
+                      onMouseOut={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = '0 10px 30px rgba(0,0,0,0.1)';
+                      }}
+                    >
+                      {/* Progress indicator */}
+                      <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        height: '4px',
+                        background: 'rgba(255,255,255,0.3)'
+                      }}>
+                        <div style={{
+                          background: '#00ff88',
+                          height: '100%',
+                          width: `${(module.completed / module.lessons) * 100}%`,
+                          transition: 'width 0.3s ease'
+                        }} />
+                      </div>
+
+                      <div>
+                        <div style={{ fontSize: '3em', marginBottom: '15px' }}>{module.icon}</div>
+                        <h3 style={{ 
+                          color: 'white', 
+                          margin: '0 0 10px 0', 
+                          fontSize: '1.4em', 
+                          fontWeight: '700',
+                          textShadow: '0 2px 4px rgba(0,0,0,0.3)'
+                        }}>
+                          {module.title}
+                        </h3>
+                        <p style={{ 
+                          color: 'rgba(255,255,255,0.9)', 
+                          margin: '0 0 15px 0', 
+                          lineHeight: '1.4',
+                          fontSize: '0.95em'
+                        }}>
+                          {module.description}
+                        </p>
+                      </div>
+
+                      <div>
+                        <div style={{ 
+                          display: 'flex', 
+                          justifyContent: 'space-between', 
+                          marginBottom: '10px',
+                          fontSize: '0.9em',
+                          color: 'rgba(255,255,255,0.8)'
+                        }}>
+                          <span>🎯 {module.difficulty}</span>
+                          <span>⏱️ {module.estimatedTime}</span>
+                        </div>
+                        <div style={{
+                          background: 'rgba(255,255,255,0.2)',
+                          borderRadius: '20px',
+                          padding: '8px 15px',
+                          color: 'white',
+                          fontWeight: '600',
+                          textAlign: 'center',
+                          fontSize: '0.9em'
+                        }}>
+                          {module.completed}/{module.lessons} lecciones • {Math.round((module.completed / module.lessons) * 100)}%
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Quick Stats */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                  gap: '20px'
+                }}>
+                  <div style={{
+                    background: 'rgba(255,255,255,0.05)',
+                    borderRadius: '15px',
+                    padding: '20px',
+                    textAlign: 'center',
+                    border: '1px solid rgba(255,255,255,0.1)'
+                  }}>
+                    <div style={{ fontSize: '2em', marginBottom: '10px' }}>📈</div>
+                    <div style={{ color: 'white', fontWeight: '600', fontSize: '1.1em' }}>
+                      Progreso Global
+                    </div>
+                    <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '2em', fontWeight: '700', margin: '10px 0' }}>
+                      32%
+                    </div>
+                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9em' }}>
+                      Listo para CDMX en 8 semanas
+                    </div>
                   </div>
-                  <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '15px', padding: '20px' }}>
-                    <div style={{ fontSize: '2em', marginBottom: '10px' }}>🌮</div>
-                    <div style={{ fontWeight: '600' }}>Comida Mexicana</div>
+                  
+                  <div style={{
+                    background: 'rgba(255,255,255,0.05)',
+                    borderRadius: '15px',
+                    padding: '20px',
+                    textAlign: 'center',
+                    border: '1px solid rgba(255,255,255,0.1)'
+                  }}>
+                    <div style={{ fontSize: '2em', marginBottom: '10px' }}>💪</div>
+                    <div style={{ color: 'white', fontWeight: '600', fontSize: '1.1em' }}>
+                      Nivel de Español
+                    </div>
+                    <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.5em', fontWeight: '700', margin: '10px 0' }}>
+                      Intermedio
+                    </div>
+                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9em' }}>
+                      Avanzando hacia Avanzado
+                    </div>
                   </div>
-                  <div style={{ background: 'rgba(255,255,255,0.1)', borderRadius: '15px', padding: '20px' }}>
-                    <div style={{ fontSize: '2em', marginBottom: '10px' }}>🏢</div>
-                    <div style={{ fontWeight: '600' }}>Barrios CDMX</div>
+
+                  <div style={{
+                    background: 'rgba(255,255,255,0.05)',
+                    borderRadius: '15px',
+                    padding: '20px',
+                    textAlign: 'center',
+                    border: '1px solid rgba(255,255,255,0.1)'
+                  }}>
+                    <div style={{ fontSize: '2em', marginBottom: '10px' }}>🎯</div>
+                    <div style={{ color: 'white', fontWeight: '600', fontSize: '1.1em' }}>
+                      Próximo Objetivo
+                    </div>
+                    <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.2em', fontWeight: '600', margin: '10px 0' }}>
+                      Completar Transporte
+                    </div>
+                    <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9em' }}>
+                      4 lecciones restantes
+                    </div>
                   </div>
                 </div>
+              </>
+            ) : (
+              /* Module Detail View */
+              <div style={{ padding: '20px 0' }}>
+                <button 
+                  onClick={() => setSelectedModule(null)}
+                  style={{
+                    background: 'rgba(255,255,255,0.1)',
+                    border: '1px solid rgba(255,255,255,0.3)',
+                    color: 'white',
+                    padding: '10px 20px',
+                    borderRadius: '10px',
+                    cursor: 'pointer',
+                    marginBottom: '20px',
+                    fontSize: '14px'
+                  }}
+                >
+                  ← Volver a módulos
+                </button>
+
+                <div style={{ 
+                  background: selectedModule.color,
+                  borderRadius: '20px',
+                  padding: '30px',
+                  marginBottom: '30px',
+                  color: 'white'
+                }}>
+                  <div style={{ fontSize: '3em', marginBottom: '15px' }}>{selectedModule.icon}</div>
+                  <h2 style={{ margin: '0 0 10px 0', fontSize: '2em', fontWeight: '700' }}>
+                    {selectedModule.title}
+                  </h2>
+                  <p style={{ margin: '0', fontSize: '1.1em', opacity: 0.9 }}>
+                    {selectedModule.description}
+                  </p>
+                  <div style={{ 
+                    display: 'flex', 
+                    gap: '20px', 
+                    marginTop: '20px',
+                    fontSize: '0.95em'
+                  }}>
+                    <span>📚 {selectedModule.lessons} lecciones</span>
+                    <span>🎯 {selectedModule.difficulty}</span>
+                    <span>⏱️ {selectedModule.estimatedTime}</span>
+                  </div>
+                </div>
+
+                {/* Lesson List */}
+                <div style={{ display: 'grid', gap: '15px' }}>
+                  {transportLessons.map((lesson, index) => (
+                    <div key={lesson.id} style={{
+                      background: lesson.completed ? 'rgba(0,255,136,0.1)' : lesson.current ? 'rgba(255,193,7,0.1)' : 'rgba(255,255,255,0.05)',
+                      border: lesson.current ? '2px solid #ffc107' : '1px solid rgba(255,255,255,0.1)',
+                      borderRadius: '15px',
+                      padding: '20px',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease'
+                    }}
+                    onClick={() => setCurrentLesson(lesson)}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                          <div style={{
+                            width: '40px',
+                            height: '40px',
+                            borderRadius: '50%',
+                            background: lesson.completed ? '#00ff88' : lesson.current ? '#ffc107' : 'rgba(255,255,255,0.2)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: lesson.completed || lesson.current ? '#000' : '#fff',
+                            fontWeight: '700'
+                          }}>
+                            {lesson.completed ? '✓' : lesson.current ? '▶' : lesson.id}
+                          </div>
+                          <div>
+                            <h4 style={{ 
+                              margin: 0, 
+                              color: 'white', 
+                              fontSize: '1.1em',
+                              fontWeight: '600'
+                            }}>
+                              {lesson.title}
+                            </h4>
+                            <p style={{ 
+                              margin: '5px 0 0 0', 
+                              color: 'rgba(255,255,255,0.7)', 
+                              fontSize: '0.9em'
+                            }}>
+                              {lesson.type === 'interactive' && '🎯 Práctica interactiva'}
+                              {lesson.type === 'conversation' && '💬 Conversación'}
+                              {lesson.type === 'vocabulary' && '📚 Vocabulario'}
+                              {lesson.type === 'pronunciation' && '🔊 Pronunciación'}
+                            </p>
+                          </div>
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                          <div style={{ 
+                            color: '#ffc107', 
+                            fontWeight: '600',
+                            fontSize: '0.9em'
+                          }}>
+                            +{lesson.xpReward} XP
+                          </div>
+                          {lesson.current && (
+                            <button style={{
+                              background: '#ffc107',
+                              color: '#000',
+                              border: 'none',
+                              padding: '8px 16px',
+                              borderRadius: '20px',
+                              fontSize: '0.8em',
+                              fontWeight: '600',
+                              marginTop: '5px',
+                              cursor: 'pointer'
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              alert('¡Próximamente! Esta lección estará disponible pronto.');
+                            }}
+                            >
+                              Continuar
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
