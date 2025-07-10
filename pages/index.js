@@ -37,113 +37,279 @@ export default function JuanPablo() {
   const pedroListenerRef = useRef(null);
   const videoRef = useRef(null);
 
-  // CDMX Learning Questions
+  // Game state additions
+  const [showQuestionTranslation, setShowQuestionTranslation] = useState(false);
+  const [questionTimer, setQuestionTimer] = useState(30);
+  const [timerRunning, setTimerRunning] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [combo, setCombo] = useState(0);
+
+  // CDMX Learning Questions with English translations
   const multipleChoiceQuestions = [
     {
       question: "¿Cómo se dice 'subway' en México?",
+      questionEN: "How do you say 'subway' in Mexico?",
       options: ["Metro", "Subte", "Tren", "Túnel"],
+      optionsEN: ["Metro", "Subway (Argentina)", "Train", "Tunnel"],
       correct: 0,
-      explanation: "En México City usamos 'Metro' - ¡igual que en París!"
+      explanation: "En México City usamos 'Metro' - ¡igual que en París!",
+      explanationEN: "In Mexico City we use 'Metro' - just like in Paris!"
     },
     {
       question: "¿Cuál es la forma correcta de pedir tacos?",
+      questionEN: "What's the correct way to order tacos?",
       options: ["Quiero tacos", "Dame tacos", "Quisiera tacos", "Necesito tacos"],
+      optionsEN: ["I want tacos", "Give me tacos", "I would like tacos", "I need tacos"],
       correct: 2,
-      explanation: "'Quisiera' es más educado en México - ¡perfecto para tu primera vez!"
+      explanation: "'Quisiera' es más educado en México - ¡perfecto para tu primera vez!",
+      explanationEN: "'Quisiera' is more polite in Mexico - perfect for your first time!"
     },
     {
       question: "¿Cómo saludas en CDMX por la mañana?",
+      questionEN: "How do you greet people in CDMX in the morning?",
       options: ["¡Hola!", "¡Buenos días!", "¡Buenas!", "¡Órale!"],
+      optionsEN: ["Hello!", "Good morning!", "Good (informal)!", "Wow! (expression)"],
       correct: 1,
-      explanation: "'¡Buenos días!' es perfecto hasta las 12pm en México"
+      explanation: "'¡Buenos días!' es perfecto hasta las 12pm en México",
+      explanationEN: "'¡Buenos días!' is perfect until 12pm in Mexico"
     },
     {
       question: "¿Qué significa 'chilango'?",
+      questionEN: "What does 'chilango' mean?",
       options: ["Comida picante", "Persona de CDMX", "Metro rápido", "Dinero mexicano"],
+      optionsEN: ["Spicy food", "Person from CDMX", "Fast metro", "Mexican money"],
       correct: 1,
-      explanation: "¡Exacto! Los chilangos son las personas de Ciudad de México"
+      explanation: "¡Exacto! Los chilangos son las personas de Ciudad de México",
+      explanationEN: "Exactly! Chilangos are people from Mexico City"
     },
     {
       question: "¿Cómo pides direcciones en español?",
+      questionEN: "How do you ask for directions in Spanish?",
       options: ["¿Dónde queda...?", "¿Cuánto cuesta...?", "¿Qué hora es?", "¿Cómo te llamas?"],
+      optionsEN: ["Where is...?", "How much does... cost?", "What time is it?", "What's your name?"],
       correct: 0,
-      explanation: "'¿Dónde queda...?' es perfecto para preguntar ubicaciones"
+      explanation: "'¿Dónde queda...?' es perfecto para preguntar ubicaciones",
+      explanationEN: "'¿Dónde queda...?' is perfect for asking about locations"
+    },
+    {
+      question: "¿Qué dices cuando entras a una tienda en México?",
+      questionEN: "What do you say when entering a store in Mexico?",
+      options: ["¡Hola!", "¡Buenos días!", "Disculpe", "Gracias"],
+      optionsEN: ["Hello!", "Good morning/afternoon!", "Excuse me", "Thank you"],
+      correct: 1,
+      explanation: "¡Buenos días/tardes! es la forma educada de saludar al entrar",
+      explanationEN: "¡Buenos días/tardes! is the polite way to greet when entering"
+    },
+    {
+      question: "¿Cómo preguntas el precio de algo?",
+      questionEN: "How do you ask the price of something?",
+      options: ["¿Cuánto vale?", "¿Qué hora es?", "¿Dónde está?", "¿Cómo se llama?"],
+      optionsEN: ["How much is it worth?", "What time is it?", "Where is it?", "What's it called?"],
+      correct: 0,
+      explanation: "'¿Cuánto vale?' o '¿Cuánto cuesta?' son perfectos",
+      explanationEN: "'¿Cuánto vale?' or '¿Cuánto cuesta?' are perfect"
     }
   ];
 
   const fillBlankQuestions = [
     {
       question: "Para comprar en el Metro: 'Quisiera una _____ del Metro, por favor'",
+      questionEN: "To buy Metro tickets: 'I would like a Metro _____, please'",
       answer: "tarjeta",
+      answerEN: "card",
       hint: "Es lo que necesitas para viajar en transporte público",
-      explanation: "¡Perfecto! Una 'tarjeta' del Metro te permite viajar por toda CDMX"
+      hintEN: "It's what you need to travel on public transport",
+      explanation: "¡Perfecto! Una 'tarjeta' del Metro te permite viajar por toda CDMX",
+      explanationEN: "Perfect! A Metro 'tarjeta' lets you travel all over CDMX"
     },
     {
       question: "En un restaurante: '¿Me puede traer la _____, por favor?'",
+      questionEN: "In a restaurant: 'Can you bring me the _____, please?'",
       answer: "cuenta",
+      answerEN: "check/bill",
       hint: "Lo que pides cuando terminas de comer",
-      explanation: "¡Exacto! 'La cuenta' es como pides el check en México"
+      hintEN: "What you ask for when you finish eating",
+      explanation: "¡Exacto! 'La cuenta' es como pides el check en México",
+      explanationEN: "Exactly! 'La cuenta' is how you ask for the check in Mexico"
     },
     {
       question: "Saludando a un colega: '¡Hola! ¿Cómo _____?'",
+      questionEN: "Greeting a colleague: 'Hello! How _____ you?'",
       answer: "estás",
+      answerEN: "are",
       hint: "Pregunta común para saludar",
-      explanation: "¡Bien! '¿Cómo estás?' es el saludo perfecto para colegas"
+      hintEN: "Common question when greeting",
+      explanation: "¡Bien! '¿Cómo estás?' es el saludo perfecto para colegas",
+      explanationEN: "Good! '¿Cómo estás?' is the perfect greeting for colleagues"
     },
     {
       question: "En el trabajo: 'Tengo una _____ a las 3pm'",
+      questionEN: "At work: 'I have a _____ at 3pm'",
       answer: "junta",
+      answerEN: "meeting",
       hint: "En México no decimos 'reunión'",
-      explanation: "¡Perfecto! En México decimos 'junta' en lugar de 'reunión'"
+      hintEN: "In Mexico we don't say 'reunión'",
+      explanation: "¡Perfecto! En México decimos 'junta' en lugar de 'reunión'",
+      explanationEN: "Perfect! In Mexico we say 'junta' instead of 'reunión'"
     },
     {
       question: "Comprando comida: '¿Cuánto _____ los tacos?'",
+      questionEN: "Buying food: 'How much _____ the tacos?'",
       answer: "cuestan",
+      answerEN: "cost",
       hint: "Preguntando el precio",
-      explanation: "¡Excelente! '¿Cuánto cuestan?' es como preguntas precios"
+      hintEN: "Asking the price",
+      explanation: "¡Excelente! '¿Cuánto cuestan?' es como preguntas precios",
+      explanationEN: "Excellent! '¿Cuánto cuestan?' is how you ask prices"
+    },
+    {
+      question: "Pidiendo ayuda: 'Disculpe, ¿me puede _____?'",
+      questionEN: "Asking for help: 'Excuse me, can you _____ me?'",
+      answer: "ayudar",
+      answerEN: "help",
+      hint: "Cuando necesitas asistencia",
+      hintEN: "When you need assistance",
+      explanation: "¡Perfecto! 'Ayudar' significa to help en español",
+      explanationEN: "Perfect! 'Ayudar' means to help in Spanish"
     }
   ];
 
-  // Game functions
+  // Game functions with improvements
   const startGame = (mode) => {
     setGameMode(mode);
     setCurrentQuestion(0);
     setScore(0);
     setStreak(0);
+    setCombo(0);
     setCompletedQuestions([]);
     setShowResult(false);
     setUserAnswer('');
+    setShowQuestionTranslation(false);
+    setQuestionTimer(30);
+    setTimerRunning(true);
+    
+    // Start timer
+    const timer = setInterval(() => {
+      setQuestionTimer((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          setTimerRunning(false);
+          // Auto-submit as wrong when timer expires
+          if (!showResult) {
+            setIsCorrect(false);
+            setShowResult(true);
+            setStreak(0);
+            setCombo(0);
+            playSound('wrong');
+          }
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const playSound = (type) => {
+    // Simple sound effects using Web Audio API
+    if (typeof window !== 'undefined' && window.AudioContext) {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      if (type === 'correct') {
+        oscillator.frequency.setValueAtTime(523, audioContext.currentTime); // C5
+        oscillator.frequency.setValueAtTime(659, audioContext.currentTime + 0.1); // E5
+        oscillator.frequency.setValueAtTime(784, audioContext.currentTime + 0.2); // G5
+      } else if (type === 'wrong') {
+        oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+        oscillator.frequency.setValueAtTime(150, audioContext.currentTime + 0.2);
+      } else if (type === 'complete') {
+        // Victory fanfare
+        oscillator.frequency.setValueAtTime(523, audioContext.currentTime);
+        oscillator.frequency.setValueAtTime(659, audioContext.currentTime + 0.1);
+        oscillator.frequency.setValueAtTime(784, audioContext.currentTime + 0.2);
+        oscillator.frequency.setValueAtTime(1047, audioContext.currentTime + 0.3);
+      }
+      
+      gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+      
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.5);
+    }
   };
 
   const handleMultipleChoice = (selectedIndex) => {
+    if (showResult) return; // Prevent multiple clicks
+    
+    setTimerRunning(false);
     const question = multipleChoiceQuestions[currentQuestion];
     const correct = selectedIndex === question.correct;
+    const timeBonus = questionTimer > 20 ? 5 : questionTimer > 10 ? 3 : 1;
     
     setIsCorrect(correct);
     setShowResult(true);
     
     if (correct) {
-      setScore(score + 10 + (streak * 2));
+      const comboBonus = combo >= 3 ? 10 : combo >= 2 ? 5 : 0;
+      const basePoints = 10;
+      const streakBonus = streak * 2;
+      const totalPoints = basePoints + streakBonus + timeBonus + comboBonus;
+      
+      setScore(score + totalPoints);
       setStreak(streak + 1);
+      setCombo(combo + 1);
+      
+      // Trigger confetti for great answers
+      if (combo >= 2 || streak >= 3) {
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 3000);
+      }
+      
+      playSound('correct');
     } else {
       setStreak(0);
+      setCombo(0);
+      playSound('wrong');
     }
     
     setCompletedQuestions([...completedQuestions, currentQuestion]);
   };
 
   const handleFillBlank = () => {
+    if (showResult || !userAnswer.trim()) return;
+    
+    setTimerRunning(false);
     const question = fillBlankQuestions[currentQuestion];
     const correct = userAnswer.toLowerCase().trim() === question.answer.toLowerCase();
+    const timeBonus = questionTimer > 20 ? 8 : questionTimer > 10 ? 5 : 2;
     
     setIsCorrect(correct);
     setShowResult(true);
     
     if (correct) {
-      setScore(score + 15 + (streak * 3));
+      const comboBonus = combo >= 3 ? 15 : combo >= 2 ? 8 : 0;
+      const basePoints = 15;
+      const streakBonus = streak * 3;
+      const totalPoints = basePoints + streakBonus + timeBonus + comboBonus;
+      
+      setScore(score + totalPoints);
       setStreak(streak + 1);
+      setCombo(combo + 1);
+      
+      if (combo >= 2 || streak >= 3) {
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 3000);
+      }
+      
+      playSound('correct');
     } else {
       setStreak(0);
+      setCombo(0);
+      playSound('wrong');
     }
     
     setCompletedQuestions([...completedQuestions, currentQuestion]);
@@ -152,6 +318,9 @@ export default function JuanPablo() {
   const nextQuestion = () => {
     setShowResult(false);
     setUserAnswer('');
+    setShowQuestionTranslation(false);
+    setQuestionTimer(30);
+    setTimerRunning(true);
     
     if (gameMode === 'multiple' && currentQuestion < multipleChoiceQuestions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
@@ -160,6 +329,10 @@ export default function JuanPablo() {
     } else {
       // Game complete
       setGameMode('complete');
+      setTimerRunning(false);
+      playSound('complete');
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 5000);
     }
   };
 
@@ -1054,13 +1227,42 @@ export default function JuanPablo() {
     );
   }
 
-  // Game Mode - NEW SIMPLE GAME
+  // Game Mode - ENHANCED WITH NEW FEATURES
   if (currentMode === 'game') {
     return (
-      <div style={{ backgroundColor: 'black', minHeight: '100vh', color: 'white', padding: '20px' }}>
+      <div style={{ backgroundColor: 'black', minHeight: '100vh', color: 'white', padding: '20px', position: 'relative' }}>
         <Head>
           <title>Juegos CDMX - Juan Pablo</title>
         </Head>
+        
+        {/* Confetti Animation */}
+        {showConfetti && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            pointerEvents: 'none',
+            zIndex: 1000
+          }}>
+            {[...Array(50)].map((_, i) => (
+              <div
+                key={i}
+                style={{
+                  position: 'absolute',
+                  top: '-10px',
+                  left: Math.random() * 100 + '%',
+                  width: '10px',
+                  height: '10px',
+                  backgroundColor: ['#ffd700', '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4'][Math.floor(Math.random() * 5)],
+                  animation: `confetti-fall 3s linear infinite`,
+                  animationDelay: Math.random() * 3 + 's'
+                }}
+              />
+            ))}
+          </div>
+        )}
         
         <button
           onClick={goBack}
@@ -1085,11 +1287,11 @@ export default function JuanPablo() {
             <p style={{ color: '#ccc', fontSize: '1.1rem' }}>Práctica interactiva para tu mudanza a Ciudad de México</p>
           </div>
 
-          {/* Score Display */}
+          {/* Enhanced Score Display */}
           <div style={{ 
             display: 'flex', 
             justifyContent: 'center', 
-            gap: '20px', 
+            gap: '15px', 
             marginBottom: '30px',
             flexWrap: 'wrap'
           }}>
@@ -1098,7 +1300,9 @@ export default function JuanPablo() {
               padding: '10px 20px', 
               borderRadius: '25px',
               color: 'black',
-              fontWeight: 'bold'
+              fontWeight: 'bold',
+              transform: showConfetti ? 'scale(1.1)' : 'scale(1)',
+              transition: 'transform 0.3s ease'
             }}>
               💎 Puntos: {score}
             </div>
@@ -1111,6 +1315,30 @@ export default function JuanPablo() {
             }}>
               🔥 Racha: {streak}
             </div>
+            {combo > 0 && (
+              <div style={{ 
+                background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)', 
+                padding: '10px 20px', 
+                borderRadius: '25px',
+                color: 'white',
+                fontWeight: 'bold',
+                animation: combo >= 3 ? 'pulse 1s infinite' : 'none'
+              }}>
+                ⚡ Combo: {combo}x
+              </div>
+            )}
+            {timerRunning && (
+              <div style={{ 
+                background: questionTimer <= 10 ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' : 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)', 
+                padding: '10px 20px', 
+                borderRadius: '25px',
+                color: 'white',
+                fontWeight: 'bold',
+                animation: questionTimer <= 10 ? 'shake 0.5s infinite' : 'none'
+              }}>
+                ⏰ {questionTimer}s
+              </div>
+            )}
           </div>
 
           {!gameMode && (
@@ -1133,7 +1361,7 @@ export default function JuanPablo() {
                   <h3 style={{ fontSize: '1.5rem', marginBottom: '10px' }}>🤔 Opción Múltiple</h3>
                   <p style={{ color: 'rgba(255,255,255,0.9)' }}>Cultura y frases de CDMX</p>
                   <div style={{ marginTop: '15px', fontSize: '0.9rem', opacity: 0.8 }}>
-                    +10 puntos por respuesta
+                    +10 puntos base • Bonus por velocidad
                   </div>
                 </div>
 
@@ -1153,7 +1381,7 @@ export default function JuanPablo() {
                   <h3 style={{ fontSize: '1.5rem', marginBottom: '10px' }}>✏️ Llenar Espacios</h3>
                   <p style={{ color: 'rgba(255,255,255,0.9)' }}>Situaciones reales en México</p>
                   <div style={{ marginTop: '15px', fontSize: '0.9rem', opacity: 0.8 }}>
-                    +15 puntos por respuesta
+                    +15 puntos base • Bonus por combos
                   </div>
                 </div>
               </div>
@@ -1165,7 +1393,8 @@ export default function JuanPablo() {
               background: 'rgba(255,255,255,0.05)', 
               padding: '30px', 
               borderRadius: '15px',
-              border: '1px solid rgba(255,255,255,0.1)'
+              border: '1px solid rgba(255,255,255,0.1)',
+              animation: showResult && !isCorrect ? 'shake 0.5s ease-in-out' : 'none'
             }}>
               <div style={{ marginBottom: '20px', textAlign: 'center' }}>
                 <div style={{ color: '#666', marginBottom: '10px' }}>
@@ -1186,9 +1415,41 @@ export default function JuanPablo() {
                 </div>
               </div>
 
-              <h3 style={{ fontSize: '1.5rem', marginBottom: '30px', textAlign: 'center' }}>
-                {multipleChoiceQuestions[currentQuestion].question}
-              </h3>
+              <div style={{ marginBottom: '20px', textAlign: 'center' }}>
+                <h3 style={{ fontSize: '1.5rem', marginBottom: '15px' }}>
+                  {multipleChoiceQuestions[currentQuestion].question}
+                </h3>
+                
+                <button
+                  onClick={() => setShowQuestionTranslation(!showQuestionTranslation)}
+                  style={{
+                    background: showQuestionTranslation ? '#3b82f6' : 'rgba(255,255,255,0.1)',
+                    color: 'white',
+                    border: '1px solid rgba(255,255,255,0.3)',
+                    padding: '6px 12px',
+                    borderRadius: '15px',
+                    cursor: 'pointer',
+                    fontSize: '0.8rem',
+                    marginBottom: '15px'
+                  }}
+                >
+                  {showQuestionTranslation ? '🇪🇸 Español' : '🇺🇸 English'}
+                </button>
+
+                {showQuestionTranslation && (
+                  <div style={{
+                    background: 'rgba(59, 130, 246, 0.1)',
+                    border: '1px solid rgba(59, 130, 246, 0.3)',
+                    borderRadius: '10px',
+                    padding: '12px',
+                    color: '#93c5fd',
+                    fontStyle: 'italic',
+                    marginBottom: '20px'
+                  }}>
+                    🇺🇸 {multipleChoiceQuestions[currentQuestion].questionEN}
+                  </div>
+                )}
+              </div>
 
               {!showResult ? (
                 <div style={{ display: 'grid', gap: '15px' }}>
@@ -1196,34 +1457,46 @@ export default function JuanPablo() {
                     <button
                       key={index}
                       onClick={() => handleMultipleChoice(index)}
+                      disabled={!timerRunning && questionTimer === 0}
                       style={{
                         background: 'rgba(255,255,255,0.1)',
                         border: '2px solid rgba(255,255,255,0.2)',
                         color: 'white',
                         padding: '15px 20px',
                         borderRadius: '10px',
-                        cursor: 'pointer',
+                        cursor: timerRunning || questionTimer > 0 ? 'pointer' : 'not-allowed',
                         fontSize: '1.1rem',
-                        transition: 'all 0.3s ease'
+                        transition: 'all 0.3s ease',
+                        opacity: (!timerRunning && questionTimer === 0) ? 0.5 : 1
                       }}
                       onMouseEnter={(e) => {
-                        e.target.style.background = 'rgba(255,255,255,0.2)';
-                        e.target.style.borderColor = '#3b82f6';
+                        if (timerRunning || questionTimer > 0) {
+                          e.target.style.background = 'rgba(255,255,255,0.2)';
+                          e.target.style.borderColor = '#3b82f6';
+                          e.target.style.transform = 'translateY(-2px)';
+                        }
                       }}
                       onMouseLeave={(e) => {
                         e.target.style.background = 'rgba(255,255,255,0.1)';
                         e.target.style.borderColor = 'rgba(255,255,255,0.2)';
+                        e.target.style.transform = 'translateY(0)';
                       }}
                     >
-                      {option}
+                      <div>{option}</div>
+                      {showQuestionTranslation && (
+                        <div style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.7)', marginTop: '5px' }}>
+                          {multipleChoiceQuestions[currentQuestion].optionsEN[index]}
+                        </div>
+                      )}
                     </button>
                   ))}
                 </div>
               ) : (
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ 
-                    fontSize: '3rem', 
-                    marginBottom: '20px'
+                    fontSize: '4rem', 
+                    marginBottom: '20px',
+                    animation: isCorrect ? 'bounce 0.6s ease-in-out' : 'shake 0.6s ease-in-out'
                   }}>
                     {isCorrect ? '🎉' : '😅'}
                   </div>
@@ -1234,8 +1507,11 @@ export default function JuanPablo() {
                   }}>
                     {isCorrect ? '¡Correcto!' : '¡Casi!'}
                   </h4>
-                  <p style={{ color: '#ccc', marginBottom: '20px', fontSize: '1.1rem' }}>
+                  <p style={{ color: '#ccc', marginBottom: '10px', fontSize: '1.1rem' }}>
                     {multipleChoiceQuestions[currentQuestion].explanation}
+                  </p>
+                  <p style={{ color: '#93c5fd', marginBottom: '20px', fontSize: '1rem', fontStyle: 'italic' }}>
+                    🇺🇸 {multipleChoiceQuestions[currentQuestion].explanationEN}
                   </p>
                   {isCorrect && (
                     <div style={{ 
@@ -1247,7 +1523,8 @@ export default function JuanPablo() {
                       marginBottom: '20px',
                       fontWeight: 'bold'
                     }}>
-                      +{10 + (streak * 2)} puntos
+                      +{10 + (streak * 2) + (questionTimer > 20 ? 5 : questionTimer > 10 ? 3 : 1) + (combo >= 3 ? 10 : combo >= 2 ? 5 : 0)} puntos
+                      {combo >= 2 && <span> 🔥 ¡COMBO!</span>}
                     </div>
                   )}
                   <button
@@ -1275,7 +1552,8 @@ export default function JuanPablo() {
               background: 'rgba(255,255,255,0.05)', 
               padding: '30px', 
               borderRadius: '15px',
-              border: '1px solid rgba(255,255,255,0.1)'
+              border: '1px solid rgba(255,255,255,0.1)',
+              animation: showResult && !isCorrect ? 'shake 0.5s ease-in-out' : 'none'
             }}>
               <div style={{ marginBottom: '20px', textAlign: 'center' }}>
                 <div style={{ color: '#666', marginBottom: '10px' }}>
@@ -1296,12 +1574,51 @@ export default function JuanPablo() {
                 </div>
               </div>
 
-              <h3 style={{ fontSize: '1.5rem', marginBottom: '20px', textAlign: 'center' }}>
-                {fillBlankQuestions[currentQuestion].question}
-              </h3>
+              <div style={{ marginBottom: '20px', textAlign: 'center' }}>
+                <h3 style={{ fontSize: '1.5rem', marginBottom: '15px' }}>
+                  {fillBlankQuestions[currentQuestion].question}
+                </h3>
 
-              <div style={{ textAlign: 'center', marginBottom: '20px', color: '#4ade80' }}>
-                💡 Pista: {fillBlankQuestions[currentQuestion].hint}
+                <button
+                  onClick={() => setShowQuestionTranslation(!showQuestionTranslation)}
+                  style={{
+                    background: showQuestionTranslation ? '#10b981' : 'rgba(255,255,255,0.1)',
+                    color: 'white',
+                    border: '1px solid rgba(255,255,255,0.3)',
+                    padding: '6px 12px',
+                    borderRadius: '15px',
+                    cursor: 'pointer',
+                    fontSize: '0.8rem',
+                    marginBottom: '15px'
+                  }}
+                >
+                  {showQuestionTranslation ? '🇪🇸 Español' : '🇺🇸 English'}
+                </button>
+
+                {showQuestionTranslation && (
+                  <div style={{
+                    background: 'rgba(16, 185, 129, 0.1)',
+                    border: '1px solid rgba(16, 185, 129, 0.3)',
+                    borderRadius: '10px',
+                    padding: '12px',
+                    color: '#6ee7b7',
+                    fontStyle: 'italic',
+                    marginBottom: '20px'
+                  }}>
+                    🇺🇸 {fillBlankQuestions[currentQuestion].questionEN}
+                  </div>
+                )}
+              </div>
+
+              <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                <div style={{ color: '#4ade80', marginBottom: '5px' }}>
+                  💡 {fillBlankQuestions[currentQuestion].hint}
+                </div>
+                {showQuestionTranslation && (
+                  <div style={{ color: '#6ee7b7', fontSize: '0.9rem', fontStyle: 'italic' }}>
+                    🇺🇸 {fillBlankQuestions[currentQuestion].hintEN}
+                  </div>
+                )}
               </div>
 
               {!showResult ? (
@@ -1311,6 +1628,7 @@ export default function JuanPablo() {
                     value={userAnswer}
                     onChange={(e) => setUserAnswer(e.target.value)}
                     placeholder="Escribe tu respuesta..."
+                    disabled={!timerRunning && questionTimer === 0}
                     style={{
                       padding: '15px 20px',
                       fontSize: '1.2rem',
@@ -1321,21 +1639,22 @@ export default function JuanPablo() {
                       textAlign: 'center',
                       marginBottom: '20px',
                       width: '100%',
-                      maxWidth: '300px'
+                      maxWidth: '300px',
+                      opacity: (!timerRunning && questionTimer === 0) ? 0.5 : 1
                     }}
-                    onKeyPress={(e) => e.key === 'Enter' && userAnswer.trim() && handleFillBlank()}
+                    onKeyPress={(e) => e.key === 'Enter' && userAnswer.trim() && (timerRunning || questionTimer > 0) && handleFillBlank()}
                   />
                   <br />
                   <button
                     onClick={handleFillBlank}
-                    disabled={!userAnswer.trim()}
+                    disabled={!userAnswer.trim() || (!timerRunning && questionTimer === 0)}
                     style={{
-                      background: userAnswer.trim() ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : '#666',
+                      background: userAnswer.trim() && (timerRunning || questionTimer > 0) ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : '#666',
                       color: 'white',
                       border: 'none',
                       padding: '12px 30px',
                       borderRadius: '25px',
-                      cursor: userAnswer.trim() ? 'pointer' : 'not-allowed',
+                      cursor: userAnswer.trim() && (timerRunning || questionTimer > 0) ? 'pointer' : 'not-allowed',
                       fontSize: '1.1rem',
                       fontWeight: 'bold'
                     }}
@@ -1346,8 +1665,9 @@ export default function JuanPablo() {
               ) : (
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ 
-                    fontSize: '3rem', 
-                    marginBottom: '20px'
+                    fontSize: '4rem', 
+                    marginBottom: '20px',
+                    animation: isCorrect ? 'bounce 0.6s ease-in-out' : 'shake 0.6s ease-in-out'
                   }}>
                     {isCorrect ? '🎉' : '😅'}
                   </div>
@@ -1358,8 +1678,16 @@ export default function JuanPablo() {
                   }}>
                     {isCorrect ? '¡Perfecto!' : `La respuesta era: "${fillBlankQuestions[currentQuestion].answer}"`}
                   </h4>
-                  <p style={{ color: '#ccc', marginBottom: '20px', fontSize: '1.1rem' }}>
+                  {!isCorrect && (
+                    <div style={{ color: '#93c5fd', marginBottom: '10px', fontSize: '1rem' }}>
+                      🇺🇸 Correct answer: "{fillBlankQuestions[currentQuestion].answerEN}"
+                    </div>
+                  )}
+                  <p style={{ color: '#ccc', marginBottom: '10px', fontSize: '1.1rem' }}>
                     {fillBlankQuestions[currentQuestion].explanation}
+                  </p>
+                  <p style={{ color: '#6ee7b7', marginBottom: '20px', fontSize: '1rem', fontStyle: 'italic' }}>
+                    🇺🇸 {fillBlankQuestions[currentQuestion].explanationEN}
                   </p>
                   {isCorrect && (
                     <div style={{ 
@@ -1371,7 +1699,8 @@ export default function JuanPablo() {
                       marginBottom: '20px',
                       fontWeight: 'bold'
                     }}>
-                      +{15 + (streak * 3)} puntos
+                      +{15 + (streak * 3) + (questionTimer > 20 ? 8 : questionTimer > 10 ? 5 : 2) + (combo >= 3 ? 15 : combo >= 2 ? 8 : 0)} puntos
+                      {combo >= 2 && <span> 🔥 ¡COMBO!</span>}
                     </div>
                   )}
                   <button
@@ -1413,7 +1742,14 @@ export default function JuanPablo() {
                 <div style={{ color: '#ffd700', marginBottom: '10px' }}>🎯 Estadísticas:</div>
                 <div style={{ color: '#ccc' }}>
                   Racha máxima: {streak} respuestas consecutivas<br />
+                  Combo máximo: {combo}x multiplicador<br />
                   Preguntas completadas: {completedQuestions.length}
+                </div>
+                <div style={{ marginTop: '15px', color: '#4ade80' }}>
+                  {score >= 200 ? '🌟 ¡Eres un maestro del español mexicano!' : 
+                   score >= 150 ? '🎯 ¡Excelente preparación para CDMX!' :
+                   score >= 100 ? '👍 ¡Buen progreso, sigue practicando!' :
+                   '💪 ¡Cada intento te acerca más a México!'}
                 </div>
               </div>
               <button
@@ -1434,6 +1770,27 @@ export default function JuanPablo() {
             </div>
           )}
         </div>
+
+        <style jsx>{`
+          @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+          }
+          @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+          }
+          @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+          }
+          @keyframes confetti-fall {
+            0% { transform: translateY(-100vh) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(360deg); }
+          }
+        `}</style>
       </div>
     );
   }
