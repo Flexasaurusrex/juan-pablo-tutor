@@ -193,6 +193,8 @@ export default function JuanPablo() {
     setMessages(prev => [...prev, userMessage]);
     setIsLoading(true);
 
+    console.log('🚀 Sending message to chat API:', inputMessage);
+
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
@@ -200,14 +202,25 @@ export default function JuanPablo() {
         body: JSON.stringify({ message: inputMessage })
       });
 
+      console.log('📡 API Response status:', response.status);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
+      console.log('📝 API Response data:', data);
       
       if (data.response) {
         setMessages(prev => [...prev, { text: data.response, sender: 'juan' }]);
+        console.log('✅ Added Juan Pablo response to messages');
+      } else {
+        console.error('❌ No response field in API data:', data);
+        setMessages(prev => [...prev, { text: "No recibí una respuesta válida. ¿Puedes intentar de nuevo?", sender: 'juan' }]);
       }
     } catch (error) {
-      console.error('Error:', error);
-      setMessages(prev => [...prev, { text: "Lo siento, hubo un error. ¿Puedes intentar de nuevo?", sender: 'juan' }]);
+      console.error('❌ Chat API Error:', error);
+      setMessages(prev => [...prev, { text: "Lo siento, hubo un error conectando con Juan Pablo. ¿Puedes intentar de nuevo?", sender: 'juan' }]);
     }
 
     setInputMessage('');
