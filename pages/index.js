@@ -35,27 +35,43 @@
     }
     
     setTranslatingMessageId(null);
-  };  // Translator function
-  const translateText = async (text) => {
-    if (!text.trim()) return;
+  };  // Translate Juan Pablo's message to English
+  const translateMessage = async (messageText, messageIndex) => {
+    if (messageTranslations[messageIndex]) {
+      // If already translated, hide the translation
+      setMessageTranslations(prev => ({
+        ...prev,
+        [messageIndex]: null
+      }));
+      return;
+    }
+
+    setTranslatingMessageId(messageIndex);
     
-    setIsTranslating(true);
     try {
-      const response = await fetch('/api/translate', {
+      const response = await fetch('/api/translate-to-english', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: text.trim() })
+        body: JSON.stringify({ spanishText: messageText })
       });
       
       const data = await response.json();
+      
       if (data.translation) {
-        setTranslatorOutput(data.translation);
+        setMessageTranslations(prev => ({
+          ...prev,
+          [messageIndex]: data.translation
+        }));
       }
     } catch (error) {
       console.error('Translation error:', error);
-      setTranslatorOutput('Error de traducción');
+      setMessageTranslations(prev => ({
+        ...prev,
+        [messageIndex]: 'Translation failed - try again'
+      }));
     }
-    setIsTranslating(false);
+    
+    setTranslatingMessageId(null);
   };import { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
 
