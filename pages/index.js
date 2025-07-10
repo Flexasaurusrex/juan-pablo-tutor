@@ -517,7 +517,7 @@ export default function JuanPablo() {
           <div style={{
             width: '100%',
             maxWidth: '800px',
-            height: window.innerWidth <= 768 ? '60vh' : '70vh',
+            height: typeof window !== 'undefined' && window.innerWidth <= 768 ? '60vh' : '70vh',
             backgroundColor: 'black',
             borderRadius: '8px',
             border: '3px solid white',
@@ -531,11 +531,11 @@ export default function JuanPablo() {
               id="heygen-video"
               allow="camera; microphone"
               style={{
-                width: window.innerWidth <= 768 ? '100%' : 'auto',
-                height: window.innerWidth <= 768 ? 'auto' : '100%',
+                width: typeof window !== 'undefined' && window.innerWidth <= 768 ? '100%' : 'auto',
+                height: typeof window !== 'undefined' && window.innerWidth <= 768 ? 'auto' : '100%',
                 maxWidth: '100%',
                 border: 'none',
-                objectFit: window.innerWidth <= 768 ? 'contain' : 'cover',
+                objectFit: typeof window !== 'undefined' && window.innerWidth <= 768 ? 'contain' : 'cover',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
@@ -548,7 +548,7 @@ export default function JuanPablo() {
             width: '100%',
             maxWidth: '800px',
             display: 'flex',
-            flexDirection: window.innerWidth <= 768 ? 'column' : 'row',
+            flexDirection: typeof window !== 'undefined' && window.innerWidth <= 768 ? 'column' : 'row',
             gap: '10px',
             alignItems: 'stretch'
           }}>
@@ -567,7 +567,10 @@ export default function JuanPablo() {
               onKeyPress={async (e) => {
                 if (e.key === 'Enter' && e.target.value) {
                   const translated = await translateText(e.target.value);
-                  document.getElementById('spanish-output').textContent = translated;
+                  const outputElement = document.getElementById('spanish-output');
+                  if (outputElement) {
+                    outputElement.textContent = translated;
+                  }
                   e.target.value = '';
                 }
               }}
